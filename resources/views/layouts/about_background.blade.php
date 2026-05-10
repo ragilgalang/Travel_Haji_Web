@@ -1,0 +1,72 @@
+<!-- ANIMATED ABOUT COLLAGE (KUMPULAN GAMBAR TENTANG KAMI) -->
+
+<div class="img-collage reveal-left">
+  <div class="collage-img ci-1">
+    @php 
+      $mediaUrl = $settings['about_video'] ?? ($settings['about_image'] ?? 'https://images.unsplash.com/photo-1574120240282-60c4da46edaf');
+      $isVideo = preg_match('/\.(mp4|webm|ogg|mov)/i', $mediaUrl) || str_contains($mediaUrl, 'uploads/videos');
+    @endphp
+
+    @if($isVideo)
+      <video src="{{ $mediaUrl }}" autoplay muted loop playsinline class="about-video-fit" style="width: 100%; height: 100%; object-fit: cover; border-radius: 1.5rem;"></video>
+    @else
+      <img src="{{ optUrl($mediaUrl, 800) }}" alt="Tentang Kami" id="sync-about-img" 
+           @if(request()->has('preview')) onclick="document.getElementById('about-img-picker').click()" class="pointer" @else onclick="openAboutLightbox(this.src)" @endif 
+           loading="lazy" width="800" height="600" style="width: 100%; height: 100%; object-fit: cover; border-radius: 1.5rem;">
+      
+      @if(request()->has('preview'))
+        <input type="file" id="about-img-picker" style="display:none" accept="image/*" onchange="if(window.handleImagePick) handleImagePick(this, '#sync-about-img', 'about_image')">
+      @endif
+    @endif
+  </div>
+</div>
+
+<!-- LIGHTBOX OVERLAY -->
+<div id="about-lightbox" onclick="closeAboutLightbox()">
+  <span id="about-lightbox-close" onclick="closeAboutLightbox()">&times;</span>
+  <div class="lightbox-content-wrapper" onclick="event.stopPropagation()">
+    <img id="about-lightbox-img" src="" alt="Foto" style="display:none;">
+    <video id="about-lightbox-video" src="" controls autoplay style="display:none; max-width:90vw; max-height:80vh; border-radius:8px;"></video>
+  </div>
+</div>
+
+<script>
+  // Fungsi umum untuk membuka media (dipakai di About dan Itinerary)
+  function openItinMedia(src, type) {
+    openAboutLightbox(src, type);
+  }
+
+  function openAboutLightbox(src, type = 'image') {
+    const lb = document.getElementById('about-lightbox');
+    const img = document.getElementById('about-lightbox-img');
+    const vid = document.getElementById('about-lightbox-video');
+    
+    // Reset
+    img.style.display = 'none';
+    vid.style.display = 'none';
+    vid.pause();
+    vid.src = '';
+
+    if (type === 'video' || src.match(/\.(mp4|webm|ogg|mov)/i)) {
+      vid.src = src;
+      vid.style.display = 'block';
+    } else {
+      img.src = src;
+      img.style.display = 'block';
+    }
+
+    lb.classList.add('active');
+    document.body.classList.add('overflow-hidden');
+  }
+
+  function closeAboutLightbox() {
+    const vid = document.getElementById('about-lightbox-video');
+    vid.pause();
+    document.getElementById('about-lightbox').classList.remove('active');
+    document.body.classList.remove('overflow-hidden');
+  }
+
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closeAboutLightbox();
+  });
+</script>

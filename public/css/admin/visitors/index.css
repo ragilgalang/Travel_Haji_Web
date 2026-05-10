@@ -1,0 +1,103 @@
+.visitor-container {
+    padding-bottom: 40px;
+}
+
+.welcome-actions-flex {
+    display: flex;
+    gap: 10px;
+}
+
+.btn-sync {
+    border-color: var(--green-500) !important;
+    color: var(--green-600) !important;
+    background: rgba(34,197,94,0.05) !important;
+}
+
+.btn-clear {
+    border-color: #f87171 !important;
+    color: #ef4444 !important;
+    background: rgba(239,68,68,0.05) !important;
+}
+
+.visitor-success-bar {
+    background: #f0fdf4 !important;
+    border-color: #bbf7d0 !important;
+    color: #166534 !important;
+    margin-bottom: 24px !important;
+}
+
+.visitor-success-icon {
+    background: #dcfce7 !important;
+    color: #16a34a !important;
+}
+
+.visitor-count-text {
+    font-size: 12px;
+}
+
+.visitor-card-body {
+    padding: 0 !important;
+}
+
+.device-icon-wrapper {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    background: var(--gray-100);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--gray-500);
+}
+
+.visitor-device-name {
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--gray-900);
+}
+
+.visitor-ua-text {
+    font-size: 11px;
+    color: var(--gray-400);
+    max-width: 300px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.visitor-ip-text {
+    font-family: 'DM Mono', monospace;
+    font-size: 13.5px;
+    color: var(--green-700);
+    font-weight: 600;
+}
+
+.visitor-time-text {
+    font-size: 13.5px;
+}
+
+.visitor-time-main {
+    display: block;
+    font-weight: 500;
+    color: var(--gray-700);
+}
+
+.visitor-time-sub {
+    font-size: 11px;
+    color: var(--gray-400);
+}
+
+.visitor-empty-state {
+    text-align: center;
+    padding: 60px;
+    color: var(--text-muted);
+}
+
+.visitor-empty-icon {
+    font-size: 40px;
+    margin-bottom: 10px;
+}
+
+.visitor-table-full {
+    width: 100%;
+}

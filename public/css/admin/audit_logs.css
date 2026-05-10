@@ -1,0 +1,165 @@
+/* 
+   ADMIN AUDIT LOGS STYLES
+   Khusus untuk halaman Monitoring Audit Akun
+*/
+
+.audit-container {
+    padding: 10px;
+}
+
+.audit-header {
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    margin-bottom: 2rem;
+}
+
+.audit-header h2 {
+    font-family: 'Playfair Display', serif; 
+    color: #1a5c3a;
+}
+
+.audit-header p {
+    color: #64748b; 
+    font-size: 0.9rem;
+}
+
+.btn-clear-logs {
+    background: #fee2e2; 
+    color: #b91c1c; 
+    border: 1px solid #fecaca; 
+    padding: 10px 18px; 
+    border-radius: 10px; 
+    font-weight: 600; 
+    cursor: pointer; 
+    display: flex; 
+    align-items: center; 
+    gap: 8px;
+    transition: 0.2s;
+}
+
+.btn-clear-logs:hover {
+    background: #fecaca;
+    transform: translateY(-2px);
+}
+
+.card-modern {
+    background: white; 
+    border-radius: 16px; 
+    border: 1px solid #e2e8f0; 
+    overflow: hidden; 
+    box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+}
+
+.audit-table {
+    width: 100%; 
+    border-collapse: collapse;
+}
+
+.audit-table thead {
+    background: #f8fafc; 
+    border-bottom: 2px solid #e2e8f0;
+}
+
+.audit-table th {
+    padding: 15px; 
+    text-align: left; 
+    font-size: 0.8rem; 
+    text-transform: uppercase; 
+    color: #64748b;
+}
+
+.audit-table td {
+    padding: 15px;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.audit-table tr {
+    transition: 0.2s;
+}
+
+.audit-table tr:hover {
+    background: #f0f9ff !important;
+}
+
+/* Modal Styles */
+#password-modal {
+    display: none; 
+    position: fixed; 
+    top: 0; 
+    left: 0; 
+    width: 100%; 
+    height: 100%; 
+    background: rgba(15, 23, 42, 0.6); 
+    backdrop-filter: blur(8px); 
+    z-index: 99999; 
+    justify-content: center; 
+    align-items: center; 
+    transition: 0.3s; 
+    opacity: 0;
+}
+
+#password-modal.active { 
+    opacity: 1 !important; 
+}
+
+#password-modal.active .modal-content { 
+    transform: translateY(0) !important; 
+}
+
+.modal-content {
+    background: white; 
+    width: 90%; 
+    max-width: 400px; 
+    padding: 30px; 
+    border-radius: 24px; 
+    box-shadow: 0 20px 50px rgba(0,0,0,0.2); 
+    transform: translateY(20px); 
+    transition: 0.3s;
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+    .audit-header {
+        flex-direction: column;
+        align-items: stretch !important;
+        gap: 15px;
+        text-align: center;
+    }
+
+    .audit-header h2 {
+        font-size: 1.2rem !important;
+    }
+
+    .audit-header p {
+        font-size: 0.75rem !important;
+    }
+
+    .btn-clear-logs {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .audit-table th, .audit-table td {
+        padding: 10px 8px !important;
+        font-size: 0.75rem !important;
+    }
+
+    .card-modern {
+        margin: 0 -10px;
+        border-radius: 12px !important;
+    }
+
+    .pwd-box {
+        flex-direction: column;
+        align-items: flex-start !important;
+        gap: 4px !important;
+    }
+
+    .audit-table td div {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 120px;
+    }
+}

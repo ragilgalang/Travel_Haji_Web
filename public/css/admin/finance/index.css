@@ -1,0 +1,166 @@
+/* 
+   ADMIN FINANCE STYLES
+   Khusus untuk halaman Laporan Pendapatan & Keuangan
+*/
+
+.finance-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.f-card {
+    background: white;
+    padding: 2rem;
+    border-radius: 1.25rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(16, 185, 129, 0.1);
+}
+
+.f-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 100px;
+    height: 100px;
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.05) 0%, rgba(16, 185, 129, 0) 100%);
+    border-radius: 0 0 0 100%;
+}
+
+.f-label {
+    font-size: 0.875rem;
+    color: #6b7280;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.025em;
+}
+
+.f-value {
+    font-size: 1.875rem;
+    font-weight: 700;
+    color: #111827;
+    margin-bottom: 0.25rem;
+}
+
+.f-sub {
+    font-size: 0.75rem;
+    color: #10b981;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.f-icon {
+    width: 48px;
+    height: 48px;
+    background: #f0fdf4;
+    color: #10b981;
+    border-radius: 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1rem;
+}
+
+.bg-gold { background: #fffbeb; color: #d97706; }
+.text-gold { color: #d97706; }
+
+.table-container {
+    background: white;
+    border-radius: 1.25rem;
+    overflow: hidden;
+    border: 1px solid rgba(16, 185, 129, 0.1);
+}
+
+.f-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.f-table th {
+    background: #f9fafb;
+    padding: 1rem 1.5rem;
+    text-align: left;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #4b5563;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.f-table td {
+    padding: 1rem 1.5rem;
+    font-size: 0.875rem;
+    color: #374151;
+    border-bottom: 1px solid #f3f4f6;
+}
+
+.status-pill {
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    background: #f0fdf4;
+    color: #16a34a;
+}
+
+/* CUSTOM SCROLLABLE TABLE AREA */
+.scrollable-history {
+    max-height: 500px;
+    overflow-y: auto;
+    border: 1px solid #e5e7eb;
+    border-radius: 1rem;
+    scrollbar-width: thin;
+    scrollbar-color: #10b981 #f3f4f6;
+}
+
+.scrollable-history::-webkit-scrollbar { width: 6px; }
+.scrollable-history::-webkit-scrollbar-track { background: #f3f4f6; }
+.scrollable-history::-webkit-scrollbar-thumb { background-color: #10b981; border-radius: 20px; }
+
+/* EXPORT BUTTONS CSS */
+.export-group {
+    display: flex;
+    gap: 0.75rem;
+}
+.btn-export {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border-radius: 0.75rem;
+    font-size: 0.813rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s;
+    border: none;
+    cursor: pointer;
+}
+.btn-pdf { background: #fee2e2; color: #dc2626; border: 1px solid #fecaca; }
+.btn-excel { background: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0; }
+.btn-word { background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; }
+.btn-export:hover { transform: translateY(-2px); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+
+/* PRINT STYLES */
+@media print {
+    .main-header, .sidebar, .tab-nav, .filter-bar, .export-group, .admin-footer, 
+    .finance-stats, .no-print, .breadcrumb, .page-title-area, .btn-back-modern { 
+        display: none !important; 
+    }
+    body { background: white !important; margin: 0 !important; padding: 0 !important; }
+    .content-wrapper, .main-content { margin: 0 !important; padding: 0 !important; width: 100% !important; }
+    .card { box-shadow: none !important; border: none !important; margin: 0 !important; }
+    .card-header { border: none !important; padding: 0 0 20px 0 !important; }
+    .card-title { font-size: 24px !important; color: #000 !important; font-weight: bold !important; text-align: center !important; width: 100%; }
+    .scrollable-history { max-height: none !important; overflow: visible !important; border: none !important; }
+    .f-table { width: 100% !important; border-collapse: collapse !important; border: 1px solid #333 !important; }
+    .f-table th { background-color: #f2f2f2 !important; color: #000 !important; border: 1px solid #333 !important; padding: 10px !important; font-size: 10pt !important; }
+    .f-table td { border: 1px solid #333 !important; padding: 8px !important; font-size: 9pt !important; color: #000 !important; }
+}

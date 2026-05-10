@@ -1,0 +1,182 @@
+/* 
+   ADMIN RESPONSIVE GLOBAL
+   Penyempurnaan tampilan mobile untuk seluruh dashboard admin.
+*/
+
+@media (max-width: 768px) {
+    /* 1. Reset Global Container */
+    .container-fluid, .content-wrapper, .content {
+        padding: 15px !important;
+        width: 100% !important;
+    }
+
+    /* sidebar mobile fix */
+    .sidebar {
+        position: fixed !important;
+        left: -280px !important;
+        top: 0;
+        bottom: 0;
+        width: 280px !important;
+        z-index: 10000 !important;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        box-shadow: 20px 0 50px rgba(0,0,0,0.1) !important;
+    }
+
+    .sidebar.open {
+        left: 0 !important;
+    }
+
+    .main {
+        margin-left: 0 !important;
+        width: 100% !important;
+        min-height: 100vh;
+    }
+
+    .sidebar-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(15, 23, 42, 0.5);
+        backdrop-filter: blur(4px);
+        z-index: 9999;
+        display: none;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .sidebar-overlay.active {
+        display: block;
+        opacity: 1;
+    }
+
+    .topbar {
+        left: 0 !important;
+        width: 100% !important;
+        padding: 0 15px !important;
+    }
+
+    .topbar-left h1 {
+        font-size: 1.1rem !important;
+    }
+
+    .breadcrumb {
+        display: none !important; /* Sembunyikan breadcrumb di mobile agar lega */
+    }
+
+    .topbar-right .topbar-date {
+        display: none !important;
+    }
+
+    /* 2. Global Table Optimization */
+    .table-responsive, .table-wrapper {
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch;
+        margin: 0 -15px 1.5rem -15px !important;
+        padding: 0 15px !important;
+        width: calc(100% + 30px) !important;
+    }
+
+    table {
+        min-width: 850px !important; /* Memaksa scroll yang cukup luas agar nyaman */
+        border-spacing: 0;
+    }
+
+    table th, table td {
+        padding: 12px 10px !important; /* Padding lebih kecil di mobile */
+        font-size: 0.85rem !important;
+    }
+
+    /* 3. Header & Action Bars */
+    .card-header, .header-section {
+        flex-direction: column !important;
+        gap: 12px !important;
+        align-items: stretch !important;
+    }
+
+    .btn-add, .btn-primary, .btn-action, .btn-submit, .btn-search {
+        width: 100% !important;
+        justify-content: center !important;
+        display: flex !important;
+        margin-top: 5px;
+    }
+
+    /* Search & Filter Boxes */
+    .search-box, .filter-group, .input-group, .form-control {
+        width: 100% !important;
+        max-width: none !important;
+    }
+
+    .search-filter-section, .filter-row, .action-bar {
+        flex-direction: column !important;
+        gap: 15px !important;
+    }
+
+    /* 4. Grid & Layouts */
+    .grid-2, .grid-3, .grid-4, .form-grid {
+        grid-template-columns: 1fr !important;
+        gap: 15px !important;
+    }
+
+    /* 5. Statistik Cards (Dashboard) */
+    .stats-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    /* 6. Sidebar Mobile Fix (Jika ada) */
+    .admin-sidebar {
+        z-index: 9999;
+    }
+
+    /* 7. Modal Full Width Mobile */
+    .modal-dialog {
+        margin: 10px !important;
+        max-width: none !important;
+    }
+
+    .modal-content {
+        border-radius: 15px !important;
+    }
+
+    /* 8. Pagination */
+    .pagination-wrapper {
+        flex-direction: column;
+        gap: 10px;
+        align-items: center;
+    }
+
+    .topbar-right .user-profile-wrapper {
+        padding: 4px 10px !important;
+        gap: 6px !important;
+    }
+
+    .topbar-right .user-profile-wrapper .text-right {
+        display: none !important; /* Sembunyikan nama teks, cukup avatar di mobile */
+    }
+
+    /* 9. Utility classes for hiding/showing */
+    .hide-mobile {
+        display: none !important;
+    }
+
+    /* Footer Mobile */
+    .admin-footer {
+        flex-direction: column !important;
+        gap: 10px !important;
+        text-align: center !important;
+        padding: 20px !important;
+    }
+}
+
+/* Extra small devices */
+@media (max-width: 480px) {
+    .btn-text-hide-sm {
+        display: none;
+    }
+    
+    .table-responsive th, .table-responsive td {
+        padding: 8px 10px !important;
+        font-size: 0.8rem !important;
+    }
+}

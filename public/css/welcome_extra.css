@@ -1,0 +1,375 @@
+/* EXTRA STYLES FOR WELCOME PAGE & LAYOUTS */
+
+/* Header & Logo */
+.nav-logo-box {
+    width: 36px;
+    height: 36px;
+    background: var(--green);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 1.1rem;
+}
+
+.nav-logo-img {
+    width: 100%;
+    height: 100%;
+    border-radius: 8px;
+    object-fit: contain;
+}
+
+.header-logo-img {
+    height: 40px;
+    object-fit: contain;
+}
+
+.hero-divider {
+    width: 1px;
+    height: 36px;
+    background: rgba(255,255,255,.2);
+}
+
+/* About Section */
+.about-desc-no-mb {
+    margin-bottom: 0 !important;
+}
+
+.about-point-img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+/* Gallery & Testimonials */
+.gallery-eyebrow-gold {
+    color: var(--gold2) !important;
+}
+
+.facilities-empty {
+    grid-column: 1/-1;
+    text-align: center;
+    color: var(--muted);
+}
+
+.testi-header-flex {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.testi-title-no-mb {
+    margin-bottom: 0 !important;
+}
+
+.testi-empty {
+    text-align: center;
+    width: 100%;
+    color: var(--muted);
+}
+
+/* CTA Section */
+.cta-eyebrow-gold {
+    color: var(--gold2) !important;
+    justify-content: center;
+}
+
+.cta-desc-simple {
+    font-size: 1.1rem;
+    opacity: 0.9;
+    margin-bottom: 2.5rem;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.btn-cta-wa {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.wa-icon-sm {
+    width: 20px;
+    height: 20px;
+}
+
+/* Modal Styles */
+.pkg-modal-wa-btn {
+    width: 100%;
+    justify-content: center;
+}
+
+.video-modal-help {
+    font-size: .75rem;
+    opacity: .5;
+}
+
+/* Layout Footer Styles */
+.footer-desc-box {
+    margin: 0.75rem 0 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+}
+
+.footer-contact-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+}
+
+.footer-contact-icon {
+    flex-shrink: 0;
+}
+
+.footer-map-link {
+    font-size: 0.82rem;
+    color: #a3b8a5;
+    font-weight: 500;
+    line-height: 1.5;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+.footer-brand-desc-sm {
+    margin: 0;
+    font-size: 0.82rem;
+    line-height: 1.5;
+}
+
+.footer-contact-flex {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.footer-icon-mt {
+    margin-top: 1px;
+}
+
+.footer-cert-full {
+    justify-content: space-between;
+    width: 100%;
+}
+
+.footer-cert-flex {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    flex-wrap: wrap;
+}
+
+/* About Background (Collage) */
+.about-video-fit {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: inherit;
+}
+
+/* Review Modal Spinner */
+.btn-spinner {
+    width: 20px;
+    height: 20px;
+    border: 2px solid rgba(255,255,255,.3);
+    border-radius: 50%;
+    border-top-color: #fff;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.review-success-box {
+    text-align: center;
+    padding: 40px 0;
+}
+
+.review-success-icon {
+    margin-bottom: 16px;
+}
+
+.review-success-title {
+    color: #f8fafc;
+    margin-bottom: 8px;
+    font-size: 1.2rem;
+}
+
+.review-success-text {
+    color: #94a3b8;
+    font-size: 0.9rem;
+}
+
+/* Registration Form Extra Styles */
+.reg-error-box {
+    background: var(--red-light);
+    color: var(--red);
+    padding: 16px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    font-size: 14px;
+    border: 1px solid #fecaca;
+}
+
+.reg-error-list {
+    margin-left: 20px;
+    margin-top: 8px;
+}
+
+.form-card-mb {
+    margin-bottom: 20px;
+}
+
+.catatan-textarea {
+    min-height: 70px;
+}
+
+.spin-anim {
+    animation: spin .7s linear infinite;
+}
+
+/* Success Page Extra Styles */
+.success-tl-time-gold {
+    color: var(--gold) !important;
+}
+
+.success-tl-time-gray {
+    color: var(--gray-500) !important;
+}
+
+/* About Lightbox Styles */
+.ci-1 img {
+    cursor: zoom-in;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.ci-1 img:hover {
+    transform: scale(1.02);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+}
+
+#about-lightbox {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.85);
+    z-index: 9999;
+    align-items: center;
+    justify-content: center;
+    cursor: zoom-out;
+    backdrop-filter: blur(6px);
+    animation: lbFadeIn 0.25s ease;
+}
+
+#about-lightbox.active {
+    display: flex;
+}
+
+#about-lightbox img {
+    max-width: 90vw;
+    max-height: 90vh;
+    border-radius: 16px;
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5);
+    animation: lbZoomIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    cursor: default;
+}
+
+#about-lightbox-close {
+    position: absolute;
+    top: 20px;
+    right: 24px;
+    color: white;
+    font-size: 2.2rem;
+    cursor: pointer;
+    line-height: 1;
+    opacity: 0.8;
+    transition: opacity 0.2s, transform 0.2s;
+}
+
+#about-lightbox-close:hover {
+    opacity: 1;
+    transform: scale(1.1);
+}
+
+@keyframes lbFadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes lbZoomIn {
+    from {
+        transform: scale(0.7);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* Transition Delay Utilities */
+.delay-100 { transition-delay: .1s !important; }
+.delay-200 { transition-delay: .2s !important; }
+.delay-300 { transition-delay: .3s !important; }
+.delay-400 { transition-delay: .4s !important; }
+.delay-500 { transition-delay: .5s !important; }
+/* Package Actions (Dual Buttons) */
+.pkg-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.pkg-btn {
+    flex: 1;
+    height: 46px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+    font-weight: 700;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    text-decoration: none;
+    border: none;
+    white-space: nowrap;
+}
+
+.btn-daftar {
+    background: var(--green);
+    color: #fff !important;
+}
+
+.btn-daftar:hover {
+    background: var(--green2);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(26, 92, 58, 0.2);
+}
+
+.btn-detail-outline {
+    background: #fff;
+    color: var(--green);
+    border: 2px solid var(--green);
+}
+
+.btn-detail-outline:hover {
+    background: var(--green-light);
+    transform: translateY(-2px);
+}
+
+@media (max-width: 480px) {
+    .pkg-actions {
+        flex-direction: column;
+    }
+}

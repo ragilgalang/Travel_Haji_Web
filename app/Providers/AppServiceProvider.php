@@ -1,0 +1,44 @@
+<?php
+
+namespace App\Providers;
+
+use Illuminate\Support\ServiceProvider;
+use App\Providers\FirebaseUserProvider;
+
+class AppServiceProvider extends ServiceProvider
+{
+    /**
+     * Register any application services.
+     */
+    public function register(): void
+    {
+        //
+    }
+
+    public function boot(): void
+    {
+        if (config('app.env') !== 'local') {
+            \Illuminate\Support\Facades\URL::forceScheme('https');
+        }
+
+        \Illuminate\Support\Facades\Auth::provider('firebase', function ($app, array $config) {
+            return new FirebaseUserProvider($app->make(\Kreait\Firebase\Contract\Auth::class));
+        });
+
+        \Illuminate\Support\Facades\View::composer('*', function ($view) {
+            static $siteData = null;
+            if ($siteData === null) {
+                // Cache data for better performance
+                $siteData = \Illuminate\Support\Facades\Cache::remember('site_global_data', 60*24, function() {
+                    $firebase = app(\App\Services\FirebaseService::class);
+                    return [
+                        'settings' => $firebase->getValue('settings') ?? [],
+                        'packages' => collect($firebase->getValue('packages') ?? [])
+                    ];
+                });
+            }
+            $view->with('settings', $siteData['settings']);
+            $view->with('packages', $siteData['packages']);
+        });
+    }
+}
