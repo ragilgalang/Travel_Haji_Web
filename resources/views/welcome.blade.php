@@ -141,6 +141,173 @@ window.addEventListener('error', function(e) {
             
             --about-badge: var(--green);
         }
+<<<<<<< HEAD
+=======
+
+        /* PACKAGE SLIDER CSS */
+        .pkg-slider-wrapper {
+            position: relative;
+            padding: 0 1rem;
+            margin-top: 2rem;
+        }
+
+        .pkg-grid-slider {
+            display: flex;
+            gap: 2rem;
+            overflow-x: auto;
+            padding: 1rem 0.5rem 3rem;
+            scrollbar-width: none; /* Firefox */
+            -ms-overflow-style: none; /* IE/Edge */
+            scroll-snap-type: x mandatory;
+            -webkit-overflow-scrolling: touch;
+            /* smooth scroll hanya saat tombol ditekan (diatur via JS) agar tidak mengganggu swipe manual */
+        }
+        
+        .pkg-grid-slider.is-smooth {
+            scroll-behavior: smooth;
+        }
+
+        .pkg-grid-slider::-webkit-scrollbar {
+            display: none; /* Chrome, Safari, Opera */
+        }
+
+        .pkg-card-wrapper {
+            flex: 0 0 350px;
+            max-width: 350px;
+            scroll-snap-align: center;
+        }
+
+        .pkg-slider-controls {
+            position: absolute;
+            top: -60px;
+            right: 1.5rem;
+            display: flex;
+            gap: 1rem;
+            z-index: 10;
+        }
+
+        .pkg-slider-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: white;
+            border: 1px solid var(--green-light);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: var(--green);
+        }
+
+        .pkg-slider-btn:hover {
+            background: var(--green);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        @media (max-width: 768px) {
+            .pkg-card-wrapper {
+                flex: 0 0 300px;
+            }
+            .pkg-slider-controls {
+                position: static;
+                justify-content: center;
+                margin-bottom: 1rem;
+            }
+        }
+
+        /* FACILITY SLIDER CSS */
+        .fac-slider-wrapper {
+            position: relative;
+            margin-top: 2rem;
+        }
+
+        .fac-grid-slider {
+            display: flex;
+            gap: 1.5rem;
+            overflow-x: auto;
+            scroll-behavior: smooth;
+            padding: 1rem 0.5rem 2rem;
+            scrollbar-width: none;
+        }
+
+        .fac-grid-slider::-webkit-scrollbar {
+            display: none;
+        }
+
+        .fac-card-wrapper {
+            flex: 0 0 300px;
+            max-width: 300px;
+        }
+
+        .fac-slider-controls {
+            position: absolute;
+            top: -60px;
+            right: 0;
+            display: flex;
+            gap: 1rem;
+            z-index: 10;
+        }
+
+        /* TESTI MARQUEE CSS */
+        .testi-marquee-wrapper {
+            overflow: hidden;
+            padding: 2rem 0;
+            position: relative;
+        }
+
+        .testi-marquee-row {
+            display: flex;
+            gap: 2rem;
+            width: max-content;
+            animation: marquee-scroll var(--dur, 40s) linear infinite;
+            margin-bottom: 2rem;
+        }
+
+        .testi-marquee-row.rev {
+            animation-direction: reverse;
+        }
+
+        .testi-marquee-row:hover {
+            animation-play-state: paused;
+        }
+
+        .testi-marquee-item {
+            flex: 0 0 320px;
+            background: white;
+            padding: 1.5rem;
+            border-radius: 1.25rem;
+            box-shadow: 0 10px 30px -10px rgba(0,0,0,0.1);
+            border: 1px solid rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .testi-img-main {
+            width: 100%;
+            height: 160px;
+            border-radius: 0.75rem;
+            object-fit: cover;
+            margin-bottom: 0.5rem;
+            border: 1px solid #f1f5f9;
+        }
+
+        .testi-text {
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: #475569;
+            flex-grow: 1;
+            margin: 0 !important;
+        }
+
+        @keyframes marquee-scroll {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+>>>>>>> 42887a6 (progress sebelum pull)
     </style>
     
     <!-- STYLESHEETS -->
@@ -639,6 +806,51 @@ function closeFacModal(e) {
   </div>
 </div>
 
+<!-- STATUS MODAL -->
+<!-- STATUS MODAL -->
+<div class="modal-overlay" id="statusModal" onclick="closeStatusModal(event)">
+  <div class="modal-box status-modal" style="background: #ffffff; max-width: 420px; width: 90%; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.15); position: relative; display: block; aspect-ratio: auto; height: auto; padding: 0;">
+    
+    <button type="button" class="modal-close" onclick="closeStatusModal(event)" style="position: absolute; top: 1rem; right: 1rem; background: none; border: none; font-size: 1.2rem; cursor: pointer; color: #94a3b8;">✕</button>
+    
+    <div style="padding: 2.5rem 1.5rem 1.5rem 1.5rem; text-align: center;">
+        <div style="display: inline-flex; align-items: center; justify-content: center; width: 56px; height: 56px; border-radius: 50%; background: #f0fdf4; color: var(--green); margin-bottom: 1rem;">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+        </div>
+        
+        <h3 style="color: var(--dark); margin: 0 0 0.75rem 0; font-size: 1.25rem; font-weight: 800;">Cek Status Pendaftaran</h3>
+        
+        <p style="color: #64748b; font-size: 0.9rem; margin: 0 0 1.5rem 0; line-height: 1.6;">Masukkan nomor referensi untuk melihat progres pendaftaran Anda secara real-time.</p>
+        
+        <form id="checkStatusForm" onsubmit="handleCheckStatus(event)" style="text-align: left;">
+            @csrf
+            <input type="text" id="statusRefInput" placeholder="REG-ABCD1234" required
+                   style="width: 100%; box-sizing: border-box; padding: 0.9rem 1rem; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 1rem; font-weight: 700; color: #334155; margin-bottom: 1rem; outline: none; transition: border-color 0.2s;"
+                   onfocus="this.style.borderColor='var(--green)'" onblur="this.style.borderColor='#cbd5e1'">
+            
+            <button type="submit" id="btnCheckStatus" class="btn btn-solid" style="width: 100%; padding: 0.9rem; border-radius: 8px; display: flex; align-items: center; justify-content: center; gap: 0.5rem; border: none; cursor: pointer; color: white; font-weight: 700;">
+                <span>🔍</span> <span id="btnCheckStatusText">Cek Sekarang</span>
+            </button>
+        </form>
+
+        <!-- Result Box -->
+        <div id="statusResultBox" style="margin-top: 1.5rem; background: #f8fafc; border-radius: 12px; padding: 1.25rem; border: 1px solid #e2e8f0; text-align: left;">
+            <div style="margin-bottom: 1rem;">
+                <div style="font-size: 0.85rem; color: #64748b; margin-bottom: 0.25rem;">Nama Jemaah:</div>
+                <div id="resNama" style="font-weight: 800; color: #334155; font-size: 1rem;">-</div>
+            </div>
+            <div style="margin-bottom: 1.25rem;">
+                <div style="font-size: 0.85rem; color: #64748b; margin-bottom: 0.5rem;">Status Saat Ini:</div>
+                <div style="display: inline-flex; align-items: center; justify-content: center; background: #e0e7ff; color: #3730a3; padding: 0.4rem 1rem; border-radius: 100px; font-size: 0.85rem; font-weight: 700;" id="resStatus">-</div>
+            </div>
+            <div style="border-top: 1px solid #e2e8f0; padding-top: 0.75rem; font-size: 0.85rem; color: #94a3b8;">
+                Daftar pada: <span id="resTgl">-</span>
+            </div>
+        </div>
+    </div>
+  </div>
+</div>
+
 <script>
 /* ── HERO SLIDESHOW ── */
 const slides = document.querySelectorAll('.slide');
@@ -890,17 +1102,100 @@ function openModal(){
     }
 }
 function closeModal(e){if(e.target===document.getElementById('videoModal'))closeModalDirect();}
+<<<<<<< HEAD
 function closeModalDirect(){
     document.getElementById('videoModal').classList.remove('open');
     // Pause & reset video saat modal ditutup
     const vid = document.getElementById('heroVideoPlayer');
     if (vid) { vid.pause(); vid.currentTime = 0; }
 }
+=======
+function closeModalDirect(){document.getElementById('videoModal').classList.remove('open');}
+
+/* ── STATUS MODAL ── */
+function openStatusModal() {
+    document.getElementById('statusModal').classList.add('open');
+    document.getElementById('statusRefInput').value = '';
+    resetStatusBox();
+}
+function closeStatusModal(e) {
+    if(!e || e.target === document.getElementById('statusModal') || e.target.classList.contains('modal-close')) {
+        document.getElementById('statusModal').classList.remove('open');
+    }
+}
+function resetStatusBox() {
+    document.getElementById('resNama').innerText = '-';
+    document.getElementById('resStatus').innerText = '-';
+    document.getElementById('resStatus').style.background = '#e0e7ff';
+    document.getElementById('resStatus').style.color = '#3730a3';
+    document.getElementById('resTgl').innerText = '-';
+}
+function handleCheckStatus(e) {
+    e.preventDefault();
+    const refInput = document.getElementById('statusRefInput').value.trim();
+    if(!refInput) return;
+    
+    const btnText = document.getElementById('btnCheckStatusText');
+    btnText.innerText = 'Mencari...';
+    document.getElementById('btnCheckStatus').disabled = true;
+    
+    fetch('{{ route("register.checkStatus") }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+            'Accept': 'application/json'
+        },
+        body: JSON.stringify({ ref_id: refInput })
+    })
+    .then(res => res.json())
+    .then(data => {
+        btnText.innerText = 'Cek Sekarang';
+        document.getElementById('btnCheckStatus').disabled = false;
+        
+        if(data.success) {
+            document.getElementById('resNama').innerText = data.nama;
+            document.getElementById('resStatus').innerText = data.status;
+            document.getElementById('resTgl').innerText = data.tgl;
+            
+            // Set status color
+            const statusEl = document.getElementById('resStatus');
+            const st = data.status.toLowerCase();
+            if(st.includes('selesai') || st.includes('lunas') || st.includes('terverifikasi')) {
+                 statusEl.style.background = '#dcfce7';
+                 statusEl.style.color = '#166534';
+            } else if (st.includes('tunggu')) {
+                 statusEl.style.background = '#fef9c3';
+                 statusEl.style.color = '#854d0e';
+            } else if (st.includes('tolak') || st.includes('batal')) {
+                 statusEl.style.background = '#fee2e2';
+                 statusEl.style.color = '#991b1b';
+            } else {
+                 statusEl.style.background = '#e0e7ff';
+                 statusEl.style.color = '#3730a3';
+            }
+        } else {
+            resetStatusBox();
+            showNotification(data.message || 'Nomor referensi tidak ditemukan', 'error');
+        }
+    })
+    .catch(err => {
+        btnText.innerText = 'Cek Sekarang';
+        document.getElementById('btnCheckStatus').disabled = false;
+        showNotification('Terjadi kesalahan, coba lagi.', 'error');
+    });
+}
+
+>>>>>>> 42887a6 (progress sebelum pull)
 document.addEventListener('keydown',e=>{
     if(e.key==='Escape') {
         closeModalDirect();
         closePkgModal();
+<<<<<<< HEAD
         closeMobileNav();
+=======
+        closeStatusModal();
+>>>>>>> 42887a6 (progress sebelum pull)
     }
 });
 
@@ -959,6 +1254,78 @@ function scrollPkg(dir) {
     });
 }
 
+<<<<<<< HEAD
+=======
+// Drag to scroll untuk Package Slider
+const pkgSlider = document.getElementById('pkgSlider');
+if (pkgSlider) {
+    let isDownPkg = false;
+    let startXPkg;
+    let scrollLeftPkg;
+
+    pkgSlider.addEventListener('mousedown', (e) => {
+        isDownPkg = true;
+        pkgSlider.style.cursor = 'grabbing';
+        startXPkg = e.pageX - pkgSlider.offsetLeft;
+        scrollLeftPkg = pkgSlider.scrollLeft;
+    });
+    pkgSlider.addEventListener('mouseleave', () => {
+        isDownPkg = false;
+        pkgSlider.style.cursor = 'grab';
+    });
+    pkgSlider.addEventListener('mouseup', () => {
+        isDownPkg = false;
+        pkgSlider.style.cursor = 'grab';
+    });
+    pkgSlider.addEventListener('mousemove', (e) => {
+        if (!isDownPkg) return;
+        e.preventDefault();
+        const x = e.pageX - pkgSlider.offsetLeft;
+        const walk = (x - startXPkg) * 1.5;
+        pkgSlider.scrollLeft = scrollLeftPkg - walk;
+    });
+}
+
+function scrollFac(dir) {
+    const slider = document.getElementById('facSlider');
+    const scrollAmount = 320; // card width + gap
+    slider.scrollBy({
+        left: dir * scrollAmount,
+        behavior: 'smooth'
+    });
+}
+
+// Drag to scroll untuk Facility Slider
+const facSlider = document.getElementById('facSlider');
+if (facSlider) {
+    let isDownFac = false;
+    let startXFac;
+    let scrollLeftFac;
+
+    facSlider.addEventListener('mousedown', (e) => {
+        isDownFac = true;
+        facSlider.style.cursor = 'grabbing';
+        startXFac = e.pageX - facSlider.offsetLeft;
+        scrollLeftFac = facSlider.scrollLeft;
+    });
+    facSlider.addEventListener('mouseleave', () => {
+        isDownFac = false;
+        facSlider.style.cursor = 'grab';
+    });
+    facSlider.addEventListener('mouseup', () => {
+        isDownFac = false;
+        facSlider.style.cursor = 'grab';
+    });
+    facSlider.addEventListener('mousemove', (e) => {
+        if (!isDownFac) return;
+        e.preventDefault();
+        const x = e.pageX - facSlider.offsetLeft;
+        const walk = (x - startXFac) * 1.5;
+        facSlider.scrollLeft = scrollLeftFac - walk;
+    });
+}
+
+>>>>>>> 42887a6 (progress sebelum pull)
 /* ── NOTIFICATION SYSTEM ── */
 function showNotification(message, type = 'success') {
     // Buat elemen notifikasi
