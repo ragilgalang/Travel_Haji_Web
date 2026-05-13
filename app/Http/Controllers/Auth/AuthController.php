@@ -49,13 +49,12 @@ class AuthController extends Controller
         // Cek user di Firebase terlebih dahulu untuk mengetahui role aslinya
         $firebaseUser = \Illuminate\Support\Facades\Auth::getProvider()->retrieveByCredentials([$loginType => $loginValue]);
 
-        // Cek data user di database lokal (SQLite)
-        $userDb = \Illuminate\Support\Facades\DB::table('users')
-            ->where('email', $loginValue)
-            ->orWhere('username', $loginValue)
+        // Cari data di SQLite (Database Lokal) - Pastikan lowercase
+        $userDb = \Illuminate\Support\Facades\DB::table('users')->whereRaw('LOWER(email) = ?', [strtolower($loginValue)])
+            ->orWhereRaw('LOWER(username) = ?', [strtolower($loginValue)])
             ->first();
         
-        $email = $userDb ? $userDb->email : ($firebaseUser ? $firebaseUser->email : $loginValue);
+        $email = strtolower($userDb ? $userDb->email : ($firebaseUser ? $firebaseUser->email : $loginValue));
 
         // Tentukan role
         if ($userDb) {
@@ -163,7 +162,7 @@ class AuthController extends Controller
         }
 
         \Illuminate\Support\Facades\DB::table('users')->updateOrInsert(
-            ['email' => $email],
+            ['email' => strtolower($email)],
             [
                 'username'          => $userDb->username ?? ($firebaseUser->username ?? null),
                 'name'              => $firebaseUser ? $firebaseUser->name : ($userDb->name ?? 'User'),

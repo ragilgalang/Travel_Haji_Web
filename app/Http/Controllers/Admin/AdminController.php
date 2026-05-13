@@ -249,9 +249,13 @@ class AdminController extends Controller
             'failed' => $failedCounts,
         ];
 
-        // Ambil akun yang terkena banned permanen
+        // Ambil akun yang sedang terblokir (baik permanen maupun sementara)
         $bannedAccounts = \Illuminate\Support\Facades\DB::table('users')
                             ->where('permanently_banned', true)
+                            ->orWhere(function($query) {
+                                $query->whereNotNull('locked_until')
+                                      ->where('locked_until', '>', now());
+                            })
                             ->get();
 
         return view('admin.audit_logs', compact('auditLogs', 'bannedAccounts', 'chartData'));
@@ -266,36 +270,49 @@ class AdminController extends Controller
 
     public function unlockAccount(Request $request)
     {
-        $email = $request->email;
+        $email = strtolower(trim($request->email));
         if (!$email) return back()->with('error', 'Email tidak valid.');
 
-        // 1. Reset di SQLite (Database Lokal)
+        // 1. Reset di SQLite (Database Lokal) - Paksa Lowercase
         \Illuminate\Support\Facades\DB::table('users')
-            ->where('email', $email)
+            ->whereRaw('LOWER(email) = ?', [$email])
             ->update([
                 'login_attempts' => 0,
                 'locked_until' => null,
                 'permanently_banned' => false,
                 'banned_reason' => null
             ]);
-
-        // 2. Update di Firebase (Sync Status)
+            
+        // 2. Bersihkan di Firebase (Dua Tempat + Histori Audit)
         try {
-            $key = str_replace(['@', '.'], '_', $email);
-            $this->firebase->updateValue("users/{$key}", [
+            $userKey = str_replace(['@', '.'], '_', $email);
+            $this->firebase->updateValue("users/{$userKey}", [
                 'login_attempts' => 0,
                 'locked_until' => null,
                 'permanently_banned' => false
             ]);
             
-            // Hapus pinalti di node penalties
+            // B. Hapus total dari node account_penalties
             $penaltyKey = str_replace(['.', '#', '$', '[', ']', '/'], '_', $email);
             $this->firebase->setValue("account_penalties/{$penaltyKey}", null);
+            
+            // C. Hapus juga jika ada format key user_key di penalties
+            $this->firebase->setValue("account_penalties/{$userKey}", null);
+
+            // D. HAPUS HISTORI AUDIT LOG (Agar hilang dari tabel)
+            $allLogs = $this->firebase->getValue('account_audit_logs') ?? [];
+            foreach ($allLogs as $logKey => $logData) {
+                $logEmail = strtolower($logData['email'] ?? '');
+                if ($logEmail === $email) {
+                    $this->firebase->setValue("account_audit_logs/{$logKey}", null);
+                }
+            }
+
         } catch (\Exception $e) {
-            \Illuminate\Support\Facades\Log::error('Gagal sync unlock ke Firebase: ' . $e->getMessage());
+            \Illuminate\Support\Facades\Log::error('Gagal total sync unlock ke Firebase: ' . $e->getMessage());
         }
 
-        return back()->with('success', "🔓 Berhasil! Akses untuk akun {$email} telah dipulihkan.");
+        return back()->with('success', "🔓 Akses Pulih! Seluruh hitungan pinalti untuk {$email} telah di-reset ke Nol.");
     }
 
     public function resetAccountPassword(Request $request)
