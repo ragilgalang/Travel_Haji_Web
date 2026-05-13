@@ -20,6 +20,15 @@ use App\Models\Facility;
 // Homepage
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
+// Rute Darurat Pembersih Cache (Jalankan ini di hosting jika ada bug)
+Route::get('/clear-system-cache', function() {
+    \Illuminate\Support\Facades\Artisan::call('route:clear');
+    \Illuminate\Support\Facades\Artisan::call('config:clear');
+    \Illuminate\Support\Facades\Artisan::call('cache:clear');
+    \Illuminate\Support\Facades\Artisan::call('view:clear');
+    return "✅ Seluruh cache sistem berhasil dibersihkan! Silakan coba login lagi.";
+});
+
 // [KEAMANAN] Rute /fix-passwords dan /masuk-sebagai dihapus karena berbahaya di production.
 
 // Pendaftaran Customer
