@@ -3,7 +3,7 @@
   {{-- VIDEO HERO --}}
   <div class="hero-video-bg">
     <video
-      src="{{ $settings['hero_video'] }}"
+      src="{{ url($settings['hero_video']) }}?t={{ time() }}"
       autoplay muted loop playsinline
       class="hero-video-player"
       style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;z-index:0;">
@@ -28,9 +28,13 @@
       @endphp
       <div class="slide {{ $i === 1 ? 'active' : '' }}">
         <img src="{{ $src }}" alt="Hero Background {{ $i }}" width="1200" height="800"
-          {!! $i === 1 ? 'fetchpriority="high"' : 'loading="lazy"' !!} decoding="async">
+          {!! $i === 1 ? 'fetchpriority="high"' : 'loading="lazy"' !!} decoding="async"
+          style="filter: brightness(0.6) contrast(1.1) saturate(1.2);">
       </div>
     @endfor
+    
+    {{-- Global Overlay --}}
+    <div class="hero-overlay" style="position:absolute;top:0;left:0;width:100%;height:100%;background: linear-gradient(110deg, rgba(13, 31, 21, 0.95) 0%, rgba(13, 31, 21, 0.75) 45%, rgba(13, 31, 21, 0.5) 100%);z-index:1;"></div>
   </div>
 @endif
 

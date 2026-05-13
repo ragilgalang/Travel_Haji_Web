@@ -1,11 +1,56 @@
 @php
     function optUrl($url, $w = 800) {
         if (strpos($url, 'images.unsplash.com') !== false) {
-            // Remove existing query parameters
             $base = explode('?', $url)[0];
             return $base . "?w={$w}&q=70&auto=format,compress&fm=webp&fit=crop";
         }
         return $url;
+    }
+
+    /**
+     * Otomatis ganti URL localhost & Physical Path → URL production dinamis
+     */
+    function fixUrl($url) {
+        if (!$url || !is_string($url)) return $url;
+        
+        $currentHost = rtrim(request()->getSchemeAndHttpHost(), '/');
+
+        // Jika jalur sudah relatif (mulai dengan /uploads), gabungkan dengan host saat ini
+        if (str_starts_with($url, '/uploads')) {
+            return $currentHost . $url;
+        }
+        
+        // 1. Tangani Physical Path (jika ada sisa-sisa path Windows di DB)
+        if (str_contains($url, 'xampp\htdocs')) {
+            $parts = explode('public\\', $url);
+            if (count($parts) > 1) {
+                $url = $currentHost . '/' . str_replace('\\', '/', $parts[1]);
+            }
+        }
+        
+        // 2. Tangani Localhost URL
+        $localhosts = [
+            'http://127.0.0.1:8000', 
+            'http://127.0.0.1', 
+            'http://localhost:8000', 
+            'http://localhost',
+            'https://127.0.0.1:8000',
+            'https://localhost:8000'
+        ];
+        
+        return str_replace($localhosts, $currentHost, $url);
+    }
+
+    // Terapkan fixUrl ke seluruh array $settings & $packages
+    if (!empty($settings) && is_array($settings)) {
+        array_walk_recursive($settings, function(&$value) {
+            if (is_string($value)) $value = fixUrl($value);
+        });
+    }
+    if (!empty($packages) && is_array($packages)) {
+        array_walk_recursive($packages, function(&$value) {
+            if (is_string($value)) $value = fixUrl($value);
+        });
     }
 @endphp
 <!DOCTYPE html>
@@ -13,6 +58,41 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script>
+/** ── AUTO-HEAL MEDIA URL ── **/
+window.addEventListener('error', function(e) {
+    if (e.target.tagName === 'IMG' || e.target.tagName === 'VIDEO') {
+        var src = e.target.src;
+        if (src.indexOf('127.0.0.1') !== -1 || src.indexOf('localhost') !== -1) {
+            var newSrc = src.replace(/https?:\/\/(127\.0\.0\.1|localhost)(:8000)?/, window.location.origin);
+            if (newSrc !== src) e.target.src = newSrc;
+        }
+    }
+}, true);
+
+/** ── DESKTOP MODE FIX ── **/
+(function() {
+    try {
+        var ua = navigator.userAgent || '';
+        var isMobilePhone = /Android|iPhone|iPod/i.test(ua) && !/iPad|Tablet/i.test(ua);
+        if (!isMobilePhone) return;
+
+        var ratio = screen.width / window.innerWidth;
+        if (ratio < 0.55) {
+            var zoom = Math.min(2.5, Math.max(1.5, 1 / ratio * 0.9));
+            // Gunakan transform agar lebih stabil di berbagai browser
+            document.documentElement.style.setProperty('--dm-zoom', zoom);
+            document.documentElement.classList.add('mobile-desktop-mode');
+            
+            // Tambahkan style langsung untuk mencegah gap kanan
+            var style = document.createElement('style');
+            style.textContent = 'html.mobile-desktop-mode { zoom: ' + zoom + '; width: 100%; overflow-x: hidden; } ' +
+                                'html.mobile-desktop-mode body { width: 100%; overflow-x: hidden; }';
+            document.head.appendChild(style);
+        }
+    } catch(e) {}
+})();
+</script>
 
     <!-- Preconnect to external domains -->
     <link rel="preconnect" href="https://images.unsplash.com">
@@ -27,7 +107,7 @@
     <title>{{ $settings['site_name'] ?? 'PT. UMI MUTHMAINAH BERKAH' }} — Paket Haji & Umrah Premium</title>
     
     <!-- SEO & Metadata -->
-    <meta name="description" content="{{ $settings['site_description'] ?? 'Penyelenggara Perjalanan Ibadah Haji & Umrah Resmi Kemenag RI. Amanah, Nyaman, dan Berpengalaman.' }}">
+    <meta name="description" content="{{ $settings['site_description'] ?? 'Penyelenggara Perjalanan Ibadah Haji & Umrah Resmi Kemenag RI. Amanah, Nyaman, dan Berpengalaman bersama PT. UMI MUTHMAINAH BERKAH' }}">
     <meta name="keywords" content="{{ $settings['site_keywords'] ?? 'haji, umrah, travel haji, umrah premium, travelhaji' }}">
     <meta name="author" content="{{ $settings['site_name'] ?? 'PT. UMI MUTHMAINAH BERKAH' }}">
     <link rel="canonical" href="{{ url()->current() }}">
@@ -70,6 +150,7 @@
     <link rel="stylesheet" href="{{ asset('css/welcome_modern.css') }}">
     <link rel="stylesheet" href="{{ asset('css/welcome_components.css') }}">
     <link rel="stylesheet" href="{{ asset('css/welcome_extra.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/welcome_responsive.css') }}?v=1.2">
     <noscript>
         <link rel="stylesheet" href="{{ asset('css/theme.css') }}">
         <link rel="stylesheet" href="{{ asset('css/welcome_extra.css') }}">
@@ -105,33 +186,12 @@
 
   <div class="slide-dots" id="slideDots"></div>
 
-  <div id="sync-hero-float" class="hero-float">
-    <div class="nav-logo">
-    <div class="nav-logo-box">
-      @if(isset($settings['logo_url']) && $settings['logo_url'])
-        <img src="{{ $settings['logo_url'] }}" alt="Logo" class="nav-logo-img">
-      @else
-        🕌
-      @endif
-    </div>
-    <div class="nav-brand">{{ $settings['brand_name'] ?? 'Nusa' }}<span>{{ $settings['brand_tagline'] ?? 'Haji' }}</span></div>
-  </div>
-    <div id="sync-h-float-1">
-      <div class="hf-num">{{ $settings['hero_float1_num'] ?? '4.9/5' }}</div>
-      <div class="hf-label">{{ $settings['hero_float1_label'] ?? 'Rating Jemaah' }}</div>
-    </div>
-    <div class="hero-divider"></div>
-    <div id="sync-h-float-2">
-      <div class="hf-num">{{ $settings['hero_float2_num'] ?? '99%' }}</div>
-      <div class="hf-label">{{ $settings['hero_float2_label'] ?? 'Kepuasan' }}</div>
-    </div>
-  </div>
-
   <div class="scroll-hint">
     <span>Scroll</span>
     <div class="scroll-hint-line"></div>
   </div>
 </section>
+
 
 <!-- STATS -->
 <div id="sync-stats" class="stats-bar">
@@ -373,46 +433,25 @@ function filterPaket(cat, btn) {
       <div class="fac-slider-wrapper" id="facSliderWrapper">
         <div class="fac-grid-slider" id="facSlider">
         
-        @php
-          // Fungsi pembantu untuk mencari fasilitas dari database berdasarkan judul
-          function findFac($title, $dbFacilities) {
-              foreach($dbFacilities as $f) {
-                  $dbTitle = $f['title'] ?? ($f['name'] ?? '');
-                  if(strtolower(trim($dbTitle)) === strtolower(trim($title))) return $f;
-              }
-              return null;
-          }
-          
-          // Daftar 9 fasilitas utama untuk dicocokkan
-          $mainFacs = [
-              ['title' => 'Penerbangan', 'icon' => '✈️', 'desc' => 'Tiket pesawat PP dengan maskapai terpercaya, kursi nyaman kelas ekonomi hingga bisnis.', 'long' => 'Nikmati perjalanan ibadah yang nyaman dengan maskapai kelas premium. Kami menyediakan tiket pesawat pulang-pergi (PP) dengan rute langsung menuju Jeddah atau Madinah untuk meminimalisir kelelahan jemaah selama di perjalanan.'],
-              ['title' => 'Hotel', 'icon' => '🏨', 'desc' => 'Akomodasi premium berjarak 50–300 meter dari Masjidil Haram dan Masjid Nabawi.', 'long' => 'Kami menjamin kenyamanan istirahat Anda dengan akomodasi hotel bintang 5/4 pilihan. Lokasi hotel sangat strategis, hanya berjarak 50 hingga 300 meter dari halaman Masjidil Haram di Makkah dan Masjid Nabawi di Madinah.'],
-              ['title' => 'Katering', 'icon' => '🍽️', 'desc' => 'Hidangan halal berkualitas 3x sehari dengan menu masakan Indonesia yang lezat.', 'long' => 'Kami memahami pentingnya asupan nutrisi bagi jemaah. Hidangan halal, bergizi, dan higienis disajikan 3 kali sehari dengan menu khas masakan Indonesia yang lezat untuk menjaga stamina dan mengobati rasa rindu masakan tanah air selama di tanah suci.'],
-              ['title' => 'Transportasi', 'icon' => '🚌', 'desc' => 'Bus full AC kelas premium untuk seluruh perjalanan di Makkah dan Madinah.', 'long' => 'Seluruh rangkaian perjalanan ziarah dan transportasi antar kota (Makkah-Madinah) menggunakan bus kelas premium yang dilengkapi AC dingin, kursi ergonomis, dan pengemudi berpengalaman demi keamanan dan kenyamanan maksimal jemaah.'],
-              ['title' => 'Dokumen & Visa', 'icon' => '🛂', 'desc' => 'Pengurusan paspor, visa haji/umrah, dan asuransi perjalanan yang aman dan cepat.', 'long' => 'Kami membantu pengurusan seluruh dokumen perjalanan Anda, mulai dari paspor, visa haji/umrah, hingga asuransi perjalanan, memastikan semua persyaratan administratif terpenuhi dengan aman dan cepat.'],
-              ['title' => 'Bimbingan', 'icon' => '📚', 'desc' => 'Manasik haji intensif dan paket perlengkapan ibadah lengkap berkualitas premium.', 'long' => 'Setiap jemaah mendapatkan bimbingan manasik intensif serta perlengkapan ibadah lengkap (kain ihram/mukena, koper, seragam, dll) berkualitas untuk mendukung kekhusyu\'an ibadah Anda.'],
-              ['title' => 'Layanan Masyair', 'icon' => '⛺', 'desc' => 'Tenda nyaman dan layanan khusus jemaah selama di Arafah, Muzdalifah, dan Mina.', 'long' => 'Layanan khusus selama fase Masyair di Arafah, Muzdalifah, dan Mina dengan tenda yang nyaman, konsumsi terjaga, serta pendampingan mutawwif yang siap membantu ibadah Anda.'],
-              ['title' => 'Kesehatan', 'icon' => '🏥', 'desc' => 'Pendampingan layanan kesehatan dan kartu identitas jemaah untuk keamanan maksimal.', 'long' => 'Kesehatan jemaah adalah prioritas. Kami menyediakan identitas jemaah yang jelas serta tim pendamping yang siap membantu koordinasi layanan kesehatan selama di tanah suci.'],
-              ['title' => 'Layanan Domestik', 'icon' => '🇮🇩', 'desc' => 'Layanan penjemputan dan pengantaran jemaah serta bantuan teknis di dalam negeri.', 'long' => 'Kami memberikan layanan penjemputan dan pengantaran jemaah dari daerah asal hingga bandara internasional, serta bantuan teknis selama proses keberangkatan di tanah air.'],
-          ];
-        @endphp
-
-        @foreach($mainFacs as $item)
+        @forelse($facilities as $item)
           @php 
-            $dbItem = findFac($item['title'], $facilities);
-            $finalTitle = $dbItem ? ($dbItem['title'] ?? $dbItem['name']) : $item['title'];
-            $finalIcon = $dbItem['icon'] ?? $item['icon'];
-            $finalDesc = $dbItem['description'] ?? $item['desc'];
-            $finalLong = $dbItem['description'] ?? $item['long'];
+            $finalTitle = $item['title'] ?? ($item['name'] ?? 'Fasilitas');
+            $finalIcon = $item['icon'] ?? '✨';
+            $finalDesc = $item['description'] ?? '';
+            $finalLong = $item['description'] ?? '';
           @endphp
           <div class="fac-card-wrapper">
             <div class="fac-card reveal no-edit" onclick="showFacModal('{{ $finalIcon }}', '{{ $finalTitle }}', '{{ addslashes($finalLong) }}')">
               <div class="fac-card-icon">{{ $finalIcon }}</div>
               <div class="fac-title">{{ $finalTitle }}</div>
-              <p class="fac-desc">{{ $finalDesc }}</p>
+              <p class="fac-desc">{{ \Illuminate\Support\Str::limit($finalDesc, 80) }}</p>
             </div>
           </div>
-        @endforeach
+        @empty
+          <div class="empty-fac-msg" style="width: 100%; text-align: center; color: #94a3b8; padding: 40px 0;">
+             Belum ada fasilitas yang ditambahkan.
+          </div>
+        @endforelse
 
         </div>
 
@@ -579,11 +618,14 @@ function closeFacModal(e) {
       <div class="modal-video-placeholder" id="videoModalContent">
         <video
           id="heroVideoPlayer"
-          src="{{ $settings['hero_video_url'] }}"
           controls
           playsinline
+          preload="auto"
           style="width:100%; border-radius:12px; box-shadow:0 20px 50px rgba(0,0,0,0.5); max-height:80vh;"
-        ></video>
+        >
+          <source src="{{ url($settings['hero_video_url']) }}?t={{ time() }}" type="video/mp4">
+          Browser Anda tidak mendukung tag video.
+        </video>
       </div>
     @else
       {{-- Belum ada video, tampilkan placeholder --}}
@@ -840,9 +882,12 @@ document.addEventListener('click', function(e) {
 /* ── VIDEO MODAL ── */
 function openModal(){
     document.getElementById('videoModal').classList.add('open');
-    // Auto-play video jika ada
+    // Paksa video muat ulang & play
     const vid = document.getElementById('heroVideoPlayer');
-    if (vid) { vid.play().catch(() => {}); }
+    if (vid) { 
+        vid.load(); // Paksa reload source terbaru
+        vid.play().catch(() => {}); 
+    }
 }
 function closeModal(e){if(e.target===document.getElementById('videoModal'))closeModalDirect();}
 function closeModalDirect(){

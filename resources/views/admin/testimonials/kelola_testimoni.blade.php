@@ -7,110 +7,158 @@
 @endpush
 
 @section('content')
-<div class="card">
-    <div class="card-header testimonials-header">
-        <h2 class="card-title">Ulasan Jemaah</h2>
-        @php
-            $settings = \Illuminate\Support\Facades\Cache::get('site_settings', []);
-            $hasGmaps = !empty($settings['google_maps_api_key']) && !empty($settings['google_place_id']);
-        @endphp
-        
+@php
+    $settings = \Illuminate\Support\Facades\Cache::get('site_settings', []);
+    $hasGmaps = !empty($settings['google_maps_api_key']) && !empty($settings['google_place_id']);
+@endphp
+
+<div class="testi-container">
+    {{-- ── TOP HEADER SECTION ── --}}
+    <div class="testi-header-premium">
+        <div class="header-info">
+            <h1 class="header-title">Ulasan Jemaah</h1>
+            <p class="header-subtitle">Kelola testimoni dan umpan balik dari tamu Allah</p>
+        </div>
         <div class="header-actions">
             @if($hasGmaps)
-                <button type="button" id="syncGmapsBtn" onclick="syncGmapsReviews()" class="btn-primary" style="background: #4285F4; border: none; border-radius: 8px; padding: 10px 18px; font-weight: 600; display: flex; align-items: center; gap: 8px;">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M23 4v6h-6"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>
-                    Sinkron Google Maps
+                <button type="button" id="syncGmapsBtn" onclick="syncGmapsReviews()" class="btn-gmaps-premium">
+                    <div class="icon-wrap">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M23 4v6h-6"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>
+                    </div>
+                    <span>Sinkron Google Maps</span>
                 </button>
             @else
-                <a href="{{ route('admin.settings', ['tab' => 'integrasi']) }}" class="btn-secondary" style="font-size: 0.85rem; color: #64748b; text-decoration: none;">
-                    ⚙️ Atur Google Maps API
+                <a href="{{ route('admin.settings', ['tab' => 'integrasi']) }}" class="btn-setup-gmaps">
+                    <i class="fas fa-cog"></i> Atur API Google Maps
                 </a>
             @endif
         </div>
     </div>
 
-    <div class="card filter-card mb-4">
-        <form method="GET" class="filter-form">
-            <div class="filter-group">
-                <label class="filter-label">Cari Nama / Isi Testimoni</label>
-                <input type="text" name="q" value="{{ request('q') }}" class="form-control filter-input testi-search-input" placeholder="Ketik untuk mencari...">
+    {{-- ── FILTER & SEARCH BAR ── --}}
+    <div class="testi-filter-premium shadow-sm">
+        <form method="GET" class="filter-flex">
+            <div class="search-input-group">
+                <div class="search-icon">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                </div>
+                <input type="text" name="q" value="{{ request('q') }}" class="search-input-premium testi-search-input" placeholder="Cari nama jemaah atau isi testimoni...">
             </div>
-            <div>
-                <label class="filter-label">Filter Status</label>
-                <select name="status" class="form-control filter-select" onchange="this.form.submit()">
-                    <option value="">— Semua Status —</option>
-                    <option value="published" {{ request('status') == 'published' ? 'selected' : '' }}>Live di Web</option>
-                    <option value="hidden" {{ request('status') == 'hidden' ? 'selected' : '' }}>Disembunyikan</option>
-                </select>
+            
+            <div class="filter-actions">
+                <div class="select-premium-wrap">
+                    <select name="status" class="select-premium" onchange="this.form.submit()">
+                        <option value="">Semua Status</option>
+                        <option value="published" {{ request('status') == 'published' ? 'selected' : '' }}>🟢 Live di Web</option>
+                        <option value="hidden" {{ request('status') == 'hidden' ? 'selected' : '' }}>🔴 Disembunyikan</option>
+                    </select>
+                </div>
+                
+                @if(request('q') || request('status'))
+                    <a href="{{ route('admin.testimonials.index') }}" class="btn-reset-premium">Reset</a>
+                @endif
             </div>
-            <button type="submit" class="btn-primary filter-btn">🔍 Cari</button>
-            @if(request('q') || request('status'))
-            <a href="{{ route('admin.testimonials.index') }}" class="reset-btn">✕ Reset</a>
-            @endif
         </form>
     </div>
     
-    <div class="bulk-actions" id="bulkActionsBarTestimonials">
-        <span id="selectedCountTestimonials">0 baris dipilih</span>
-        <button type="button" class="btn-bulk btn-bulk-publish" onclick="executeBulkAction('publish')">✅ Tampilkan Info Web</button>
-        <button type="button" class="btn-bulk btn-bulk-unpublish" onclick="executeBulkAction('unpublish')">🚫 Sembunyikan Info</button>
-        <button type="button" class="btn-bulk btn-bulk-delete" onclick="executeBulkAction('delete')">🗑️ Hapus</button>
+    {{-- ── BULK ACTION BAR (FLOATING) ── --}}
+    <div class="bulk-bar-premium" id="bulkActionsBarTestimonials">
+        <div class="bulk-inner">
+            <div class="selected-indicator">
+                <span class="count-badge" id="selectedCountTestimonials">0</span>
+                <span class="label">Baris terpilih</span>
+            </div>
+            <div class="bulk-buttons">
+                <button type="button" class="btn-bulk-premium btn-b-publish" onclick="executeBulkAction('publish')">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6 9 17l-5-5"/></svg> Tampilkan
+                </button>
+                <button type="button" class="btn-bulk-premium btn-b-unpublish" onclick="executeBulkAction('unpublish')">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6 6 18M6 6l12 12"/></svg> Sembunyikan
+                </button>
+                <div class="bulk-divider"></div>
+                <button type="button" class="btn-bulk-premium btn-b-delete" onclick="executeBulkAction('delete')">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg> Hapus
+                </button>
+            </div>
+        </div>
     </div>
 
-    <div class="testimonials-table-wrapper">
-        <table class="testimonials-table" id="testimonialsTable">
+    {{-- ── DATA TABLE ── --}}
+    <div class="testi-table-container shadow-sm">
+        <table class="table-premium" id="testimonialsTable">
             <thead>
                 <tr>
-                    <th class="checkbox-col"><input type="checkbox" class="select-all-cb" data-target="testi-checkbox"></th>
-                    <th class="label-col">Foto</th>
-                    <th class="label-col">Jemaah</th>
-                    <th class="label-col">Isi Testimoni</th>
-                    <th class="label-col">Waktu Kirim</th>
-                    <th class="label-col">Status</th>
+                    <th class="col-cb"><div class="custom-cb"><input type="checkbox" class="select-all-cb" data-target="testi-checkbox" id="selectAll"></div></th>
+                    <th class="col-jemaah">Informasi Jemaah</th>
+                    <th class="col-content">Isi Testimoni</th>
+                    <th class="col-date text-center">Waktu Kirim</th>
+                    <th class="col-status text-center">Status</th>
                 </tr>
             </thead>
             <tbody>
                 @forelse($testimonials ?? [] as $id => $testi)
-                <tr>
-                    <td><input type="checkbox" class="row-checkbox testi-checkbox" value="{{ $id }}"></td>
+                <tr class="row-hover">
                     <td>
-                        <div class="jemaah-avatar-wrapper">
-                            @if(!empty($testi['avatar_url']))
-                                <img src="{{ $testi['avatar_url'] }}">
-                            @else
-                                <span>{{ substr($testi['name'] ?? 'J', 0, 1) }}</span>
-                            @endif
+                        <div class="custom-cb">
+                            <input type="checkbox" class="row-checkbox testi-checkbox" value="{{ $id }}">
                         </div>
                     </td>
                     <td>
-                        <div class="jemaah-name">{{ $testi['name'] ?? 'Anonymous' }}</div>
-                        <div class="jemaah-location">{{ $testi['location'] ?? '' }}</div>
-                        <div class="jemaah-rating">{{ str_repeat('★', $testi['rating'] ?? 5) }}</div>
+                        <div class="jemaah-flex">
+                            <div class="avatar-premium-wrap {{ !empty($testi['avatar_url']) ? 'has-img' : '' }}">
+                                @if(!empty($testi['avatar_url']))
+                                    <img src="{{ $testi['avatar_url'] }}" alt="Avatar">
+                                @else
+                                    <span class="avatar-initial">{{ substr($testi['name'] ?? 'J', 0, 1) }}</span>
+                                @endif
+                                <div class="status-indicator {{ (isset($testi['is_published']) ? $testi['is_published'] : true) ? 'online' : 'offline' }}"></div>
+                            </div>
+                            <div class="jemaah-info">
+                                <div class="j-name">{{ $testi['name'] ?? 'Anonymous' }}</div>
+                                <div class="j-meta">
+                                    <span class="j-loc"><i class="fas fa-map-marker-alt"></i> {{ $testi['location'] ?? 'Indonesia' }}</span>
+                                    <div class="j-rating">
+                                        @for($i=1; $i<=5; $i++)
+                                            <svg width="12" height="12" viewBox="0 0 24 24" fill="{{ $i <= ($testi['rating'] ?? 5) ? '#eab308' : '#e2e8f0' }}"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                                        @endfor
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </td>
-                    <td class="testi-content">"{{ \Illuminate\Support\Str::limit($testi['text'] ?? '', 80) }}"</td>
-                    <td class="date-col">
-                        <div class="date-box">
+                    <td>
+                        <div class="testi-quote-wrap">
+                            <span class="quote-icon">“</span>
+                            <div class="quote-text">{{ \Illuminate\Support\Str::limit($testi['text'] ?? '', 120) }}</div>
+                        </div>
+                    </td>
+                    <td class="text-center">
+                        <div class="date-premium">
                             @if(!empty($testi['created_at']))
-                                <div class="time">{{ \Carbon\Carbon::parse($testi['created_at'])->format('H:i') }}</div>
-                                <div>{{ \Carbon\Carbon::parse($testi['created_at'])->format('d M Y') }}</div>
+                                <span class="d-time">{{ \Carbon\Carbon::parse($testi['created_at'])->format('H:i') }}</span>
+                                <span class="d-day">{{ \Carbon\Carbon::parse($testi['created_at'])->format('d M Y') }}</span>
                             @else
-                                <span style="color: #cbd5e1;">-</span>
+                                <span class="d-none-val">-</span>
                             @endif
                         </div>
                     </td>
-                    <td>
-                        @php
-                            $isPublished = isset($testi['is_published']) ? $testi['is_published'] : true;
-                        @endphp
-                        @if($isPublished)
-                            <span class="status-badge yes">Live di Web</span>
-                        @else
-                            <span class="status-badge no">Disembunyikan</span>
-                        @endif
+                    <td class="text-center">
+                        @php $isPublished = isset($testi['is_published']) ? $testi['is_published'] : true; @endphp
+                        <span class="badge-premium {{ $isPublished ? 'bg-live' : 'bg-hidden' }}">
+                            {{ $isPublished ? 'Live di Web' : 'Disembunyikan' }}
+                        </span>
                     </td>
                 </tr>
                 @empty
-                <tr><td colspan="6" class="empty-testi">Belum ada ulasan yang masuk.</td></tr>
+                <tr>
+                    <td colspan="5">
+                        <div class="empty-state-premium">
+                            <div class="empty-icon">📂</div>
+                            <h3>Belum ada testimoni</h3>
+                            <p>Testimoni dari landing page atau Google Maps akan muncul di sini.</p>
+                        </div>
+                    </td>
+                </tr>
                 @endforelse
             </tbody>
         </table>

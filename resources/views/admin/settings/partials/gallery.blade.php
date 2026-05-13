@@ -17,7 +17,7 @@
             <div class="gallery-photo-card">
                 <label class="form-label">Foto {{ $i }}</label>
                 @if(!empty($settings['gallery_img_' . $i]))
-                    <img src="{{ $settings['gallery_img_' . $i] }}" class="gallery-preview-img">
+                    <img src="{{ url($settings['gallery_img_' . $i]) }}" class="gallery-preview-img">
                     <label class="delete-photo-label">
                         <input type="checkbox" name="delete_gallery_img_{{ $i }}" value="1"> 🗑️ Hapus
                     </label>

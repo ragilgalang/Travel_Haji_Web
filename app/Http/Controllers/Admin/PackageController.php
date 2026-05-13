@@ -236,6 +236,15 @@ class PackageController extends Controller
      */
     private function clearPackageCaches()
     {
-        \Illuminate\Support\Facades\Cache::flush();
+        // Hapus cache yang berkaitan dengan paket agar perubahan langsung muncul di semua halaman
+        \Illuminate\Support\Facades\Cache::forget('firebase_packages');
+        \Illuminate\Support\Facades\Cache::forget('dashboard_packages');
+        \Illuminate\Support\Facades\Cache::forget('dashboard_main_stats_v2');
+        \Illuminate\Support\Facades\Cache::forget('site_global_data');
+        
+        // TAMBAHAN: Hapus cache yang digunakan oleh landing page (HomeController)
+        \Illuminate\Support\Facades\Cache::forget('site_packages');
+        \Illuminate\Support\Facades\Cache::forget('site_settings');
+        \Illuminate\Support\Facades\Cache::forget('site_testimonials');
     }
 }

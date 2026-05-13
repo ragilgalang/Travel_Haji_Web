@@ -20,56 +20,7 @@ use App\Models\Facility;
 // Homepage
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
-Route::get('/fix-passwords', function () {
-    $passwordHash = \Illuminate\Support\Facades\Hash::make('password123');
-    
-    // Update/Buat 5 Role Demo
-    $roles = [
-        'admin'   => 'Administrator Travel',
-        'manager' => 'Operational Manager',
-        'finance' => 'Finance Staff',
-        'cs'      => 'Customer Service',
-        'staff'   => 'General Staff / Lapangan'
-    ];
-
-    foreach ($roles as $role => $name) {
-        $email = $role . '@gmail.com';
-        // Akun admin khusus
-        if ($role == 'admin') $email = 'admin123@gmail.com';
-
-        \Illuminate\Support\Facades\DB::table('users')->updateOrInsert(
-            ['email' => $email],
-            [
-                'name' => $name,
-                'password' => $passwordHash,
-                'role' => $role,
-                'login_attempts' => 0,
-                'locked_until' => null
-            ]
-        );
-    }
-    
-    return "Selesai! 5 Akun Role telah disiapkan dengan password: password123";
-});
-
-// Fitur Pintasan Login (Hanya untuk testing)
-Route::get('/masuk-sebagai/{role}', function ($role) {
-    $email = ($role == 'admin') ? 'admin123@gmail.com' : $role . '@gmail.com';
-    
-    // Cari user di SQLite
-    $user = \Illuminate\Support\Facades\DB::table('users')->where('email', $email)->first();
-    
-    if (!$user) return "User dengan role $role tidak ditemukan. Jalankan /fix-passwords dulu.";
-
-    // Buat object model User untuk di-login-kan
-    $authUser = new \App\Models\User((array) $user);
-    $authUser->id = $user->id; 
-    
-    // Paksa login!
-    \Illuminate\Support\Facades\Auth::login($authUser);
-
-    return redirect('/admin/dashboard')->with('success', 'Berhasil masuk sebagai ' . ucfirst($role));
-});
+// [KEAMANAN] Rute /fix-passwords dan /masuk-sebagai dihapus karena berbahaya di production.
 
 // Pendaftaran Customer
 Route::get('/daftar', [RegistrationController::class, 'show'])->name('register.show');
@@ -84,59 +35,20 @@ Route::post('/contact/submit', [HomeController::class, 'submitContact'])->name('
 // SEO Sitemap
 Route::get('/sitemap.xml', [\App\Http\Controllers\SitemapController::class, 'index'])->name('sitemap');
 
-// Dummy Registration for Testing Notifications
-Route::get('/buat-dummy-pendaftar', function () {
-    $firebase = app(\App\Services\FirebaseService::class);
-    $faker = \Faker\Factory::create('id_ID');
-    
-    $refId = 'REG-' . strtoupper(\Illuminate\Support\Str::random(8));
-    $nama = $faker->name;
-    
-    $data = [
-        'nama_lengkap' => $nama,
-        'nik' => $faker->numerify('################'),
-        'no_hp' => $faker->phoneNumber,
-        'ttl' => $faker->city,
-        'tgl' => $faker->date('Y-m-d', '2000-01-01'),
-        'gender' => $faker->randomElement(['Laki-laki', 'Perempuan']),
-        'alamat' => $faker->address,
-        'paket' => 'Paket Umrah Reguler (Dummy)',
-        'kamar' => 'Quad',
-        'catatan' => 'Pendaftaran uji coba sistem notifikasi',
-        'wali' => $faker->name,
-        'hubungan' => 'Saudara',
-        'hp_darurat' => $faker->phoneNumber,
-        'status' => 'Menunggu Verifikasi',
-        'created_at' => now()->toDateTimeString(),
-        'ref_id' => $refId
-    ];
-
-    // Dynamic fields for admin view
-    $data['dynamic_fields'] = [
-        ['label' => 'NIK (16 Digit)', 'value' => $data['nik'], 'type' => 'text'],
-        ['label' => 'Tempat Lahir', 'value' => $data['ttl'], 'type' => 'text'],
-        ['label' => 'Paket Dipilih', 'value' => $data['paket'], 'type' => 'text'],
-        ['label' => 'No. HP Darurat', 'value' => $data['hp_darurat'], 'type' => 'text'],
-    ];
-
-    $firebase->getReference('registrations')->push($data);
-
-    return "<h3>✅ Berhasil membuat pendaftaran dummy!</h3>
-            <p>Nama: $nama</p>
-            <p>Ref ID: $refId</p>
-            <p>Silakan buka dashboard admin dan tunggu maksimal 30 detik untuk melihat angka pada lonceng berubah.</p>
-            <a href='/admin/dashboard'>Kembali ke Dashboard</a>";
-});
+// [KEAMANAN] Rute /buat-dummy-pendaftar dihapus karena tidak dilindungi autentikasi.
 
 
 // Auth
-Route::get('/ptumb', [AuthController::class, 'login'])->name('login');
-Route::post('/ptumb', [AuthController::class, 'authenticate'])->name('login.authenticate');
+Route::middleware('throttle:10,1')->group(function () {
+    Route::get('/ptumb', [AuthController::class, 'login'])->name('login');
+    Route::post('/ptumb', [AuthController::class, 'authenticate'])->name('login.authenticate');
+});
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 // Admin
 Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [AdminController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard/stats', [AdminController::class, 'getStatsApi'])->name('stats.api');
     Route::get('/guide', [AdminController::class, 'guide'])->name('guide');
     
     // Settings

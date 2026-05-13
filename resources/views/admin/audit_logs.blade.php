@@ -27,6 +27,38 @@
             </form>
         </div>
     </div>
+    @php
+        $statsSuccess = count(collect($auditLogs)->where('status', 'LOGIN_SUCCESS'));
+        $statsFailed = count(collect($auditLogs)->where('status', 'LOGIN_FAILED'));
+    @endphp
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 2rem;">
+        <div class="card-modern" style="padding: 1rem; display: flex; align-items: center; gap: 15px; background: linear-gradient(135deg, #f0fdf4, #ffffff);">
+            <div style="background: #dcfce7; width: 45px; height: 45px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">✅</div>
+            <div>
+                <div style="font-size: 0.75rem; color: #166534; font-weight: 700; text-transform: uppercase;">Berhasil</div>
+                <div style="font-size: 1.5rem; font-weight: 800; color: #064e3b;">{{ $statsSuccess }}</div>
+            </div>
+        </div>
+        <div class="card-modern" style="padding: 1rem; display: flex; align-items: center; gap: 15px; background: linear-gradient(135deg, #fef2f2, #ffffff);">
+            <div style="background: #fee2e2; width: 45px; height: 45px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">❌</div>
+            <div>
+                <div style="font-size: 0.75rem; color: #991b1b; font-weight: 700; text-transform: uppercase;">Gagal</div>
+                <div style="font-size: 1.5rem; font-weight: 800; color: #7f1d1d;">{{ $statsFailed }}</div>
+            </div>
+        </div>
+    </div>
+
+    {{-- GRAFIK REAL-TIME LOGIN HARI INI --}}
+    <div class="card-modern" style="margin-bottom: 2rem; padding: 1.5rem;">
+        <h3 style="margin-top: 0; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 10px; font-family: 'Playfair Display', serif;">
+            📈 Tren Aktivitas Login (Hari Ini)
+            <span style="background: #10b981; color: white; font-size: 0.65rem; padding: 2px 8px; border-radius: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; animation: pulse 2s infinite;">Live</span>
+        </h3>
+        <div style="height: 300px;">
+            <canvas id="auditChart"></canvas>
+        </div>
+    </div>
 
     <div class="card-modern">
         <div class="table-responsive">
@@ -239,4 +271,80 @@ function toggleModalPwd() {
     <input type="hidden" name="email" id="reset-email">
     <input type="hidden" name="new_password" id="reset-password">
 </form>
+@push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const ctx = document.getElementById('auditChart');
+    if (!ctx) return;
+
+    const chartData = @json($chartData);
+    
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: chartData.labels,
+            datasets: [
+                {
+                    label: 'Login Berhasil',
+                    data: chartData.success,
+                    borderColor: '#10b981',
+                    backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 4,
+                    pointBackgroundColor: '#10b981'
+                },
+                {
+                    label: 'Login Gagal',
+                    data: chartData.failed,
+                    borderColor: '#ef4444',
+                    backgroundColor: 'rgba(239, 68, 68, 0.05)',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 4,
+                    pointBackgroundColor: '#ef4444',
+                    borderDash: [5, 5]
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        usePointStyle: true,
+                        padding: 20,
+                        font: { family: 'Inter', size: 12, weight: '600' }
+                    }
+                },
+                tooltip: {
+                    mode: 'index',
+                    intersect: false,
+                    backgroundColor: '#1e293b',
+                    padding: 12,
+                    cornerRadius: 10,
+                    titleFont: { size: 13, weight: '700' },
+                    bodyFont: { size: 12 }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: { color: 'rgba(0,0,0,0.04)' },
+                    ticks: { stepSize: 1, precision: 0 }
+                },
+                x: {
+                    grid: { display: false }
+                }
+            }
+        }
+    });
+});
+</script>
+@endpush
 @endsection

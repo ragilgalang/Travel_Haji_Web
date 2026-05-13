@@ -69,23 +69,28 @@ class FirebaseUserProvider implements UserProvider
     public function updateRememberToken(Authenticatable $user, $token) {}
     public function retrieveByCredentials(array $credentials)
     {
-        if (empty($credentials) || !isset($credentials['email'])) {
+        if (empty($credentials)) {
             return null;
         }
 
-        $loginValue = $credentials['email'];
+        // Ambil nilai identifier (bisa dari key 'email' atau 'username')
+        $loginValue = $credentials['email'] ?? $credentials['username'] ?? null;
+        
+        if (!$loginValue) {
+            return null;
+        }
 
         try {
             $firebase = app(\App\Services\FirebaseService::class);
             $users = $firebase->getValue('users') ?? [];
 
-            // Cari user berdasarkan email atau username
+            // Cari user berdasarkan email atau username di Firebase
             foreach ($users as $key => $data) {
-                $matchEmail = isset($data['email']) && $data['email'] === $loginValue;
-                $matchUser  = isset($data['username']) && $data['username'] === $loginValue;
+                $matchEmail = isset($data['email']) && strtolower($data['email']) === strtolower($loginValue);
+                $matchUser  = isset($data['username']) && strtolower($data['username']) === strtolower($loginValue);
 
                 if ($matchEmail || $matchUser) {
-                    $email = $data['email'] ?? ($matchEmail ? $loginValue : null);
+                    $email = $data['email'] ?? null;
                     $dbUser = \Illuminate\Support\Facades\DB::table('users')->where('email', $email)->first();
                     
                     return new User([

@@ -455,35 +455,33 @@
     to { transform: rotate(360deg); }
 }
 
- / *   R E V I E W   M O D A L   E X T R A   S T Y L E S   ( M I G R A T E D   F R O M   F O O T E R . B L A D E . P H P )   * / 
- . d - n o n e   {   d i s p l a y :   n o n e   ! i m p o r t a n t ;   } 
- . r e v i e w - u p l o a d - l a b e l   { 
-         d i s p l a y :   b l o c k ; 
-         b o r d e r :   2 p x   d a s h e d   # d 1 d 5 d b ; 
-         b o r d e r - r a d i u s :   1 0 p x ; 
-         p a d d i n g :   1 6 p x ; 
-         t e x t - a l i g n :   c e n t e r ; 
-         c u r s o r :   p o i n t e r ; 
-         c o l o r :   # 6 b 7 2 8 0 ; 
-         f o n t - s i z e :   0 . 8 5 r e m ; 
-         t r a n s i t i o n :   b o r d e r - c o l o r   0 . 2 s ,   b a c k g r o u n d   0 . 2 s ; 
- } 
- . r e v i e w - u p l o a d - l a b e l : h o v e r   { 
-         b o r d e r - c o l o r :   # 1 6 a 3 4 a ; 
-         b a c k g r o u n d :   # f 0 f d f 4 ; 
-         c o l o r :   # 1 5 8 0 3 d ; 
- } 
- . b t n - s p i n n e r   { 
-         w i d t h :   1 8 p x ; 
-         h e i g h t :   1 8 p x ; 
-         b o r d e r :   2 p x   s o l i d   r g b a ( 2 5 5 , 2 5 5 , 2 5 5 , 0 . 3 ) ; 
-         b o r d e r - r a d i u s :   5 0 % ; 
-         b o r d e r - t o p - c o l o r :   # f f f ; 
-         a n i m a t i o n :   s p i n - r e v i e w   0 . 8 s   l i n e a r   i n f i n i t e ; 
-         d i s p l a y :   i n l i n e - b l o c k ; 
- } 
- @ k e y f r a m e s   s p i n - r e v i e w   { 
-         t o   {   t r a n s f o r m :   r o t a t e ( 3 6 0 d e g ) ;   } 
- } 
-  
- 
+/* REVIEW MODAL EXTRA STYLES (MIGRATED FROM FOOTER.BLADE.PHP) */
+.d-none { display: none !important; }
+.review-upload-label { 
+    display: block; 
+    border: 2px dashed #d1d5db; 
+    border-radius: 10px; 
+    padding: 16px; 
+    text-align: center; 
+    cursor: pointer; 
+    color: #6b7280; 
+    font-size: 0.85rem; 
+    transition: border-color 0.2s, background 0.2s; 
+}
+.review-upload-label:hover { 
+    border-color: #16a34a; 
+    background: #f0fdf4; 
+    color: #15803d; 
+}
+.btn-spinner { 
+    width: 18px; 
+    height: 18px; 
+    border: 2px solid rgba(255, 255, 255, 0.3); 
+    border-radius: 50%; 
+    border-top-color: #fff; 
+    animation: spin-review 0.8s linear infinite; 
+    display: inline-block; 
+}
+@keyframes spin-review { 
+    to { transform: rotate(360deg); } 
+}

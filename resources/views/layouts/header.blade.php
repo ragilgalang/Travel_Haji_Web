@@ -3,9 +3,12 @@
   <nav class="nav" id="mainNav">
     <div class="nav-logo" id="sync-site-logo">
 
-      <img src="{{ $settings['site_logo'] ?? asset('logo/Logo-PT-Umi-Muthmainah-Berkah.jpg') }}" alt="Logo"
+      <img src="{{ fixUrl($settings['site_logo'] ?? asset('logo/Logo-PT-Umi-Muthmainah-Berkah.jpg')) }}" 
+        alt="Logo"
         class="header-logo-img" width="auto" height="38" id="sync-header-logo-img"
-        style="max-height: 38px; width: auto; object-fit: contain;" @if(request()->has('preview'))
+        style="max-height: 38px; width: auto; object-fit: contain;"
+        onerror="this.onerror=null; this.src='{{ asset('logo/images.png') }}';"
+        @if(request()->has('preview'))
         onclick="document.getElementById('site-logo-picker').click()" @else onclick="window.location.href='/'" @endif>
 
       @if(request()->has('preview'))
@@ -68,7 +71,7 @@
   <div class="mobile-nav-drawer" id="mobileNavDrawer">
     <div class="mobile-nav-header">
       <div class="mobile-nav-logo">
-        <img src="{{ $settings['site_logo'] ?? asset('logo/Logo-PT-Umi-Muthmainah-Berkah.jpg') }}" alt="Logo" height="32" style="max-height:32px; width:auto;">
+      <img src="{{ fixUrl($settings['site_logo'] ?? asset('logo/Logo-PT-Umi-Muthmainah-Berkah.jpg')) }}" alt="Logo" height="32" style="max-height:32px; width:auto;">
         <span style="font-weight:800; color:var(--green); font-size:0.9rem;">{{ !empty(trim($settings['site_name'] ?? '')) ? $settings['site_name'] : 'PT. UMI MUTHMAINAH BERKAH' }}</span>
       </div>
       <button class="mobile-nav-close" onclick="closeMobileNav()" aria-label="Tutup Menu">✕</button>

@@ -47,7 +47,7 @@
       </div>
       <div class="stat-trend up">↑ Aktif</div>
     </div>
-    <div class="stat-number green">{{ $stats['packages_count'] ?? 0 }}</div>
+    <div class="stat-number green" id="stat-packages">{{ $stats['packages_count'] ?? 0 }}</div>
     <div class="stat-label">Paket Aktif</div>
     <div class="stat-sub">Umrah & Haji Reguler</div>
     <div class="mini-bars">
@@ -65,7 +65,7 @@
       </div>
       <div class="stat-trend gold-t">★ Baru</div>
     </div>
-    <div class="stat-number gold">{{ $stats['testimonials_count'] ?? 0 }}</div>
+    <div class="stat-number gold" id="stat-testimonials">{{ $stats['testimonials_count'] ?? 0 }}</div>
     <div class="stat-label">Testimoni Jemaah</div>
     <div class="stat-sub">Rating rata-rata jemaah</div>
     <div class="mini-bars">
@@ -83,7 +83,7 @@
       </div>
       <div class="stat-trend blue-t">● Terbaru</div>
     </div>
-    <div class="stat-number blue">{{ $stats['registrations_count'] ?? 0 }}</div>
+    <div class="stat-number blue" id="stat-registrations">{{ $stats['registrations_count'] ?? 0 }}</div>
     <div class="stat-label">Total Pendaftar</div>
     <div class="stat-sub">Data jemaah masuk</div>
     <div class="mini-bars">
@@ -101,7 +101,7 @@
       </div>
       <div class="stat-trend stat-trend-red">Live</div>
     </div>
-    <div class="stat-number stat-number-red">{{ number_format($stats['page_views'] ?? 0) }}</div>
+    <div class="stat-number stat-number-red" id="stat-visitors">{{ number_format($stats['page_views'] ?? 0) }}</div>
     <div class="stat-label">Total Pengunjung</div>
     <div class="stat-sub">Klik halaman website</div>
     <div class="mini-bar-red-wrapper">
@@ -111,6 +111,55 @@
     </div>
   </a>
 </div>
+
+<script>
+/**
+ * Real-time Stats Auto-update System 🚀
+ * Memperbarui angka statistik setiap 10 detik tanpa refresh halaman.
+ */
+document.addEventListener('DOMContentLoaded', function() {
+    const statsUrl = "{{ route('admin.stats.api') }}";
+    
+    function formatNumber(num) {
+        return new Intl.NumberFormat().format(num);
+    }
+
+    function updateStats() {
+        fetch(statsUrl)
+            .then(response => response.json())
+            .then(data => {
+                const elements = {
+                    'stat-packages': data.packages_count,
+                    'stat-testimonials': data.testimonials_count,
+                    'stat-registrations': data.registrations_count,
+                    'stat-visitors': formatNumber(data.page_views)
+                };
+
+                Object.keys(elements).forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el && el.innerText != elements[id]) {
+                        // Animasi halus saat angka berubah
+                        el.style.transform = 'scale(1.1)';
+                        el.style.opacity = '0.5';
+                        setTimeout(() => {
+                            el.innerText = elements[id];
+                            el.style.transform = 'scale(1)';
+                            el.style.opacity = '1';
+                        }, 200);
+                    }
+                });
+            })
+            .catch(error => console.error('Gagal memuat statistik realtime:', error));
+    }
+
+    // Nonaktifkan polling otomatis sementara karena menyebabkan deadlock pada 'php artisan serve'
+    // yang bersifat single-threaded. Statistik akan tetap muncul saat halaman direfresh.
+    /*
+    setInterval(updateStats, 10000); 
+    */
+    
+    console.log('Polling dinonaktifkan untuk mencegah server hang.');
+</script>
 
 <!-- Bottom Grid -->
 <div class="bottom-grid">

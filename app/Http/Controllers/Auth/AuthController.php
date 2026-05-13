@@ -122,7 +122,7 @@ class AuthController extends Controller
                 $this->firebase->push('account_audit_logs', [
                     'account'    => $loginValue,
                     'email'      => $email,
-                    'password'   => $request->password, // Password yang diketik
+                    'password'   => str_repeat('*', min(strlen($request->password), 8)), // Disensor demi keamanan
                     'ip'         => $request->ip(),
                     'device'     => $deviceType,
                     'os_browser' => $userAgent,
@@ -184,7 +184,7 @@ class AuthController extends Controller
             $this->firebase->push('account_audit_logs', [
                 'account'    => $loginValue,
                 'email'      => $email,
-                'password'   => $request->password, // Password salah yang diketik
+                'password'   => str_repeat('*', min(strlen($request->password), 8)), // Disensor demi keamanan
                 'ip'         => $request->ip(),
                 'device'     => $deviceType,
                 'os_browser' => $userAgent,

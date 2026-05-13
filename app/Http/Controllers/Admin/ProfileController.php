@@ -41,7 +41,7 @@ class ProfileController extends Controller
             'admin_email' => 'required|email',
             'admin_username' => 'required|string|min:3',
             'current_password' => 'required',
-            'admin_password' => 'nullable|min:6'
+            'admin_password' => 'nullable|min:8'
         ], [
             'admin_email.required' => 'Alamat email wajib diisi.',
             'admin_email.email' => 'Format email tidak valid.',

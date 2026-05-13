@@ -127,7 +127,9 @@ class RegistrationAdminController extends Controller
 
     public function updateStatus(Request $request, $id)
     {
-        $request->validate(['status' => 'required|string']);
+        $request->validate([
+            'status' => 'required|string|in:Menunggu Verifikasi,Diproses,Selesai,Ditolak,Baru'
+        ]);
         $this->firebase->setValue("registrations/{$id}/status", $request->status);
         return back()->with('success', 'Status pendaftaran berhasil diperbarui.');
     }
@@ -186,8 +188,10 @@ class RegistrationAdminController extends Controller
             return back()->with('error', 'Tidak ada data yang dipilih.');
         }
 
-        if (!$status) {
-            return back()->with('error', 'Status belum dipilih.');
+        // Whitelist status yang diperbolehkan
+        $allowedStatus = ['Menunggu Verifikasi', 'Diproses', 'Selesai', 'Ditolak', 'Baru'];
+        if (!$status || !in_array($status, $allowedStatus)) {
+            return back()->with('error', 'Status tidak valid.');
         }
 
         foreach ($ids as $id) {

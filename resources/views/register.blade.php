@@ -1,8 +1,50 @@
+@php
+    function optUrl($url, $w = 800) {
+        if (strpos($url, 'images.unsplash.com') !== false) {
+            $base = explode('?', $url)[0];
+            return $base . "?w={$w}&q=70&auto=format,compress&fm=webp&fit=crop";
+        }
+        return $url;
+    }
+
+    function fixUrl($url) {
+        if (!$url || !is_string($url)) return $url;
+        $currentHost = rtrim(request()->getSchemeAndHttpHost(), '/');
+        
+        if (str_contains($url, 'xampp\htdocs')) {
+            $parts = explode('public\\', $url);
+            if (count($parts) > 1) {
+                $url = $currentHost . '/' . str_replace('\\', '/', $parts[1]);
+            }
+        }
+
+        $localhosts = ['http://127.0.0.1:8000','http://127.0.0.1','http://localhost:8000','http://localhost','https://127.0.0.1:8000','https://localhost:8000'];
+        return str_replace($localhosts, $currentHost, $url);
+    }
+
+    if (!empty($settings) && is_array($settings)) {
+        array_walk_recursive($settings, function(&$value) {
+            if (is_string($value)) $value = fixUrl($value);
+        });
+    }
+@endphp
 <!DOCTYPE html>
 <html lang="id">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script>
+window.addEventListener('error', function(e) {
+    if (e.target.tagName === 'IMG' || e.target.tagName === 'VIDEO') {
+        var src = e.target.src;
+        if (src.indexOf('127.0.0.1') !== -1 || src.indexOf('localhost') !== -1) {
+            var currentHost = window.location.origin;
+            var newSrc = src.replace(/https?:\/\/(127\.0\.0\.1|localhost)(:8000)?/, currentHost);
+            if (newSrc !== src) { e.target.src = newSrc; }
+        }
+    }
+}, true);
+</script>
 <title>Formulir Pendaftaran — {{ $settings['site_name'] ?? 'PT. Umi Muthmainah Berkah' }}</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>

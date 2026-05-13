@@ -18,6 +18,24 @@
   --radius-lg: 24px;
   --shadow: 0 4px 24px rgba(0,0,0,0.07);
   --shadow-lg: 0 16px 48px rgba(0,0,0,0.12);
+  --glass: rgba(255, 255, 255, 0.85);
+  --glass-border: rgba(255, 255, 255, 0.4);
+}
+
+/* ─── CUSTOM SCROLLBAR ─── */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #f1f3f5;
+}
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(to bottom, var(--green), var(--green3));
+  border-radius: 10px;
+  border: 2px solid #f1f3f5;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--green);
 }
 
 /* ─── BODY ─── */
@@ -36,31 +54,36 @@ body {
 
 .btn-solid {
   background: linear-gradient(135deg, var(--green) 0%, var(--green2) 100%);
-  box-shadow: 0 4px 16px rgba(26, 92, 58, 0.3);
+  box-shadow: 0 4px 16px rgba(26, 92, 58, 0.25);
+  border: 1px solid rgba(255,255,255,0.1);
 }
 
 .btn-solid:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(26, 92, 58, 0.4);
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 8px 24px rgba(26, 92, 58, 0.35);
 }
 
 .btn-gold {
   background: linear-gradient(135deg, #c9972a 0%, #e8bf6a 100%);
   color: #fff;
-  box-shadow: 0 4px 16px rgba(201, 151, 42, 0.35);
+  box-shadow: 0 4px 16px rgba(201, 151, 42, 0.3);
+  border: 1px solid rgba(255,255,255,0.15);
 }
 
 .btn-gold:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(201, 151, 42, 0.45);
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 8px 24px rgba(201, 151, 42, 0.4);
 }
 
 /* ─── STATS BAR (MODERNIZED) ─── */
 .stats-bar {
-  background: var(--white);
-  border-top: none;
-  border-bottom: none;
-  box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(0,0,0,0.03);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.04);
+  position: relative;
+  z-index: 10;
 }
 
 .stats-inner {
@@ -204,15 +227,17 @@ body {
 
 .pkg-card {
   border-radius: var(--radius-lg);
-  border: 1px solid #e8ecf0;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.04);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid rgba(0,0,0,0.05);
+  background: var(--white);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.04);
+  transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+  overflow: hidden;
 }
 
 .pkg-card:hover {
-  transform: translateY(-10px);
-  box-shadow: 0 20px 50px rgba(0,0,0,0.12);
-  border-color: rgba(26, 92, 58, 0.15);
+  transform: translateY(-12px);
+  box-shadow: 0 30px 60px rgba(13, 31, 21, 0.12);
+  border-color: var(--green-light);
 }
 
 .pkg-header {
@@ -229,9 +254,28 @@ body {
 .pkg-pop-badge {
   background: linear-gradient(135deg, var(--gold), var(--gold2));
   border-radius: 100px;
-  font-size: 0.6rem;
+  font-size: 0.65rem;
   padding: 0.35rem 0.9rem;
   box-shadow: 0 4px 12px rgba(201, 151, 42, 0.4);
+  position: relative;
+  overflow: hidden;
+}
+
+.pkg-pop-badge::after {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(45deg, transparent, rgba(255,255,255,0.3), transparent);
+  transform: rotate(45deg);
+  animation: shimmer 3s infinite;
+}
+
+@keyframes shimmer {
+  0% { transform: translate(-100%, -100%) rotate(45deg); }
+  100% { transform: translate(100%, 100%) rotate(45deg); }
 }
 
 .pkg-name {

@@ -45,7 +45,8 @@ class FacilityController extends Controller
                 if (!file_exists(public_path($folder))) {
                     mkdir(public_path($folder), 0755, true);
                 }
-                $filename = time() . '_' . $file->getClientOriginalName();
+                $ext = $file->getClientOriginalExtension();
+                $filename = time() . '_' . \Illuminate\Support\Str::slug(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) . '.' . $ext;
                 $file->move(public_path($folder), $filename);
                 $data['image_url'] = url($folder . '/' . $filename);
             }
@@ -53,6 +54,7 @@ class FacilityController extends Controller
 
         $this->firebase->push('facilities', $data);
         \Illuminate\Support\Facades\Cache::forget('firebase_facilities');
+        \Illuminate\Support\Facades\Cache::forget('site_facilities');
         \Illuminate\Support\Facades\Cache::forget('site_global_data');
         return redirect()->route('admin.facilities.index')->with([
             'success' => 'Fasilitas berhasil ditambahkan ke Firebase!'
@@ -84,7 +86,8 @@ class FacilityController extends Controller
                 if (!file_exists(public_path($folder))) {
                     mkdir(public_path($folder), 0755, true);
                 }
-                $filename = time() . '_' . $file->getClientOriginalName();
+                $ext = $file->getClientOriginalExtension();
+                $filename = time() . '_' . \Illuminate\Support\Str::slug(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) . '.' . $ext;
                 $file->move(public_path($folder), $filename);
                 $data['image_url'] = url($folder . '/' . $filename);
             }
@@ -92,6 +95,7 @@ class FacilityController extends Controller
 
         $this->firebase->updateValue('facilities/' . $id, $data);
         \Illuminate\Support\Facades\Cache::forget('firebase_facilities');
+        \Illuminate\Support\Facades\Cache::forget('site_facilities');
         \Illuminate\Support\Facades\Cache::forget('site_global_data');
         return redirect()->route('admin.facilities.index')->with([
             'success' => 'Fasilitas berhasil diperbarui di Firebase!'
@@ -102,6 +106,7 @@ class FacilityController extends Controller
     {
         $this->firebase->deleteValue('facilities/' . $id);
         \Illuminate\Support\Facades\Cache::forget('firebase_facilities');
+        \Illuminate\Support\Facades\Cache::forget('site_facilities');
         \Illuminate\Support\Facades\Cache::forget('site_global_data');
         return redirect()->route('admin.facilities.index')->with([
             'success' => 'Fasilitas berhasil dihapus dari Firebase!'
@@ -124,6 +129,7 @@ class FacilityController extends Controller
         }
 
         \Illuminate\Support\Facades\Cache::forget('firebase_facilities');
+        \Illuminate\Support\Facades\Cache::forget('site_facilities');
         \Illuminate\Support\Facades\Cache::forget('site_global_data');
 
         return response()->json([

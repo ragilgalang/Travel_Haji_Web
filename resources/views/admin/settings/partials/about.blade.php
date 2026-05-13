@@ -7,10 +7,16 @@
         <label class="upload-label-primary">📸 Foto Profil Perusahaan</label>
 
         @if(!empty($settings['about_image']))
+            @php
+                $aboutImgUrl = str_starts_with($settings['about_image'], '/')
+                    ? request()->getSchemeAndHttpHost() . $settings['about_image']
+                    : $settings['about_image'];
+            @endphp
             <div style="position:relative; margin-bottom:12px;">
-                <img src="{{ $settings['about_image'] }}" class="preview-img-sm" style="height:120px; width:100%; object-fit:cover;">
+                <img src="{{ $aboutImgUrl }}" class="preview-img-sm" style="height:120px; width:100%; object-fit:cover;">
                 <label class="delete-photo-label">
-                    <input type="checkbox" name="delete_about_image" value="1"> 🗑️ Hapus Foto
+                    <input type="checkbox" name="delete_about_image" value="1" id="chk_delete_about_image" style="display:none">
+                    <span onclick="if(confirm('Hapus foto tentang kami?')){ document.getElementById('chk_delete_about_image').checked=true; performFinalSave(); }">🗑️ Hapus Foto</span>
                 </label>
             </div>
         @endif
@@ -24,10 +30,16 @@
         <label class="upload-label-video">🎬 Video Profil Perusahaan (Opsional)</label>
 
         @if(!empty($settings['about_video']))
+            @php
+                $aboutVideoUrl = str_starts_with($settings['about_video'], '/')
+                    ? request()->getSchemeAndHttpHost() . $settings['about_video']
+                    : $settings['about_video'];
+            @endphp
             <div class="video-preview-box">
-                <video src="{{ $settings['about_video'] }}" controls class="video-preview-player"></video>
+                <video src="{{ $aboutVideoUrl }}" controls class="video-preview-player"></video>
                 <label class="delete-photo-label" style="margin-top:8px; color:#94a3b8;">
-                    <input type="checkbox" name="delete_about_video" value="1"> 🗑️ Hapus Video
+                    <input type="checkbox" name="delete_about_video" value="1" id="chk_delete_about_video" style="display:none">
+                    <span onclick="if(confirm('Hapus video tentang kami?')){ document.getElementById('chk_delete_about_video').checked=true; performFinalSave(); }">🗑️ Hapus Video</span>
                 </label>
             </div>
         @endif

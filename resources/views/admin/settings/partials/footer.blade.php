@@ -9,10 +9,15 @@
         <div class="logo-upload-container">
             @if(!empty($settings['footer_logo']))
                 <div class="logo-preview-bg" style="margin-bottom:12px; position:relative; background:#0b1a10 !important;">
-                    <img src="{{ $settings['footer_logo'] }}" alt="Footer Logo" class="logo-preview-img">
+                    @php
+                        $footerLogoUrl = str_starts_with($settings['footer_logo'], '/')
+                            ? request()->getSchemeAndHttpHost() . $settings['footer_logo']
+                            : $settings['footer_logo'];
+                    @endphp
+                    <img src="{{ $footerLogoUrl }}" alt="Footer Logo" class="logo-preview-img">
                     <label class="logo-delete-btn" title="Hapus Logo Footer">
-                        <input type="checkbox" name="delete_footer_logo" value="1" style="display:none">
-                        <span onclick="if(confirm('Hapus logo footer?')){ this.previousElementSibling.checked=true; document.getElementById('updateBtn').click(); }">🗑️ Hapus Logo</span>
+                        <input type="checkbox" name="delete_footer_logo" value="1" id="chk_delete_footer_logo" style="display:none">
+                        <span onclick="if(confirm('Hapus logo footer?')){ document.getElementById('chk_delete_footer_logo').checked=true; performFinalSave(); }">🗑️ Hapus Logo</span>
                     </label>
                 </div>
             @endif

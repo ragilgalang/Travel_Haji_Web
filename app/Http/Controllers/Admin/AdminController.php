@@ -17,34 +17,13 @@ class AdminController extends Controller
 
     public function index()
     {
-        // IMPLEMENTASI POIN 3: Caching
-        // Kita simpan seluruh hasil perhitungan statistik selama 10 menit
-        $stats = \Illuminate\Support\Facades\Cache::remember('dashboard_main_stats_v2', 10 * 60, function() {
-            // IMPLEMENTASI POIN 1: Server-Side Aggregation
-            // Ambil data dari Firebase hanya jika cache kosong
-            $allPackages = $this->firebase->getValue('packages') ?? [];
-            $allTestimonials = $this->firebase->getValue('testimonials') ?? [];
-            $allRegs = $this->firebase->getValue('registrations') ?? [];
-            $allUsers = $this->firebase->getValue('users') ?? [];
-            
-            // Hitung hanya yang sudah diarsipkan
-            $archivedRegsCount = collect($allRegs)->where('is_archived', true)->count();
-
-            return [
-                'packages_count' => count($allPackages),
-                'testimonials_count' => count($allTestimonials),
-                'users_count' => count($allUsers),
-                'registrations_count' => $archivedRegsCount,
-                'page_views' => $this->firebase->getValue('metrics/page_views') ?? 0,
-                'optimization_score' => 98, // Nilai statis untuk indikator performa
-            ];
-        });
+        $stats = $this->getDashboardStats();
         
-        $packagesList = \Illuminate\Support\Facades\Cache::remember('dashboard_packages', 5 * 60, function() {
+        $packagesList = \Illuminate\Support\Facades\Cache::remember('dashboard_packages', 60, function() {
             return collect($this->firebase->getValue('packages') ?? [])->take(4);
         });
 
-        $recentRegistrations = \Illuminate\Support\Facades\Cache::remember('dashboard_recent_registrations', 1 * 60, function() {
+        $recentRegistrations = \Illuminate\Support\Facades\Cache::remember('dashboard_recent_registrations', 30, function() {
             $regs = $this->firebase->getValue('registrations') ?? [];
             return collect($regs)->map(function($item, $key) {
                 if (is_array($item)) $item['id'] = $key;
@@ -52,7 +31,7 @@ class AdminController extends Controller
             })->sortByDesc('created_at')->take(3);
         });
 
-        $recentVisitors = \Illuminate\Support\Facades\Cache::remember('dashboard_recent_visitors', 1 * 60, function() {
+        $recentVisitors = \Illuminate\Support\Facades\Cache::remember('dashboard_recent_visitors', 30, function() {
             $log = $this->firebase->getValue('visitor_log') ?? [];
             return collect($log)->sortByDesc('timestamp')->take(5);
         });
@@ -60,15 +39,54 @@ class AdminController extends Controller
         return view('admin.dashboard', compact('stats', 'packagesList', 'recentRegistrations', 'recentVisitors'));
     }
 
+    /**
+     * Get stats as JSON for Real-time Dashboard Updates
+     */
+    public function getStatsApi()
+    {
+        // Lepaskan session lock agar tidak menghalangi request lain (seperti proses SIMPAN)
+        if (session_id()) session_write_close();
+        
+        return response()->json($this->getDashboardStats());
+    }
+
+    /**
+     * Helper to get/calculate dashboard stats with short-lived cache
+     */
+    private function getDashboardStats()
+    {
+        // Cache dikurangi menjadi 5 detik saja untuk efek "realtime"
+        return \Illuminate\Support\Facades\Cache::remember('dashboard_main_stats_v3', 5, function() {
+            $allPackages     = $this->firebase->getValue('packages') ?? [];
+            $allTestimonials = $this->firebase->getValue('testimonials') ?? [];
+            $allRegs         = collect($this->firebase->getValue('registrations') ?? []);
+            $allUsers        = $this->firebase->getValue('users') ?? [];
+
+            // Tambahkan deteksi data kosong agar tidak error
+            if (empty($allPackages) && empty($allRegs)) {
+                return ['packages_count' => 0, 'testimonials_count' => 0, 'users_count' => 0, 'registrations_count' => 0, 'page_views' => 0, 'optimization_score' => 0];
+            }
+
+            $activeRegsCount   = $allRegs->where('is_archived', false)->count()
+                               + $allRegs->whereNull('is_archived')->count();
+            
+            return [
+                'packages_count'      => count($allPackages),
+                'testimonials_count'  => count($allTestimonials),
+                'users_count'         => count($allUsers),
+                'registrations_count' => $activeRegsCount,
+                'page_views'          => $this->firebase->getValue('metrics/page_views') ?? 0,
+                'optimization_score'  => 98,
+            ];
+        });
+    }
+
     public function settings()
     {
-        $settings = \Illuminate\Support\Facades\Cache::remember('site_settings', 60*24, function() {
-            return $this->firebase->getValue('settings') ?? [];
-        });
+        // Admin HARUS selalu melihat data terbaru, jangan pakai cache
+        $settings = $this->firebase->getValue('settings') ?? [];
 
-        $testimonials = \Illuminate\Support\Facades\Cache::remember('firebase_testimonials', 60*24, function() {
-            return collect($this->firebase->getValue('testimonials') ?? []);
-        });
+        $testimonials = collect($this->firebase->getValue('testimonials') ?? []);
 
         return view('admin.settings', compact('settings', 'testimonials'));
     }
@@ -89,69 +107,91 @@ class AdminController extends Controller
     {
         $data = $request->except(['_token', '_method']);
         $settings = $this->firebase->getValue('settings') ?? [];
+        $logFile = base_path('scratch/save_log.txt');
+        file_put_contents($logFile, "[" . date('Y-m-d H:i:s') . "] Mulai proses simpan...\n", FILE_APPEND);
 
-        // Handle all file uploads automatically
-        foreach ($request->allFiles() as $key => $file) {
-            if ($file->isValid()) {
-                $mime = $file->getMimeType();
-                $isVideo = str_starts_with($mime, 'video/');
-                $folder = $isVideo ? 'uploads/videos' : 'uploads/images';
-
-                // Validasi ukuran: Foto max 5MB, Video max 50MB
-                $maxBytes = $isVideo ? (50 * 1024 * 1024) : (5 * 1024 * 1024);
-                if ($file->getSize() > $maxBytes) {
-                    continue; // Lewati file terlalu besar
-                }
-                
-                // Gunakan path yang lebih aman untuk shared hosting
-                $uploadPath = public_path($folder);
-                if (!is_dir($uploadPath)) {
-                    $uploadPath = base_path('public/' . $folder);
-                }
-
-                // Ensure folder exists
-                if (!file_exists($uploadPath)) {
-                    mkdir($uploadPath, 0755, true);
-                }
-                
-                $filename = time() . '_' . $key . '_' . preg_replace('/[^A-Za-z0-9.\-]/', '', $file->getClientOriginalName());
-                
-                try {
-                    $file->move($uploadPath, $filename);
-                    $settings[$key] = asset($folder . '/' . $filename);
-                } catch (\Exception $e) {
-                    \Illuminate\Support\Facades\Log::error("Upload failed: " . $e->getMessage());
-                    continue; 
-                }
-            }
-        }
-
+        // LANGKAH 1: Proses DELETE dulu (hapus key dari settings)
         foreach ($data as $key => $value) {
             if (str_starts_with($key, 'delete_') && $value == '1') {
-                $targetKey = substr($key, 7); // remove 'delete_'
+                $targetKey = substr($key, 7); // hapus prefix 'delete_'
                 unset($settings[$targetKey]);
+                file_put_contents($logFile, "[" . date('Y-m-d H:i:s') . "] HAPUS: $targetKey\n", FILE_APPEND);
+            }
+        }
+
+        // LANGKAH 2: Proses FILE UPLOAD (tidak akan ditimpa teks)
+        foreach ($request->allFiles() as $key => $file) {
+            if (!$file->isValid()) continue;
+
+            $mime = $file->getMimeType();
+            $isVideo = str_starts_with($mime, 'video/');
+            $folder = $isVideo ? 'uploads/videos' : 'uploads/images';
+
+            $maxBytes = $isVideo ? (100 * 1024 * 1024) : (10 * 1024 * 1024);
+            if ($file->getSize() > $maxBytes) {
+                file_put_contents($logFile, "[" . date('Y-m-d H:i:s') . "] TOLAK (terlalu besar): $key\n", FILE_APPEND);
                 continue;
             }
-            // Jangan simpan object file ke database
-            if (!($value instanceof \Illuminate\Http\UploadedFile)) {
-                $settings[$key] = $value;
+
+            $filename = time() . '_' . $key . '_' . preg_replace('/[^A-Za-z0-9._-]/', '', $file->getClientOriginalName());
+            $uploadPath = public_path($folder);
+
+            if (!file_exists($uploadPath)) {
+                mkdir($uploadPath, 0755, true);
+            }
+
+            try {
+                $file->move($uploadPath, $filename);
+                $settings[$key] = '/' . $folder . '/' . $filename;
+                file_put_contents($logFile, "[" . date('Y-m-d H:i:s') . "] UPLOAD OK: $key -> $filename\n", FILE_APPEND);
+            } catch (\Exception $e) {
+                file_put_contents($logFile, "[" . date('Y-m-d H:i:s') . "] ERROR UPLOAD ($key): " . $e->getMessage() . "\n", FILE_APPEND);
             }
         }
-        
-        // Simpan ke Firebase DALAM 1 KALI REQUEST SAJA (Turbo Update 🚀)
-        $this->firebase->setValue('settings', $settings);
 
-        // Hapus Cache agar data terbaru langsung muncul
-        \Illuminate\Support\Facades\Cache::forget('site_settings');
-        \Illuminate\Support\Facades\Cache::forget('site_global_data');
-        \Illuminate\Support\Facades\Cache::put('site_settings', $settings, 60*24);
-        
-        // Return JSON for AJAX, redirect for normal form
-        if ($request->ajax() || $request->wantsJson() || $request->header('X-Requested-With') === 'XMLHttpRequest') {
-            return response()->json(['success' => true, 'message' => 'Settings berhasil disimpan!']);
+        // LANGKAH 3: Simpan data TEKS (skip key delete_* dan skip key yang sudah diisi upload)
+        $uploadedKeys = array_keys($request->allFiles());
+        foreach ($data as $key => $value) {
+            // Skip semua key delete_*
+            if (str_starts_with($key, 'delete_')) continue;
+            // Skip jika sudah diisi oleh upload file
+            if (in_array($key, $uploadedKeys)) continue;
+            // Skip nilai null/kosong untuk field yang sudah ada datanya (file input kosong = null)
+            if (($value === '' || $value === null) && isset($settings[$key]) && $settings[$key] !== '') continue;
+            // Skip objek UploadedFile yang lolos
+            if ($value instanceof \Illuminate\Http\UploadedFile) continue;
+            // Skip array (biasanya dari multi-file input)
+            if (is_array($value)) continue;
+
+            $settings[$key] = $value;
         }
 
-        return back()->with('success', 'Settings updated successfully to Firebase!');
+        // LANGKAH 4: Simpan ke Firebase
+        set_time_limit(120);
+        try {
+            $start = microtime(true);
+            file_put_contents($logFile, "[" . date('Y-m-d H:i:s') . "] Kirim ke Firebase (" . count($settings) . " fields)...\n", FILE_APPEND);
+
+            $this->firebase->setValue('settings', $settings);
+
+            $duration = round(microtime(true) - $start, 2);
+            file_put_contents($logFile, "[" . date('Y-m-d H:i:s') . "] Firebase OK! ({$duration}s)\n\n", FILE_APPEND);
+
+            \Illuminate\Support\Facades\Cache::forget('site_settings');
+            \Illuminate\Support\Facades\Cache::forget('site_packages');
+
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['success' => true, 'message' => 'Berhasil disimpan!']);
+            }
+            return back()->with('success', 'Berhasil disimpan!');
+
+        } catch (\Exception $e) {
+            file_put_contents($logFile, "[" . date('Y-m-d H:i:s') . "] ERROR: " . $e->getMessage() . "\n\n", FILE_APPEND);
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
+            }
+            return back()->with('error', 'Gagal: ' . $e->getMessage());
+        }
     }
 
     public function guide()
@@ -173,12 +213,46 @@ class AdminController extends Controller
         // Balikkan urutan agar data terbaru muncul di atas
         $auditLogs = collect($logs)->sortByDesc('timestamp');
 
+        // --- DATA GRAFIK REAL-TIME (HARI INI) ---
+        $now = now();
+        $hourlyLabels = [];
+        $successCounts = [];
+        $failedCounts = [];
+        
+        $currentHour = (int)$now->format('H');
+        for ($i = 0; $i <= $currentHour; $i++) {
+            $hourLabel = str_pad($i, 2, '0', STR_PAD_LEFT) . ':00';
+            $hourlyLabels[] = $hourLabel;
+            
+            $success = 0;
+            $failed = 0;
+            foreach ($logs as $log) {
+                if (!empty($log['timestamp'])) {
+                    try {
+                        $ts = \Carbon\Carbon::parse($log['timestamp']);
+                        if ($ts->isToday() && (int)$ts->format('H') == $i) {
+                            if (($log['status'] ?? '') === 'LOGIN_SUCCESS') $success++;
+                            if (($log['status'] ?? '') === 'LOGIN_FAILED') $failed++;
+                        }
+                    } catch (\Exception $e) {}
+                }
+            }
+            $successCounts[] = $success;
+            $failedCounts[] = $failed;
+        }
+
+        $chartData = [
+            'labels' => $hourlyLabels,
+            'success' => $successCounts,
+            'failed' => $failedCounts,
+        ];
+
         // Ambil akun yang terkena banned permanen
         $bannedAccounts = \Illuminate\Support\Facades\DB::table('users')
                             ->where('permanently_banned', true)
                             ->get();
 
-        return view('admin.audit_logs', compact('auditLogs', 'bannedAccounts'));
+        return view('admin.audit_logs', compact('auditLogs', 'bannedAccounts', 'chartData'));
     }
 
     public function clearAuditLogs()

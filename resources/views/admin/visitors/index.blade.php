@@ -40,6 +40,31 @@
     </div>
     @endif
 
+    {{-- ========== FILTER BAR ========== --}}
+    <div class="filter-bar">
+        <form method="GET" class="filter-form">
+            <span class="filter-label">📅 Periode:</span>
+            <a href="{{ route('admin.visitors.index') }}" class="filter-chip {{ request('time') == '' ? 'active' : '' }}">Semua</a>
+            <a href="{{ route('admin.visitors.index', ['time' => 'today']) }}" class="filter-chip {{ request('time') == 'today' ? 'active' : '' }}">Hari Ini</a>
+            <a href="{{ route('admin.visitors.index', ['time' => 'week']) }}" class="filter-chip {{ request('time') == 'week' ? 'active' : '' }}">7 Hari</a>
+            <a href="{{ route('admin.visitors.index', ['time' => 'month']) }}" class="filter-chip {{ request('time') == 'month' ? 'active' : '' }}">30 Hari</a>
+        </form>
+    </div>
+
+    {{-- ========== CHART SECTION ========== --}}
+    <div class="chart-grid">
+        {{-- Line Chart: Kunjungan Harian --}}
+        <div class="chart-card chart-card-wide">
+            <div class="chart-card-header">
+                <h3>📈 Tren Kunjungan ({{ $chartData['filterLabel'] }})</h3>
+            </div>
+            <div class="chart-body">
+                <canvas id="dailyChart" height="280"></canvas>
+            </div>
+        </div>
+    </div>
+
+    {{-- ========== TABEL LOG ========== --}}
     <div class="card">
         <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
             <div>
@@ -125,3 +150,69 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const chartFont = { family: "'Inter', 'Segoe UI', sans-serif" };
+
+    // ===== 1. LINE CHART: Kunjungan Harian =====
+    new Chart(document.getElementById('dailyChart'), {
+        type: 'line',
+        data: {
+            labels: @json($chartData['dailyLabels']),
+            datasets: [{
+                label: 'Kunjungan',
+                data: @json($chartData['dailyCounts']),
+                borderColor: '#10b981',
+                backgroundColor: 'rgba(16, 185, 129, 0.08)',
+                borderWidth: 2.5,
+                fill: true,
+                tension: 0.4,
+                pointBackgroundColor: '#10b981',
+                pointBorderColor: '#fff',
+                pointBorderWidth: 2,
+                pointRadius: 4,
+                pointHoverRadius: 7,
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    backgroundColor: '#1e293b',
+                    titleFont: { ...chartFont, size: 13 },
+                    bodyFont: { ...chartFont, size: 12 },
+                    padding: 12,
+                    cornerRadius: 10,
+                    displayColors: false,
+                    callbacks: {
+                        label: ctx => ctx.parsed.y + ' pengunjung'
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    grid: { display: false },
+                    ticks: { font: { ...chartFont, size: 11 }, color: '#94a3b8' }
+                },
+                y: {
+                    beginAtZero: true,
+                    grid: { color: 'rgba(0,0,0,0.04)' },
+                    ticks: {
+                        font: { ...chartFont, size: 11 },
+                        color: '#94a3b8',
+                        stepSize: 1,
+                        precision: 0
+                    }
+                }
+            }
+        }
+    });
+
+});
+</script>
+@endpush
