@@ -230,9 +230,11 @@ class AdminController extends Controller
                 if (!empty($log['timestamp'])) {
                     try {
                         $ts = \Carbon\Carbon::parse($log['timestamp']);
+                        // Pastikan pengecekan hari ini dan jam yang sama akurat
                         if ($ts->isToday() && (int)$ts->format('H') == $i) {
-                            if (($log['status'] ?? '') === 'LOGIN_SUCCESS') $success++;
-                            if (($log['status'] ?? '') === 'LOGIN_FAILED') $failed++;
+                            $status = strtoupper($log['status'] ?? '');
+                            if (str_contains($status, 'SUCCESS')) $success++;
+                            if (str_contains($status, 'FAILED') || str_contains($status, 'LOCKED') || str_contains($status, 'BANNED')) $failed++;
                         }
                     } catch (\Exception $e) {}
                 }
@@ -277,12 +279,20 @@ class AdminController extends Controller
                 'banned_reason' => null
             ]);
 
-        // 2. Hapus pinalti di Firebase
+        // 2. Update di Firebase (Sync Status)
         try {
+            $key = str_replace(['@', '.'], '_', $email);
+            $this->firebase->updateValue("users/{$key}", [
+                'login_attempts' => 0,
+                'locked_until' => null,
+                'permanently_banned' => false
+            ]);
+            
+            // Hapus pinalti di node penalties
             $penaltyKey = str_replace(['.', '#', '$', '[', ']', '/'], '_', $email);
             $this->firebase->setValue("account_penalties/{$penaltyKey}", null);
         } catch (\Exception $e) {
-            \Illuminate\Support\Facades\Log::error('Gagal hapus penalty Firebase saat unlock: ' . $e->getMessage());
+            \Illuminate\Support\Facades\Log::error('Gagal sync unlock ke Firebase: ' . $e->getMessage());
         }
 
         return back()->with('success', "🔓 Berhasil! Akses untuk akun {$email} telah dipulihkan.");
@@ -295,12 +305,29 @@ class AdminController extends Controller
             'new_password' => 'required|min:6'
         ]);
 
-        // Update password di SQLite
+        // 1. Update password di SQLite
+        $newHash = \Illuminate\Support\Facades\Hash::make($request->new_password);
         \Illuminate\Support\Facades\DB::table('users')
             ->where('email', $request->email)
             ->update([
-                'password' => \Illuminate\Support\Facades\Hash::make($request->new_password)
+                'password' => $newHash,
+                'login_attempts' => 0, // Sekalian reset hitungan salah
+                'locked_until' => null,
+                'permanently_banned' => false
             ]);
+
+        // 2. Update password di Firebase (PENTING AGAR TIDAK BUG)
+        try {
+            $key = str_replace(['@', '.'], '_', $request->email);
+            $this->firebase->updateValue("users/{$key}", [
+                'password' => $newHash,
+                'login_attempts' => 0,
+                'locked_until' => null,
+                'permanently_banned' => false
+            ]);
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Gagal sync reset password ke Firebase: ' . $e->getMessage());
+        }
 
         return back()->with('success', "🔑 Password baru untuk {$request->email} telah berhasil disimpan!");
     }

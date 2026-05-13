@@ -39,10 +39,8 @@ Route::get('/sitemap.xml', [\App\Http\Controllers\SitemapController::class, 'ind
 
 
 // Auth
-Route::middleware('throttle:10,1')->group(function () {
-    Route::get('/ptumb', [AuthController::class, 'login'])->name('login');
-    Route::post('/ptumb', [AuthController::class, 'authenticate'])->name('login.authenticate');
-});
+Route::get('/ptumb', [AuthController::class, 'login'])->name('login');
+Route::post('/ptumb', [AuthController::class, 'authenticate'])->name('login.authenticate');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 // Admin

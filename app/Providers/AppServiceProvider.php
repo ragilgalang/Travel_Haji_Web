@@ -25,6 +25,11 @@ class AppServiceProvider extends ServiceProvider
             return new FirebaseUserProvider($app->make(\Kreait\Firebase\Contract\Auth::class));
         });
 
+        // Matikan pembatasan 429 yang kaku (naikkan limit ke 1000 per menit)
+        \Illuminate\Support\Facades\RateLimiter::for('global', function (\Illuminate\Http\Request $request) {
+            return \Illuminate\Cache\RateLimiting\Limit::perMinute(1000)->by($request->ip());
+        });
+
         \Illuminate\Support\Facades\View::composer('*', function ($view) {
             static $siteData = null;
             if ($siteData === null) {
