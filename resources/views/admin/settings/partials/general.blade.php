@@ -6,15 +6,10 @@
         <div class="logo-preview-container">
             @if(!empty($settings['site_logo']))
                 <div class="logo-preview-bg" style="margin-bottom:12px; position:relative;">
-                    @php
-                        $logoUrl = str_starts_with($settings['site_logo'], '/')
-                            ? request()->getSchemeAndHttpHost() . $settings['site_logo']
-                            : $settings['site_logo'];
-                    @endphp
-                    <img src="{{ $logoUrl }}" alt="Logo" class="logo-preview-img">
+                    <img src="{{ $settings['site_logo'] }}" alt="Logo" class="logo-preview-img">
                     <label class="logo-delete-btn" title="Hapus Logo">
-                        <input type="checkbox" name="delete_site_logo" value="1" id="chk_delete_site_logo" style="display:none">
-                        <span onclick="if(confirm('Hapus logo website?')){ document.getElementById('chk_delete_site_logo').checked=true; performFinalSave(); }">🗑️ Hapus Logo</span>
+                        <input type="checkbox" name="delete_site_logo" value="1" style="display:none" onchange="this.closest('form').querySelector('#updateBtn').click()">
+                        <span onclick="if(confirm('Hapus logo website?')){ this.previousElementSibling.checked=true; this.previousElementSibling.dispatchEvent(new Event('change')); }">🗑️ Hapus Logo</span>
                     </label>
                 </div>
             @endif
@@ -44,12 +39,6 @@
             <input type="email" name="contact_email" value="{{ $settings['contact_email'] ?? 'info@perusahaan.com' }}" 
                 class="form-control" placeholder="Contoh: info@travelhaji.com" data-sync-target="#sync-footer">
         </div>
-    </div>
-
-    <div class="admin-input-group mt-3">
-        <label class="admin-label">Deskripsi Website (SEO)</label>
-        <textarea name="site_description" class="form-control" rows="3" placeholder="Masukkan deskripsi singkat website untuk hasil pencarian Google...">{{ $settings['site_description'] ?? 'Penyelenggara Perjalanan Ibadah Haji & Umrah Resmi Kemenag RI. Amanah, Nyaman, dan Berpengalaman bersama PT. UMI MUTHMAINAH BERKAH' }}</textarea>
-        <span class="help-block">Deskripsi ini akan muncul di hasil pencarian Google dan saat website dibagikan ke media sosial (WhatsApp/Facebook).</span>
     </div>
 
     <div class="admin-input-group mt-3">

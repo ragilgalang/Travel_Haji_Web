@@ -79,7 +79,28 @@ class HomeController extends Controller
         });
         // ---------------------------------------
         
-        return view('welcome', compact('settings', 'packages', 'testimonials', 'facilities', 'registrationsCount', 'satisfactionRate'));
+        $gallery = \Illuminate\Support\Facades\Cache::remember('site_gallery', 5, function() use ($firebase) {
+            return $firebase->getValue('gallery') ?? [];
+        });
+
+        $galleryVisibility = \Illuminate\Support\Facades\Cache::remember('site_gallery_visibility', 5, function() use ($firebase) {
+            return $firebase->getValue('gallery_visibility') ?? [];
+        });
+
+        // Load gallery_img_X langsung dari Firebase tanpa cache (realtime)
+        $gallerySettings = [];
+        $allSettings = $firebase->getValue('settings') ?? [];
+        for ($i = 1; $i <= 50; $i++) {
+            $key = 'gallery_img_' . $i;
+            if (!empty($allSettings[$key])) $gallerySettings[$key] = $allSettings[$key];
+            $vkey = 'gallery_video_' . $i;
+            if (!empty($allSettings[$vkey])) $gallerySettings[$vkey] = $allSettings[$vkey];
+        }
+        if (!empty($gallerySettings)) {
+            $settings = array_merge($settings, $gallerySettings);
+        }
+
+        return view('welcome', compact('settings', 'packages', 'testimonials', 'facilities', 'registrationsCount', 'satisfactionRate', 'gallery', 'galleryVisibility'));
     }
 
     public function submitReview(\Illuminate\Http\Request $request)
@@ -188,6 +209,39 @@ class HomeController extends Controller
             'success' => true,
             'message' => 'Pesan Anda berhasil terkirim. Tim kami akan segera menghubungi Anda.'
         ]);
+    }
+
+    public function gallery()
+    {
+        $firebase = new FirebaseService();
+        $cacheDuration = 60 * 24;
+
+        $settings = \Illuminate\Support\Facades\Cache::remember('site_settings', $cacheDuration, function() use ($firebase) {
+            return $firebase->getValue('settings') ?? [];
+        });
+
+        $gallery = \Illuminate\Support\Facades\Cache::remember('site_gallery', 5, function() use ($firebase) {
+            return $firebase->getValue('gallery') ?? [];
+        });
+
+        $galleryVisibility = \Illuminate\Support\Facades\Cache::remember('site_gallery_visibility', 5, function() use ($firebase) {
+            return $firebase->getValue('gallery_visibility') ?? [];
+        });
+
+        // Load gallery_img_X langsung dari Firebase tanpa cache (realtime)
+        $gallerySettings = [];
+        $allSettings = $firebase->getValue('settings') ?? [];
+        for ($i = 1; $i <= 50; $i++) {
+            $key = 'gallery_img_' . $i;
+            if (!empty($allSettings[$key])) $gallerySettings[$key] = $allSettings[$key];
+            $vkey = 'gallery_video_' . $i;
+            if (!empty($allSettings[$vkey])) $gallerySettings[$vkey] = $allSettings[$vkey];
+        }
+        if (!empty($gallerySettings)) {
+            $settings = array_merge($settings, $gallerySettings);
+        }
+
+        return view('galeri', compact('settings', 'gallery', 'galleryVisibility'));
     }
 }
 

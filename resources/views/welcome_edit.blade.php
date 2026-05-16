@@ -171,7 +171,27 @@ window.addEventListener('error', function(e) {
   </div>
 </section>
 
-
+<!-- STATS -->
+<div id="sync-stats" class="stats-bar">
+  <div class="stats-inner">
+    <div class="stat-item reveal" id="sync-stat1_num_container">
+        <div class="stat-num" id="sync-stat1_num" contenteditable="true">{{ $settings['stat1_num'] ?? '12.000+' }}</div>
+        <div class="stat-label" id="sync-stat1_label" contenteditable="true">{{ $settings['stat1_label'] ?? 'Jemaah Diberangkatkan' }}</div>
+    </div>
+    <div class="stat-item reveal delay-100" id="sync-stat2_num_container">
+        <div class="stat-num" id="sync-stat2_num" contenteditable="true">{{ $settings['stat2_num'] ?? '20+' }}</div>
+        <div class="stat-label" id="sync-stat2_label" contenteditable="true">{{ $settings['stat2_label'] ?? 'Tahun Pengalaman' }}</div>
+    </div>
+    <div class="stat-item reveal delay-200" id="sync-stat3_num_container">
+        <div class="stat-num" id="sync-stat3_num" contenteditable="true">{{ $settings['stat3_num'] ?? '99%' }}</div>
+        <div class="stat-label" id="sync-stat3_label" contenteditable="true">{{ $settings['stat3_label'] ?? 'Kepuasan Jemaah' }}</div>
+    </div>
+    <div class="stat-item reveal delay-300" id="sync-stat4_num_container">
+        <div class="stat-num" id="sync-stat4_num" contenteditable="true">{{ $settings['stat4_num'] ?? '15+' }}</div>
+        <div class="stat-label" id="sync-stat4_label" contenteditable="true">{{ $settings['stat4_label'] ?? 'Kota Keberangkatan' }}</div>
+    </div>
+  </div>
+</div>
 
 <!-- ABOUT -->
 <section class="section about-section" id="tentang">

@@ -3,9 +3,160 @@
 @section('page_title', 'Buku Panduan Administrator')
 
 @section('content')
-@push('styles')
-    <link rel="stylesheet" href="{{ asset('css/admin/guide.css') }}">
-@endpush
+<style>
+    .guide-container {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding-bottom: 50px;
+    }
+    .guide-header {
+        background: linear-gradient(135deg, #1a5c3a 0%, #0d3d25 100%);
+        padding: 50px 40px;
+        border-radius: 24px;
+        color: white;
+        margin-bottom: 40px;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+        text-align: center;
+    }
+    .guide-header h2 {
+        font-weight: 800;
+        font-size: 2.2rem;
+        letter-spacing: -1px;
+        margin-bottom: 15px;
+    }
+    .guide-header p {
+        opacity: 0.85;
+        font-size: 1.1rem;
+        max-width: 700px;
+        margin: 0 auto;
+    }
+    .section-title {
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: #1a5c3a;
+        margin: 40px 0 20px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+    .section-title::after {
+        content: "";
+        flex: 1;
+        height: 1px;
+        background: #eee;
+    }
+    .guide-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 25px;
+    }
+    .guide-card {
+        background: white;
+        border-radius: 20px;
+        padding: 30px;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        border: 1px solid #f0f0f0;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+    .guide-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.06);
+        border-color: #d4a843;
+    }
+    .guide-icon {
+        width: 56px;
+        height: 56px;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 22px;
+        font-size: 1.5rem;
+    }
+    
+    /* Icon Colors */
+    .icon-dash { background: #e6f4ea; color: #1a5c3a; }
+    .icon-pkg { background: #fff7ed; color: #ea580c; }
+    .icon-fac { background: #f0f9ff; color: #0369a1; }
+    .icon-reg { background: #f5f3ff; color: #7c3aed; }
+    .icon-testi { background: #fefce8; color: #ca8a04; }
+    .icon-view { background: #fef2f2; color: #dc2626; }
+    .icon-acc { background: #f0fdf4; color: #16a34a; }
+    .icon-set { background: #f8fafc; color: #475569; }
+
+    .guide-card h3 {
+        font-size: 1.3rem;
+        font-weight: 700;
+        margin-bottom: 12px;
+        color: #111;
+    }
+    .guide-card p {
+        color: #666;
+        font-size: 0.95rem;
+        line-height: 1.6;
+        margin-bottom: 15px;
+    }
+    .guide-card ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        margin-top: auto;
+    }
+    .guide-card ul li {
+        padding-left: 22px;
+        position: relative;
+        margin-bottom: 10px;
+        font-size: 0.9rem;
+        color: #444;
+        font-weight: 500;
+    }
+    .guide-card ul li::before {
+        content: "•";
+        position: absolute;
+        left: 0;
+        color: #d4a843;
+        font-size: 1.5rem;
+        line-height: 1;
+        top: -2px;
+    }
+    .tip-box {
+        background: #fffbeb;
+        border-left: 4px solid #f59e0b;
+        padding: 20px;
+        border-radius: 12px;
+        margin-top: 40px;
+        display: flex;
+        gap: 15px;
+    }
+    .tip-box svg { color: #f59e0b; flex-shrink: 0; }
+    .tip-box p { margin: 0; color: #92400e; font-size: 0.95rem; line-height: 1.5; }
+
+    .btn-footer {
+        display: flex;
+        justify-content: center;
+        margin-top: 50px;
+    }
+    .btn-back {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: 14px 30px;
+        background: #111;
+        color: white;
+        border-radius: 14px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.2s;
+    }
+    .btn-back:hover {
+        background: #333;
+        transform: scale(1.02);
+    }
+</style>
 
 <div class="guide-container">
     <div class="guide-header">

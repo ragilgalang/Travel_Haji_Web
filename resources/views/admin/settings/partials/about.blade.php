@@ -1,22 +1,46 @@
 <!-- TAB: TENTANG KAMI -->
 <div id="tab-about" class="tab-pane card">
-    <h2 class="card-title mb-4">📖 Foto & Video Tentang Kami</h2>
+    <h2 class="card-title mb-4">📖 Konten Tentang Kami</h2>
+
+    <div class="form-group mb-4">
+        <label class="admin-label">Eyebrow (Teks Kecil Atas)</label>
+        <input type="text" name="about_badge" value="{{ $settings['about_badge'] ?? 'Tentang Kami' }}" 
+            class="form-control" data-sync-target="#sync-about-badge">
+    </div>
+    <div class="form-group mb-4">
+        <label class="admin-label">Judul Tentang (H2)</label>
+        <textarea name="about_title" class="form-control" rows="2" data-sync-target="#sync-about_title">{{ $settings['about_title'] ?? 'Melayani Sepenuh Hati' }}</textarea>
+    </div>
+    <div class="form-group mb-4">
+        <label class="admin-label">Deskripsi Tentang</label>
+        <textarea name="about_description" class="form-control" rows="4" data-sync-target="#sync-about_description">{{ $settings['about_description'] ?? 'Deskripsi singkat perusahaan...' }}</textarea>
+    </div>
+
+    <hr class="my-4">
+    <h3 class="text-md font-semibold mb-3">Poin Keunggulan (3 Poin)</h3>
+    <div class="grid-gap-1">
+        @for($i = 1; $i <= 3; $i++)
+            <div class="advantage-point-card p-3 border rounded">
+                <label class="font-bold block mb-2">Poin {{ $i }}</label>
+                <input type="text" name="about_item{{ $i }}_title" value="{{ $settings['about_item' . $i . '_title'] ?? '' }}" 
+                    class="form-control mb-2" placeholder="Judul Poin" data-sync-target="#sync-about_item{{ $i }}_title">
+                <textarea name="about_item{{ $i }}_text" class="form-control" rows="2" 
+                    placeholder="Deskripsi Poin" data-sync-target="#sync-about_item{{ $i }}_text">{{ $settings['about_item' . $i . '_text'] ?? ($settings['about_item' . $i . '_desc'] ?? '') }}</textarea>
+            </div>
+        @endfor
+    </div>
+
+    <hr class="my-4">
 
     {{-- UPLOAD FOTO --}}
     <div class="form-group mb-4 upload-section-green">
         <label class="upload-label-primary">📸 Foto Profil Perusahaan</label>
 
         @if(!empty($settings['about_image']))
-            @php
-                $aboutImgUrl = str_starts_with($settings['about_image'], '/')
-                    ? request()->getSchemeAndHttpHost() . $settings['about_image']
-                    : $settings['about_image'];
-            @endphp
             <div style="position:relative; margin-bottom:12px;">
-                <img src="{{ $aboutImgUrl }}" class="preview-img-sm" style="height:120px; width:100%; object-fit:cover;">
+                <img src="{{ $settings['about_image'] }}" class="preview-img-sm" style="height:120px; width:100%; object-fit:cover;">
                 <label class="delete-photo-label">
-                    <input type="checkbox" name="delete_about_image" value="1" id="chk_delete_about_image" style="display:none">
-                    <span onclick="if(confirm('Hapus foto tentang kami?')){ document.getElementById('chk_delete_about_image').checked=true; performFinalSave(); }">🗑️ Hapus Foto</span>
+                    <input type="checkbox" name="delete_about_image" value="1"> 🗑️ Hapus Foto
                 </label>
             </div>
         @endif
@@ -30,16 +54,10 @@
         <label class="upload-label-video">🎬 Video Profil Perusahaan (Opsional)</label>
 
         @if(!empty($settings['about_video']))
-            @php
-                $aboutVideoUrl = str_starts_with($settings['about_video'], '/')
-                    ? request()->getSchemeAndHttpHost() . $settings['about_video']
-                    : $settings['about_video'];
-            @endphp
             <div class="video-preview-box">
-                <video src="{{ $aboutVideoUrl }}" controls class="video-preview-player"></video>
+                <video src="{{ $settings['about_video'] }}" controls class="video-preview-player"></video>
                 <label class="delete-photo-label" style="margin-top:8px; color:#94a3b8;">
-                    <input type="checkbox" name="delete_about_video" value="1" id="chk_delete_about_video" style="display:none">
-                    <span onclick="if(confirm('Hapus video tentang kami?')){ document.getElementById('chk_delete_about_video').checked=true; performFinalSave(); }">🗑️ Hapus Video</span>
+                    <input type="checkbox" name="delete_about_video" value="1"> 🗑️ Hapus Video
                 </label>
             </div>
         @endif
@@ -49,18 +67,4 @@
             Jika diisi, video akan tampil menggantikan foto di bagian Tentang. Format: MP4, WebM.
         </span>
     </div>
-
-    {{-- Hidden Inputs untuk sinkronisasi Visual Editor --}}
-    <input type="hidden" name="about_badge" value="{{ $settings['about_badge'] ?? '' }}">
-    <input type="hidden" name="about_title" value="{{ $settings['about_title'] ?? '' }}">
-    <input type="hidden" name="about_description" value="{{ $settings['about_description'] ?? '' }}">
-    <input type="hidden" name="about_item1_icon" value="{{ $settings['about_item1_icon'] ?? '' }}">
-    <input type="hidden" name="about_item1_title" value="{{ $settings['about_item1_title'] ?? '' }}">
-    <input type="hidden" name="about_item1_text" value="{{ $settings['about_item1_text'] ?? '' }}">
-    <input type="hidden" name="about_item2_icon" value="{{ $settings['about_item2_icon'] ?? '' }}">
-    <input type="hidden" name="about_item2_title" value="{{ $settings['about_item2_title'] ?? '' }}">
-    <input type="hidden" name="about_item2_text" value="{{ $settings['about_item2_text'] ?? '' }}">
-    <input type="hidden" name="about_item3_icon" value="{{ $settings['about_item3_icon'] ?? '' }}">
-    <input type="hidden" name="about_item3_title" value="{{ $settings['about_item3_title'] ?? '' }}">
-    <input type="hidden" name="about_item3_desc" value="{{ $settings['about_item3_desc'] ?? '' }}">
 </div>

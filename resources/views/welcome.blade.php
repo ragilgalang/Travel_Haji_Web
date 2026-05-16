@@ -1,57 +1,62 @@
 @php
-    function optUrl($url, $w = 800) {
-        if (strpos($url, 'images.unsplash.com') !== false) {
-            $base = explode('?', $url)[0];
-            return $base . "?w={$w}&q=70&auto=format,compress&fm=webp&fit=crop";
-        }
-        return $url;
+  function optUrl($url, $w = 800)
+  {
+    if (strpos($url, 'images.unsplash.com') !== false) {
+      $base = explode('?', $url)[0];
+      return $base . "?w={$w}&q=70&auto=format,compress&fm=webp&fit=crop";
+    }
+    return $url;
+  }
+
+  /**
+   * Otomatis ganti URL localhost & Physical Path → URL production dinamis
+   */
+  function fixUrl($url)
+  {
+    if (!$url || !is_string($url)) return '';
+    $currentHost = rtrim(request()->getSchemeAndHttpHost(), '/');
+
+    // Jika URL mengandung /uploads/, ekstrak path saja & rebuild bersih
+    // Mencegah double/triple port: http://127.0.0.1:8000:8000:8000
+    if (str_contains($url, '/uploads/')) {
+      $pathStart = strpos($url, '/uploads/');
+      $path = substr($url, $pathStart);
+      return $currentHost . $path;
     }
 
-    /**
-     * Otomatis ganti URL localhost & Physical Path → URL production dinamis
-     */
-    function fixUrl($url) {
-        if (!$url || !is_string($url)) return $url;
-        
-        $currentHost = rtrim(request()->getSchemeAndHttpHost(), '/');
+    // URL relatif
+    if (str_starts_with($url, '/')) return $currentHost . $url;
+    if (str_starts_with($url, 'uploads/')) return $currentHost . '/' . $url;
 
-        // Jika jalur sudah relatif (mulai dengan /uploads), gabungkan dengan host saat ini
-        if (str_starts_with($url, '/uploads')) {
-            return $currentHost . $url;
-        }
-        
-        // 1. Tangani Physical Path (jika ada sisa-sisa path Windows di DB)
-        if (str_contains($url, 'xampp\htdocs')) {
-            $parts = explode('public\\', $url);
-            if (count($parts) > 1) {
-                $url = $currentHost . '/' . str_replace('\\', '/', $parts[1]);
-            }
-        }
-        
-        // 2. Tangani Localhost URL
-        $localhosts = [
-            'http://127.0.0.1:8000', 
-            'http://127.0.0.1', 
-            'http://localhost:8000', 
-            'http://localhost',
-            'https://127.0.0.1:8000',
-            'https://localhost:8000'
-        ];
-        
-        return str_replace($localhosts, $currentHost, $url);
+    // Tangani Physical Path Windows
+    if (str_contains($url, 'xampp\htdocs')) {
+      $parts = explode('public\\', $url);
+      if (count($parts) > 1)
+        return $currentHost . '/' . str_replace('\\', '/', $parts[1]);
     }
 
-    // Terapkan fixUrl ke seluruh array $settings & $packages
-    if (!empty($settings) && is_array($settings)) {
-        array_walk_recursive($settings, function(&$value) {
-            if (is_string($value)) $value = fixUrl($value);
-        });
+    // URL http/https - ganti host saja
+    if (str_starts_with($url, 'http')) {
+      $localhosts = ['http://127.0.0.1:8000', 'http://127.0.0.1', 'http://localhost:8000', 'http://localhost', 'https://127.0.0.1:8000', 'https://localhost:8000'];
+      return str_replace($localhosts, $currentHost, $url);
     }
-    if (!empty($packages) && is_array($packages)) {
-        array_walk_recursive($packages, function(&$value) {
-            if (is_string($value)) $value = fixUrl($value);
-        });
-    }
+
+    return $url;
+  }
+
+  // Terapkan fixUrl ke seluruh array $settings & $packages
+  if (!empty($settings) && is_array($settings)) {
+    array_walk_recursive($settings, function (&$value) {
+      if (is_string($value))
+        $value = fixUrl($value);
+    });
+  }
+  if (!empty($packages) && is_array($packages)) {
+    array_walk_recursive($packages, function (&$value) {
+      if (is_string($value))
+        $value = fixUrl($value);
+    });
+  }
 @endphp
 <!DOCTYPE html>
 <html lang="id">
@@ -101,7 +106,7 @@ window.addEventListener('error', function(e) {
 
     <!-- Preload LCP Image (Slide 1) -->
     @php
-        $lcpImg = optUrl(($settings['hero_bg_1'] ?? 'https://images.unsplash.com/photo-1591604129939-f1efa4d9f7fa'), 1200);
+      $lcpImg = optUrl(($settings['hero_bg_1'] ?? 'https://images.unsplash.com/photo-1591604129939-f1efa4d9f7fa'), 1200);
     @endphp
     <link rel="preload" as="image" href="{{ $lcpImg }}" fetchpriority="high">
     <title>{{ $settings['site_name'] ?? 'PT. UMI MUTHMAINAH BERKAH' }} — Paket Haji & Umrah Premium</title>
@@ -442,12 +447,12 @@ window.addEventListener('error', function(e) {
       $allCategories = collect($packages)->pluck('category')->filter()->unique()->values();
     @endphp
     @if($allCategories->count() > 1)
-    <div class="pkg-filter-tabs" id="pkgFilterTabs">
-      <button class="pkg-filter-btn active" data-cat="semua" onclick="filterPaket('semua', this)">Semua</button>
-      @foreach($allCategories as $cat)
-      <button class="pkg-filter-btn" data-cat="{{ $cat }}" onclick="filterPaket('{{ $cat }}', this)">{{ $cat }}</button>
-      @endforeach
-    </div>
+      <div class="pkg-filter-tabs" id="pkgFilterTabs">
+        <button class="pkg-filter-btn active" data-cat="semua" onclick="filterPaket('semua', this)">Semua</button>
+        @foreach($allCategories as $cat)
+          <button class="pkg-filter-btn" data-cat="{{ $cat }}" onclick="filterPaket('{{ $cat }}', this)">{{ $cat }}</button>
+        @endforeach
+      </div>
     @endif
 
     <div class="pkg-slider-wrapper">
@@ -458,33 +463,33 @@ window.addEventListener('error', function(e) {
       
       <div class="pkg-grid-slider" id="pkgSlider">
         @foreach($packages as $package)
-        <div class="pkg-card-wrapper" data-category="{{ $package['category'] ?? '' }}">
-          <div class="pkg-card reveal">
-            <div class="pkg-img">
-              <img src="{{ $package['image_url'] ?? 'https://images.unsplash.com/photo-1591604129939-f1efa4d9f7fa?w=600&q=80&fit=crop' }}" alt="{{ $package['name'] }}">
-              <div class="pkg-img-overlay"></div>
-              <div class="pkg-img-label">{{ $package['category'] ?? 'Paket' }}</div>
-            </div>
-            <div class="pkg-body">
-              <div class="pkg-name">{{ $package['name'] }}</div>
-              <div class="pkg-days">{{ $package['duration'] ?? '9 Hari' }} · {{ $package['departure'] ?? 'Keberangkatan' }}</div>
-              <div class="pkg-price">Rp {{ number_format((float) preg_replace('/[^0-9]/', '', $package['price'] ?? 0), 0, ',', '.') }} <small>/orang</small></div>
-              <div class="pkg-divider"></div>
-              <div class="pkg-actions">
-                <a href="{{ route('register.show', ['package' => $package['id']]) }}" class="pkg-btn btn-daftar">Daftar</a>
-                <button type="button" class="pkg-btn btn-detail-outline" onclick='openPkgModal({!! json_encode([
-                  "name" => $package["name"],
-                  "duration" => $package["duration"] ?? "9 Hari",
-                  "hotel" => $package["hotel"] ?? "Bintang 5",
-                  "airline" => $package["airline"] ?? "Saudia Airlines",
-                  "price" => "Rp " . number_format((float) preg_replace("/[^0-9]/", "", $package["price"] ?? 0), 0, ",", "."),
-                  "features" => isset($package["features"]) ? (is_array($package["features"]) ? $package["features"] : explode(",", $package["features"])) : [],
-                  "hotel_facilities" => isset($package["hotel_facilities"]) ? (is_array($package["hotel_facilities"]) ? $package["hotel_facilities"] : explode(",", $package["hotel_facilities"])) : []
-                ]) !!})'>Detail</button>
-              </div>
-            </div>
-          </div>
-        </div>
+                <div class="pkg-card-wrapper" data-category="{{ $package['category'] ?? '' }}">
+                  <div class="pkg-card reveal">
+                    <div class="pkg-img">
+                      <img src="{{ $package['image_url'] ?? 'https://images.unsplash.com/photo-1591604129939-f1efa4d9f7fa?w=600&q=80&fit=crop' }}" alt="{{ $package['name'] }}">
+                      <div class="pkg-img-overlay"></div>
+                      <div class="pkg-img-label">{{ $package['category'] ?? 'Paket' }}</div>
+                    </div>
+                    <div class="pkg-body">
+                      <div class="pkg-name">{{ $package['name'] }}</div>
+                      <div class="pkg-days">{{ $package['duration'] ?? '9 Hari' }} · {{ $package['departure'] ?? 'Keberangkatan' }}</div>
+                      <div class="pkg-price">Rp {{ number_format((float) preg_replace('/[^0-9]/', '', $package['price'] ?? 0), 0, ',', '.') }} <small>/orang</small></div>
+                      <div class="pkg-divider"></div>
+                      <div class="pkg-actions">
+                        <a href="{{ route('register.show', ['package' => $package['id']]) }}" class="pkg-btn btn-daftar">Daftar</a>
+                        <button type="button" class="pkg-btn btn-detail-outline" onclick='openPkgModal({!! json_encode([
+            "name" => $package["name"],
+            "duration" => $package["duration"] ?? "9 Hari",
+            "hotel" => $package["hotel"] ?? "Bintang 5",
+            "airline" => $package["airline"] ?? "Saudia Airlines",
+            "price" => "Rp " . number_format((float) preg_replace("/[^0-9]/", "", $package["price"] ?? 0), 0, ",", "."),
+            "features" => isset($package["features"]) ? (is_array($package["features"]) ? $package["features"] : explode(",", $package["features"])) : [],
+            "hotel_facilities" => isset($package["hotel_facilities"]) ? (is_array($package["hotel_facilities"]) ? $package["hotel_facilities"] : explode(",", $package["hotel_facilities"])) : []
+          ]) !!})'>Detail</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
         @endforeach
       </div>
     </div>
@@ -511,14 +516,154 @@ function filterPaket(cat, btn) {
 <!-- GALLERY MARQUEE -->
 <div class="gallery-section" id="sync-galeri">
   <div class="gallery-inner">
-    <div class="section-header gallery-header reveal">
-      <div class="sec-eyebrow gallery-eyebrow-gold">{{ $settings['sec_gal_eye'] ?? 'Galeri Perjalanan' }}</div>
-      <h2 class="sec-title">{!! $settings['sec_gal_title'] ?? 'Momen <em>Berkesan</em> Jemaah Kami' !!}</h2>
-      <p class="sec-sub">Ribuan momen penuh makna tertangkap dalam setiap perjalanan suci bersama {{ $settings['site_name'] ?? 'PT. UMI MUTHMAINAH BERKAH' }}.</p>
+    @php
+        /* NORMALIZE SETTINGS */
+        if (!empty($settings) && is_array($settings)) {
+            array_walk_recursive($settings, function (&$value) {
+                if (is_string($value)) $value = fixUrl($value);
+            });
+        }
+
+        $allMedia = [];
+        $vis = $galleryVisibility ?? [];
+
+        /* 1. DYNAMIC GALLERY (Firebase) - Cek is_published per item */
+        $dynamicGallery = $gallery ?? [];
+        foreach ($dynamicGallery as $id => $item) {
+            if (empty($item['url'])) continue;
+            $isPublished = $item['is_published'] ?? true;
+            if (!$isPublished) continue; // Skip jika disembunyikan
+            $url = fixUrl($item['url']);
+            $type = $item['type'] ?? (preg_match('/\.(mp4|webm|ogg)$/i', $url) ? 'video' : 'foto');
+            $allMedia[] = ['id' => $id, 'url' => $url, 'type' => $type];
+        }
+
+        /* 2. LEGACY GALLERY - FOTO (dari settings/gallery_img_X) */
+        for ($i = 1; $i <= 20; $i++) {
+            $key = 'gallery_img_' . $i;
+            $p = $settings[$key] ?? '';
+            if (empty($p)) continue;
+            $isPublished = $vis[$key] ?? true;
+            if (!$isPublished) continue; // Skip jika disembunyikan
+            $url = fixUrl($p);
+            $allMedia[] = ['id' => $key, 'url' => $url, 'type' => 'foto'];
+        }
+
+        /* 3. LEGACY GALLERY - VIDEO (dari settings/gallery_video_X) */
+        for ($i = 1; $i <= 10; $i++) {
+            $key = 'gallery_video_' . $i;
+            $p = $settings[$key] ?? '';
+            if (empty($p)) continue;
+            $isPublished = $vis[$key] ?? true;
+            if (!$isPublished) continue; // Skip jika disembunyikan
+            $url = fixUrl($p);
+            $allMedia[] = ['id' => $key, 'url' => $url, 'type' => 'video'];
+        }
+
+        /* FILTER AKHIR: HAPUS DUPLIKAT URL */
+        $allMedia = collect($allMedia)->unique('url')->values()->all();
+
+        $totalGalleryCount = count($allMedia);
+
+    @endphp
+
+    <div class="section-header gallery-header reveal" style="display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 20px;">
+      <div style="flex: 1; min-width: 300px;">
+        <div class="sec-eyebrow gallery-eyebrow-gold">{{ $settings['sec_gal_eye'] ?? 'Galeri Perjalanan' }}</div>
+        <h2 class="sec-title" style="margin-bottom: 10px;">{!! $settings['sec_gal_title'] ?? 'Momen <em>Berkesan</em> Jemaah Kami' !!}</h2>
+        <p class="sec-sub">Ribuan momen penuh makna tertangkap dalam setiap perjalanan suci bersama {{ $settings['site_name'] ?? 'PT. UMI MUTHMAINAH BERKAH' }}.</p>
+      </div>
+
+      @if($totalGalleryCount >= 5)
+        <div class="gallery-action">
+            <a href="{{ route('gallery') }}" class="btn btn-gold-outline" style="border: 2px solid var(--gold); color: var(--gold); padding: 12px 30px; border-radius: 100px; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 10px; transition: all 0.3s; background: white;">
+                Lihat Lainnya
+                <span>→</span>
+            </a>
+        </div>
+      @endif
     </div>
     <div class="marquee-wrap">
-      <div class="marquee-row" id="row1"></div>
-      <div class="marquee-row rev" id="row2"></div>
+      <style>
+        .gal-marquee-outer { overflow: hidden; width: 100%; padding: 8px 0; }
+        .gal-marquee-track { display: flex; gap: 14px; width: max-content; }
+        .gal-marquee-track.go-left  { animation: galLeft  var(--gal-dur, 35s) linear infinite; }
+        .gal-marquee-track.go-right { animation: galRight var(--gal-dur, 40s) linear infinite; }
+        .gal-marquee-outer:hover .gal-marquee-track { animation-play-state: paused; }
+        @keyframes galLeft  { from { transform: translateX(0); } to { transform: translateX(-33.333%); } }
+        @keyframes galRight { from { transform: translateX(-33.333%); } to { transform: translateX(0); } }
+        .gal-item {
+          flex: 0 0 auto;
+          width: 260px; height: 190px;
+          border-radius: 14px;
+          overflow: hidden;
+          cursor: pointer;
+          box-shadow: 0 4px 18px rgba(0,0,0,.15);
+          transition: transform .3s, box-shadow .3s;
+          background: #1a2a1a;
+        }
+        .gal-item:hover { transform: scale(1.04); box-shadow: 0 8px 30px rgba(0,0,0,.3); }
+        .gal-item img, .gal-item video {
+          width: 100%; height: 100%;
+          object-fit: cover;
+          display: block;
+        }
+      </style>
+
+      @php
+        /* Buat duplikat untuk seamless loop (3 set = saat set 1 habis, set 2 masuk, etc.) */
+        $row1Items = array_values($allMedia);
+        $row2Items = array_values(array_reverse($allMedia)); // arah kebalikan untuk variasi
+        /* Minimal 3 item per baris agar loop mulus */
+        while (count($row1Items) < 4) $row1Items = array_merge($row1Items, $row1Items);
+        while (count($row2Items) < 4) $row2Items = array_merge($row2Items, $row2Items);
+        /* Tripel untuk seamless translateX(-33.333%) */
+        $row1Loop = array_merge($row1Items, $row1Items, $row1Items);
+        $row2Loop = array_merge($row2Items, $row2Items, $row2Items);
+      @endphp
+
+      {{-- BARIS 1: Scroll ke KIRI ← --}}
+      <div class="gal-marquee-outer" style="margin-bottom: 14px;">
+        <div class="gal-marquee-track go-left" style="--gal-dur: 35s;">
+          @foreach($row1Loop as $media)
+            @if(!empty($media['url']))
+              <div class="gal-item"
+                   onclick="openAboutLightbox('{{ $media['url'] }}')">
+                @if(($media['type'] ?? 'foto') === 'video')
+                  <video src="{{ $media['url'] }}" autoplay muted loop playsinline
+                         style="width:100%;height:100%;object-fit:cover;"
+                         onerror="this.closest('.gal-item').remove()"></video>
+                @else
+                  <img src="{{ $media['url'] }}" alt="Galeri Perjalanan" loading="lazy"
+                       onerror="this.closest('.gal-item').remove()">
+                @endif
+              </div>
+            @endif
+          @endforeach
+        </div>
+      </div>
+
+      {{-- BARIS 2: Scroll ke KANAN → --}}
+      <div class="gal-marquee-outer">
+        <div class="gal-marquee-track go-right" style="--gal-dur: 40s;">
+          @foreach($row2Loop as $media)
+            @if(!empty($media['url']))
+              <div class="gal-item"
+                   onclick="openAboutLightbox('{{ $media['url'] }}')">
+                @if(($media['type'] ?? 'foto') === 'video')
+                  <video src="{{ $media['url'] }}" autoplay muted loop playsinline
+                         style="width:100%;height:100%;object-fit:cover;"
+                         onerror="this.closest('.gal-item').remove()"></video>
+                @else
+                  <img src="{{ $media['url'] }}" alt="Galeri Perjalanan" loading="lazy"
+                       onerror="this.closest('.gal-item').remove()">
+                @endif
+              </div>
+            @endif
+          @endforeach
+        </div>
+      </div>
+
     </div>
   </div>
 </div>
@@ -533,13 +678,13 @@ function filterPaket(cat, btn) {
     </div>
     <div class="itin-grid">
       <div class="timeline reveal-left" id="sync-itin-list">
-        @for($i=1; $i<=5; $i++)
-        <div class="tl-item" id="sync-itin-item-{{ $i }}">
-          <div class="tl-dot"></div>
-          <div class="tl-day">{{ $settings['itin' . $i . '_day'] ?? ($i==1 ? 'Hari 1-3' : ($i==2 ? 'Hari 4-8' : ($i==3 ? 'Hari 9-12' : ($i==4 ? 'Hari 13-16' : 'Hari 17-21')))) }}</div>
-          <div class="tl-title">{{ $settings['itin' . $i . '_title'] ?? ($i==1 ? 'Keberangkatan & Tiba di Madinah' : ($i==2 ? 'Sholat Arbain di Madinah' : ($i==3 ? 'Makkah & Umrah Wajib' : ($i==4 ? 'Puncak Haji — Arafah, Muzdalifah, Mina' : 'Tawaf Wada & Kepulangan')))) }}</div>
-          <div class="tl-desc">{{ $settings['itin' . $i . '_desc'] ?? ($i==1 ? 'Kumpul di embarkasi, penerbangan ke Madinah, sambutan, check-in hotel.' : ($i==2 ? '40 waktu sholat berturut-turut di Masjid Nabawi. Ziarah Jabal Uhud, Masjid Quba.' : ($i==3 ? 'Berihram dari Miqat, perjalanan ke Makkah. Tawaf Qudum, Sa\'i, Tahallul.' : ($i==4 ? 'Wukuf di Arafah, mabit di Muzdalifah, lempar Jumroh.' : 'Tawaf Wada\' sebagai perpisahan dengan Baitullah.')))) }}</div>
-        </div>
+        @for($i = 1; $i <= 5; $i++)
+          <div class="tl-item" id="sync-itin-item-{{ $i }}">
+            <div class="tl-dot"></div>
+            <div class="tl-day">{{ $settings['itin' . $i . '_day'] ?? ($i == 1 ? 'Hari 1-3' : ($i == 2 ? 'Hari 4-8' : ($i == 3 ? 'Hari 9-12' : ($i == 4 ? 'Hari 13-16' : 'Hari 17-21')))) }}</div>
+            <div class="tl-title">{{ $settings['itin' . $i . '_title'] ?? ($i == 1 ? 'Keberangkatan & Tiba di Madinah' : ($i == 2 ? 'Sholat Arbain di Madinah' : ($i == 3 ? 'Makkah & Umrah Wajib' : ($i == 4 ? 'Puncak Haji — Arafah, Muzdalifah, Mina' : 'Tawaf Wada & Kepulangan')))) }}</div>
+            <div class="tl-desc">{{ $settings['itin' . $i . '_desc'] ?? ($i == 1 ? 'Kumpul di embarkasi, penerbangan ke Madinah, sambutan, check-in hotel.' : ($i == 2 ? '40 waktu sholat berturut-turut di Masjid Nabawi. Ziarah Jabal Uhud, Masjid Quba.' : ($i == 3 ? 'Berihram dari Miqat, perjalanan ke Makkah. Tawaf Qudum, Sa\'i, Tahallul.' : ($i == 4 ? 'Wukuf di Arafah, mabit di Muzdalifah, lempar Jumroh.' : 'Tawaf Wada\' sebagai perpisahan dengan Baitullah.')))) }}</div>
+          </div>
         @endfor
       </div>
 
@@ -547,7 +692,7 @@ function filterPaket(cat, btn) {
         <div class="aside-card" id="sync-jadwal-card">
           <div class="aside-card-img" 
                @if(!request()->has('preview'))
-                 onclick="{{ !empty($settings['itin_aside_video']) ? 'openItinMedia(\''.$settings['itin_aside_video'].'\', \'video\')' : 'openItinMedia(\''.optUrl(($settings['itin_aside_img'] ?? 'https://images.unsplash.com/photo-1609950547341-a9e24bfeece9'), 800).'\', \'image\')' }}" 
+                 onclick="{{ !empty($settings['itin_aside_video']) ? 'openItinMedia(\'' . $settings['itin_aside_video'] . '\', \'video\')' : 'openItinMedia(\'' . optUrl(($settings['itin_aside_img'] ?? 'https://images.unsplash.com/photo-1609950547341-a9e24bfeece9'), 800) . '\', \'image\')' }}" 
                  style="cursor:pointer;"
                @endif>
             @if(!empty($settings['itin_aside_video']))
@@ -561,14 +706,14 @@ function filterPaket(cat, btn) {
           </div>
           <div class="aside-card-body">
             <div class="aside-info">
-              @for($i=1; $i<=3; $i++)
-              <div class="aside-info-item">
-                <div class="ai-icon">{{ $settings['itin_aside_i' . $i . '_icon'] ?? ($i==1 ? '📋' : ($i==2 ? '💉' : '📅')) }}</div>
-                <div>
-                    <div class="ai-title">{{ $settings['itin_aside_i' . $i . '_title'] ?? ($i==1 ? 'Dokumen Wajib' : ($i==2 ? 'Pemeriksaan Kesehatan' : 'Pendaftaran Awal')) }}</div>
-                    <div class="ai-desc">{{ $settings['itin_aside_i' . $i . '_desc'] ?? ($i==1 ? 'Paspor berlaku min. 18 bulan, KTP, KK.' : ($i==2 ? 'Dilakukan minimal 1 bulan sebelum keberangkatan.' : 'Daftar minimal 6 bulan sebelumnya.')) }}</div>
+              @for($i = 1; $i <= 3; $i++)
+                <div class="aside-info-item">
+                  <div class="ai-icon">{{ $settings['itin_aside_i' . $i . '_icon'] ?? ($i == 1 ? '📋' : ($i == 2 ? '💉' : '📅')) }}</div>
+                  <div>
+                      <div class="ai-title">{{ $settings['itin_aside_i' . $i . '_title'] ?? ($i == 1 ? 'Dokumen Wajib' : ($i == 2 ? 'Pemeriksaan Kesehatan' : 'Pendaftaran Awal')) }}</div>
+                      <div class="ai-desc">{{ $settings['itin_aside_i' . $i . '_desc'] ?? ($i == 1 ? 'Paspor berlaku min. 18 bulan, KTP, KK.' : ($i == 2 ? 'Dilakukan minimal 1 bulan sebelum keberangkatan.' : 'Daftar minimal 6 bulan sebelumnya.')) }}</div>
+                  </div>
                 </div>
-              </div>
               @endfor
             </div>
           </div>
@@ -602,7 +747,7 @@ function filterPaket(cat, btn) {
         
         @forelse($facilities as $item)
           @php 
-            $finalTitle = $item['title'] ?? ($item['name'] ?? 'Fasilitas');
+                      $finalTitle = $item['title'] ?? ($item['name'] ?? 'Fasilitas');
             $finalIcon = $item['icon'] ?? '✨';
             $finalDesc = $item['description'] ?? '';
             $finalLong = $item['description'] ?? '';
@@ -706,11 +851,11 @@ function closeFacModal(e) {
       $wa_raw = $settings['contact_wa'] ?? '081234567890';
       $wa_clean = preg_replace('/[^0-9]/', '', $wa_raw);
       if (str_starts_with($wa_clean, '0')) {
-          $wa_number = '62' . substr($wa_clean, 1);
+        $wa_number = '62' . substr($wa_clean, 1);
       } elseif (str_starts_with($wa_clean, '8')) {
-          $wa_number = '62' . $wa_clean;
+        $wa_number = '62' . $wa_clean;
       } else {
-          $wa_number = $wa_clean;
+        $wa_number = $wa_clean;
       }
     @endphp
 
@@ -790,9 +935,19 @@ function closeFacModal(e) {
           preload="auto"
           style="width:100%; border-radius:12px; box-shadow:0 20px 50px rgba(0,0,0,0.5); max-height:80vh;"
         >
-          <source src="{{ url($settings['hero_video_url']) }}?t={{ time() }}" type="video/mp4">
+        @php
+            $rawPath = $settings['hero_video_url'];
+            // Bersihkan path dari host jika sudah ada (karena asset() akan menambahkannya lagi)
+            $cleanPath = preg_replace('/^https?:\/\/[^\/]+/', '', $rawPath);
+            $cleanPath = ltrim($cleanPath, '/');
+            $finalUrl = asset($cleanPath);
+        @endphp
+          <source src="{{ $finalUrl }}" type="video/mp4">
           Browser Anda tidak mendukung tag video.
         </video>
+        <div style="font-size:10px; color:#666; margin-top:10px; text-align:center; word-break:break-all;">
+            Debug URL: {{ $finalUrl }}
+        </div>
       </div>
     @else
       {{-- Belum ada video, tampilkan placeholder --}}
@@ -891,63 +1046,26 @@ for(let i=0;i<18;i++){
   pc.appendChild(p);
 }
 
-/* ── MARQUEE GALLERY ── */
+/* ── GALLERY DINONAKTIFKAN ANIMASINYA (GRID STATIS) ── */
 @php
-  $defaultGallery = [
-    optUrl('https://images.unsplash.com/photo-1591604129939-f1efa4d9f7fa', 300),
-    optUrl('https://images.unsplash.com/photo-1564769625092-b6df1b3e13f0', 300),
-    optUrl('https://images.unsplash.com/photo-1609950547341-a9e24bfeece9', 300),
-    optUrl('https://images.unsplash.com/photo-1466442929976-97f336a657be', 300),
-    optUrl('https://images.unsplash.com/photo-1574120240282-60c4da46edaf', 300),
-    optUrl('https://images.unsplash.com/photo-1604594849809-dfedbc827105', 300),
-    optUrl('https://images.unsplash.com/photo-1515091943-9d5c0ad475af', 300),
-    optUrl('https://images.unsplash.com/photo-1521295121783-8a321d551ad2', 300),
-    optUrl('https://images.unsplash.com/photo-1513836279014-a89f7a76ae86', 300),
-    optUrl('https://images.unsplash.com/photo-1506905925346-21bda4d32df4', 300),
-  ];
-  $galleryUrls = [];
-  
-  // Ambil FOTO (1-20)
-  for($gi = 1; $gi <= 20; $gi++) {
-    if(!empty($settings['gallery_img_'.$gi])) {
-      $galleryUrls[] = optUrl($settings['gallery_img_'.$gi], 300);
-    } elseif ($gi <= 10) {
-      $galleryUrls[] = $defaultGallery[$gi - 1]; // Fallback ke default hanya untuk 10 pertama
+    $allGallery = [];
+    $localPath = public_path('Gambar perjalanan/Gambar-video');
+    
+    for($gi = 1; $gi <= 20; $gi++) {
+      $p = $settings['gallery_img_'.$gi] ?? '';
+      if(!empty($p)) $allGallery[] = asset(str_starts_with($p, '/') ? $p : '/'.$p);
     }
-  }
-
-  // VIDEO GALERI DINONAKTIFKAN - hanya foto yang ditampilkan
+    if (file_exists($localPath)) {
+        $files = scandir($localPath);
+        foreach ($files as $f) {
+            if (preg_match('/\.(jpg|jpeg|png|webp)$/i', $f)) {
+                $allGallery[] = asset('/Gambar%20perjalanan/Gambar-video/' . rawurlencode($f));
+            }
+        }
+    }
+    $allGallery = array_unique($allGallery);
 @endphp
-const galleryImgs = {!! json_encode($galleryUrls) !!};
-
-const row1 = document.getElementById('row1');
-const row2 = document.getElementById('row2');
-
-// Filter hanya foto (tanpa video)
-const photoOnly = galleryImgs.filter(src => {
-    const isVid = src.toLowerCase().match(/\.(mp4|webm|ogg|mov|m4v|avi|wmv|flv)/) || src.includes('videos');
-    return !isVid;
-});
-
-// Pastikan minimal 10 foto untuk marquee yang mulus
-let displayPhotos = photoOnly.length > 0 ? [...photoOnly] : [...galleryImgs];
-while (displayPhotos.length < 10) { displayPhotos = [...displayPhotos, ...displayPhotos]; }
-
-// Baris 1: foto arah kiri
-displayPhotos.forEach(src => {
-    const d = document.createElement('div');
-    d.className = 'marquee-item';
-    d.innerHTML = `<img src="${src}" alt="Gallery Photo" loading="lazy" width="300" height="200" onclick="openAboutLightbox('${src}')" style="cursor:zoom-in;">`;
-    row1.appendChild(d);
-});
-
-// Baris 2: foto arah kanan (urutan terbalik)
-[...displayPhotos].reverse().forEach(src => {
-    const d = document.createElement('div');
-    d.className = 'marquee-item';
-    d.innerHTML = `<img src="${src}" alt="Gallery Photo" loading="lazy" width="300" height="200" onclick="openAboutLightbox('${src}')" style="cursor:zoom-in;">`;
-    row2.appendChild(d);
-});
+const galleryImgs = {!! json_encode(array_values($allGallery)) !!};
 
 /* ── TESTIMONIAL MARQUEE ── */
 const testiData = {!! json_encode($testimonials->values()->toArray()) !!};

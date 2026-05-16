@@ -19,6 +19,7 @@ use App\Models\Facility;
 
 // Homepage
 Route::get('/', [HomeController::class, 'index'])->name('home');
+Route::get('/galeri', [HomeController::class, 'gallery'])->name('gallery');
 
 // Rute Darurat Pembersih Cache (Jalankan ini di hosting jika ada bug)
 Route::get('/clear-system-cache', function() {
@@ -63,6 +64,14 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::get('/settings/preview', [AdminController::class, 'preview'])->name('settings.preview');
     Route::post('/settings', [AdminController::class, 'updateSettings'])->name('settings.update');
     Route::post('/clear-cache', [AdminController::class, 'clearCache'])->name('clearCache');
+
+    // Gallery Admin Page
+    Route::get('/gallery', [AdminController::class, 'galleryIndex'])->name('gallery.index');
+    Route::post('/gallery/upload', [AdminController::class, 'uploadGallery'])->name('gallery.upload');
+    Route::patch('/gallery/{id}/toggle-visibility', [AdminController::class, 'toggleVisibilityGallery'])->name('gallery.toggleVisibility');
+    Route::post('/gallery/bulk-visibility', [AdminController::class, 'bulkVisibilityGallery'])->name('gallery.bulkVisibility');
+    Route::post('/gallery/delete-local', [AdminController::class, 'deleteLocalGallery'])->name('gallery.delete-local');
+    Route::post('/gallery/bulk-delete', [AdminController::class, 'bulkDeleteGallery'])->name('gallery.bulk-delete');
 
     // Profile / Akun
     Route::get('/profile', [ProfileController::class, 'index'])->name('profile.index');

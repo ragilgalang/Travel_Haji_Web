@@ -1,0 +1,323 @@
+/* Bulk Actions Bar Styles */
+.bulk-actions {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    padding: 10px 16px;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    display: none; 
+    align-items: center;
+    gap: 12px;
+}
+
+.bulk-actions.active {
+    display: flex;
+}
+
+.bulk-actions span {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #475569;
+    margin-right: auto;
+}
+
+.btn-bulk {
+    padding: 6px 16px;
+    border-radius: 6px;
+    border: none;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.btn-bulk-delete { background: #ef4444; color: white; }
+.btn-bulk-delete:hover { background: #dc2626; }
+
+/* Overlay Modal for Form */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(15, 23, 42, 0.7);
+    z-index: 1000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+    backdrop-filter: blur(4px);
+}
+.modal-overlay.active {
+    opacity: 1;
+    pointer-events: all;
+}
+.modal-content {
+    background: white;
+    width: 90%;
+    max-width: 800px;
+    max-height: 90vh;
+    border-radius: 12px;
+    overflow-y: auto;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+/* Facilities Table Styles */
+.fac-header {
+    padding: 0;
+    margin-bottom: 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.btn-add-fac {
+    padding: 0.6rem 1.25rem;
+}
+
+.fac-success-alert {
+    background: #dcfce7;
+    border: 1px solid #bbf7d0;
+    color: #166534;
+    padding: 1rem;
+    border-radius: 6px;
+    margin-bottom: 1rem;
+}
+
+.fac-table-wrapper {
+    overflow-x: auto;
+}
+
+.fac-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 0.5rem;
+}
+
+.fac-table thead tr {
+    text-align: left;
+    border-bottom: 2px solid #f1f5f9;
+    white-space: nowrap;
+}
+
+.fac-table th {
+    padding: 1rem;
+}
+
+.fac-table th.checkbox-col {
+    width: 40px;
+}
+
+.fac-table th.label-col {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    text-transform: uppercase;
+}
+
+.fac-table tbody tr {
+    border-bottom: 1px solid #f1f5f9;
+    white-space: nowrap;
+}
+
+.fac-table td {
+    padding: 1rem;
+}
+
+.fac-info-box {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.fac-icon-text {
+    font-size: 1.5rem;
+}
+
+.fac-title-text {
+    font-size: 0.95rem;
+}
+
+.fac-hotel-text {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+}
+
+.fac-desc-text {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    white-space: normal;
+    min-width: 200px;
+}
+
+.fac-action-btns {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.btn-edit-fac-inline {
+    background: none;
+    border: none;
+    color: #6366f1;
+    cursor: pointer;
+    padding: 0;
+    font-size: 0.9rem;
+    font-weight: 600;
+    font-family: inherit;
+}
+
+.btn-delete-fac-inline {
+    background: none;
+    border: none;
+    color: #f43f5e;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 600;
+    font-family: inherit;
+}
+
+.empty-facilities {
+    text-align: center;
+    padding: 2rem;
+    color: var(--text-muted);
+}
+
+/* Modal Form Styles */
+.fac-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #e2e8f0;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+}
+
+.fac-modal-title {
+    margin: 0;
+}
+
+.btn-close-fac-modal {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: var(--text-muted);
+}
+
+.fac-form-grid-2 {
+    display: grid;
+    grid-template-columns: 100px 1fr;
+    gap: 1.5rem;
+}
+
+.fac-icon-select {
+    font-size: 1.5rem;
+    padding: 0.5rem;
+    text-align: center;
+    height: 50px;
+}
+
+.fac-title-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.fac-image-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.fac-image-control {
+    padding: 0.35rem 0.75rem !important;
+}
+
+.fac-modal-footer {
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid #e2e8f0;
+    display: flex;
+    gap: 10px;
+}
+
+.btn-submit-fac {
+    flex: 1;
+}
+
+.btn-cancel-fac {
+    flex: 1;
+    background: #f1f5f9;
+    color: #475569;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+/* Creation Form Page Styles */
+.fac-card-create {
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.fac-form-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.fac-form-title {
+    margin: 0;
+}
+
+.btn-back-fac {
+    color: #6366f1;
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.fac-error-box {
+    background: #fee2e2;
+    color: #991b1b;
+    padding: 12px;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+}
+
+.fac-error-list {
+    margin: 0;
+    padding-left: 20px;
+}
+
+.fac-label-bold {
+    font-weight: 600;
+    display: block;
+    margin-bottom: 8px;
+}
+
+.fac-help-text {
+    color: var(--text-muted);
+    display: block;
+    margin-top: 4px;
+}
+
+.fac-form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.btn-cancel-create {
+    background: #f1f5f9;
+    color: #475569;
+    text-decoration: none;
+    padding: 10px 20px;
+}
+
+.btn-submit-create {
+    padding: 10px 20px;
+}

@@ -86,8 +86,23 @@
                         </td>
                         <td>
                             <div class="pwd-box" style="display: flex; align-items: center; gap: 8px;">
-                                <code id="pwd-{{ $loop->index }}" style="background: #f1f5f9; padding: 4px 8px; border-radius: 4px; font-family: monospace; filter: blur(4px); transition: 0.3s;">{{ $log['password'] ?? '********' }}</code>
-                                <button type="button" onclick="toggleBlur(this, 'pwd-{{ $loop->index }}')" style="background: none; border: none; cursor: pointer; color: #3b82f6; font-size: 0.75rem; font-weight: 600;">Lihat</button>
+                                <code
+                                    id="pwd-{{ $loop->index }}"
+                                    data-pwd="{{ $log['password'] ?? '' }}"
+                                    style="background: #f1f5f9; padding: 4px 10px; border-radius: 6px; font-family: monospace; font-size: 0.85rem; letter-spacing: 2px; color: #475569; min-width: 80px; display: inline-block;"
+                                >••••••••</code>
+                                <button type="button"
+                                    onclick="togglePwd(this, 'pwd-{{ $loop->index }}')"
+                                    title="Tampilkan/Sembunyikan Password"
+                                    style="background: #eff6ff; border: 1px solid #bfdbfe; color: #3b82f6; width: 28px; height: 28px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0; transition: 0.2s; flex-shrink: 0;"
+                                    onmouseover="this.style.background='#dbeafe'"
+                                    onmouseout="this.style.background='#eff6ff'"
+                                >
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                                        <circle cx="12" cy="12" r="3"/>
+                                    </svg>
+                                </button>
                             </div>
                         </td>
                         <td>
@@ -182,14 +197,26 @@ function toggleBannedSection() {
     }
 }
 
-function toggleBlur(btn, id) {
+function togglePwd(btn, id) {
     const el = document.getElementById(id);
-    if (el.style.filter === 'blur(0px)') {
-        el.style.filter = 'blur(4px)';
-        btn.innerText = 'Lihat';
+    const real = el.getAttribute('data-pwd');
+    const isHidden = el.textContent === '••••••••';
+    if (isHidden) {
+        el.textContent = real || '(kosong)';
+        el.style.color = '#1a5c3a';
+        el.style.background = '#f0fdf4';
+        btn.style.background = '#dcfce7';
+        btn.style.borderColor = '#86efac';
+        btn.style.color = '#166534';
+        btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>';
     } else {
-        el.style.filter = 'blur(0px)';
-        btn.innerText = 'Sembunyikan';
+        el.textContent = '••••••••';
+        el.style.color = '#475569';
+        el.style.background = '#f1f5f9';
+        btn.style.background = '#eff6ff';
+        btn.style.borderColor = '#bfdbfe';
+        btn.style.color = '#3b82f6';
+        btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>';
     }
 }
 

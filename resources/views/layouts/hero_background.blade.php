@@ -1,9 +1,14 @@
 <!-- HERO BACKGROUND: Video atau Slideshow Foto -->
 @if(!empty($settings['hero_video']))
   {{-- VIDEO HERO --}}
+  @php
+    $heroVidUrl = str_starts_with($settings['hero_video'], '/')
+        ? request()->getSchemeAndHttpHost() . $settings['hero_video']
+        : $settings['hero_video'];
+  @endphp
   <div class="hero-video-bg">
     <video
-      src="{{ url($settings['hero_video']) }}?t={{ time() }}"
+      src="{{ $heroVidUrl }}"
       autoplay muted loop playsinline
       class="hero-video-player"
       style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;z-index:0;">

@@ -1,11 +1,30 @@
-@import 'tailwindcss';
+@import "tailwindcss";
 
-@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
-@source '../../storage/framework/views/*.php';
-@source '../**/*.blade.php';
-@source '../**/*.js';
+/* Pastikan Tailwind memindai semua file Blade dan JS */
+@source "../views/**/*.blade.php";
+@source "../js/**/*.js";
+@source "../../app/**/*.php";
 
 @theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
+    --font-sans: 'Figtree', 'Instrument Sans', ui-sans-serif, system-ui, sans-serif;
+    
+    --color-primary: var(--green);
+    --color-secondary: var(--gold);
+    --color-dark: #0d1f15;
+    
+    --radius-premium: 16px;
+    --radius-premium-lg: 24px;
+}
+
+@layer base {
+    :root {
+        --green: #1a5c3a;
+        --gold: #d4a843;
+    }
+}
+
+@layer components {
+    .custom-scrollbar::-webkit-scrollbar { width: 5px; height: 5px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
 }

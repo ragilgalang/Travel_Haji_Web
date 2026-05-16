@@ -325,45 +325,37 @@ select.form-control {
 
 /* Video upload section */
 .upload-section-video {
-    background: #eef2ff; /* Indigo super light */
-    border: 1.5px solid #c7d2fe;
-    border-radius: 18px;
-    padding: 22px;
-    margin-bottom: 22px;
+    background: #0f172a;
+    border: 1px solid #1e293b;
+    border-radius: 16px;
+    padding: 18px;
+    margin-bottom: 18px;
 }
 .upload-label-video {
     display: block;
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 800;
-    color: #4338ca; /* Indigo dark */
+    color: #94a3b8;
     text-transform: uppercase;
-    letter-spacing: 1.2px;
-    margin-bottom: 16px;
+    letter-spacing: 1px;
+    margin-bottom: 14px;
 }
 .video-preview-box {
-    background: #ffffff;
-    border-radius: 14px;
-    padding: 14px;
-    margin-bottom: 12px;
-    border: 1px solid #e0e7ff;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    background: #1e293b;
+    border-radius: 12px;
+    padding: 12px;
+    margin-bottom: 10px;
 }
 .video-preview-player {
     width: 100%;
-    border-radius: 10px;
-    max-height: 180px;
+    border-radius: 8px;
+    max-height: 140px;
     object-fit: contain;
-    background: #000; /* Player background remains black for the video */
-}
-.upload-section-video input[type="file"].form-control {
-    color: #475569 !important; /* Ensure "No file chosen" is visible */
-    font-weight: 600;
 }
 .upload-section-video input[type="file"]::file-selector-button {
     background: linear-gradient(135deg, #6366f1, #4338ca);
-    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
 }
-.upload-section-video .help-block { color: #64748b; font-weight: 500; }
+.upload-section-video .help-block { color: #64748b; }
 
 /* ── GALLERY TAB ── */
 .gallery-limit-info {

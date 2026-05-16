@@ -14,3 +14,5 @@
 *.log
 .DS_Store
 Thumbs.db
+/scratch/
+fix_vite.bat

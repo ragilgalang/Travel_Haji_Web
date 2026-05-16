@@ -1,0 +1,219 @@
+.profile-container {
+    padding-bottom: 40px;
+}
+
+.welcome-banner {
+    margin-bottom: 32px;
+}
+
+.profile-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+}
+
+@media (max-width: 992px) {
+    .profile-grid {
+        grid-template-columns: 1fr !important;
+    }
+}
+
+.profile-avatar-large {
+    width: 80px;
+    height: 80px;
+    font-size: 32px;
+    border: 4px solid rgba(255,255,255,0.2);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+}
+
+.form-input-icon-wrapper {
+    position: relative;
+}
+
+.form-input-with-icon {
+    padding-left: 40px !important;
+}
+
+.input-icon-left {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #94a3b8;
+}
+
+.input-icon-left.active {
+    color: var(--green-600);
+}
+
+.form-action-footer {
+    margin-top: 2rem;
+    border-top: 1px solid var(--gray-100);
+    padding-top: 1.5rem;
+    text-align: right;
+}
+
+.password-toggle-btn {
+    position: absolute;
+    right: 5px;
+    height: 100%;
+    width: 40px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--gray-500);
+    z-index: 5;
+}
+
+.info-bar {
+    margin-top: 32px;
+}
+
+.history-card {
+    margin-top: 24px;
+}
+
+.device-icon-box {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.device-icon-box.current {
+    background: var(--green-50);
+    color: var(--green-600);
+}
+
+.device-icon-box.other {
+    background: var(--gray-100);
+    color: var(--gray-500);
+}
+
+.session-badge {
+    margin-left: 6px;
+    padding: 2px 8px;
+    background: var(--green-100);
+    color: var(--green-700);
+    border-radius: 100px;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.user-agent-text {
+    font-size: 11px;
+    color: var(--gray-500);
+    max-width: 250px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.ip-address {
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    color: var(--gray-700);
+}
+
+.timestamp-main {
+    font-size: 13px;
+    color: var(--gray-500);
+}
+
+.timestamp-sub {
+    font-size: 11px;
+    color: var(--gray-400);
+}
+
+.status-badge-success {
+    padding: 4px 10px;
+    background: var(--green-50);
+    color: var(--green-600);
+    border-radius: 100px;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.empty-history {
+    text-align: center;
+    padding: 40px;
+    color: var(--gray-400);
+}
+
+.empty-history svg {
+    margin-bottom: 8px;
+    opacity: 0.5;
+}
+
+.input-disabled {
+    background: #f1f5f9;
+    color: #94a3b8;
+    cursor: not-allowed;
+}
+
+.text-error-sm {
+    font-size: 12px;
+    color: #ef4444;
+    margin-top: 5px;
+    display: block;
+}
+
+.password-help-text {
+    margin-top: 8px;
+    font-size: 12px;
+    color: var(--gray-500);
+    display: block;
+    line-height: 1.4;
+}
+
+.history-header-muted {
+    font-size: 12px;
+}
+
+.device-info-name {
+    font-weight: 600;
+    font-size: 13.5px;
+    color: var(--gray-900);
+}
+
+.empty-history-text {
+    font-size: 14px;
+}
+
+/* Utilities */
+.v-align-mid {
+    vertical-align: middle;
+}
+
+.mr-2 {
+    margin-right: 0.5rem;
+}
+
+.z-5 {
+    z-index: 5;
+}
+
+.pr-45 {
+    padding-right: 45px !important;
+}
+
+.gap-12 {
+    gap: 12px;
+}
+
+.identity-main {
+    font-weight: 600;
+    color: var(--gray-900);
+    font-size: 13.5px;
+}
+
+.identity-sub {
+    font-size: 11px;
+    color: var(--gray-500);
+}

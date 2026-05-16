@@ -1,0 +1,36 @@
+/* ─── PUSAT PENGATURAN WARNA TEMA (PALETTE) ─── */
+:root {
+  /* Warna Utama Website */
+  --green: #1a5c3a;
+  --green2: #22744a;
+  --green3: #2e8f5c;
+
+  /* Aksesoris Emas */
+  --gold: #d4a843;
+  --gold2: #e8bf6a;
+
+  /* Latar Belakang  BackGround(Cream / Putih) */
+  --bg: #f4f0e8;
+  --bg2: #ece7dd;
+
+  /* Teks & Netral */
+  --white: #fff;
+  --dark: #0f1f15;
+  --text: #1c2b1e;
+  --muted: #6b7a6e;
+
+  /* Tema Khusus (Bagian Spesifik) */
+  --about-bg: #f4f0e8;
+  --about-badge: var(--green);
+  --footer-bg: #0b1a10;
+
+  /* Abu-abu Gelap / Teks Hitam */
+  --text-dark: #444;
+  --text-darker: #3a4a3d;
+  --black: #000;
+
+  /* Ukuran & Bayangan (Bisa diabaikan) */
+  --radius: 14px;
+  --shadow: 0 4px 32px rgba(0, 0, 0, .10);
+  --shadow-lg: 0 16px 60px rgba(0, 0, 0, .18);
+}
