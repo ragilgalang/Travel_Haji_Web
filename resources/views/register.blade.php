@@ -440,30 +440,7 @@ window.addEventListener('error', function(e) {
       </a>
     </div>
 
-    <!-- Check Status Card -->
-    <div class="info-card" style="margin-top: 1.5rem; background: #fff; border: 1px solid #e2e8f0; border-radius: 16px; overflow: hidden;">
-      <div class="info-card-header" style="color: var(--green); background: #f8fafc; padding: 12px 16px; font-weight: 700; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid #e2e8f0;">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
-        Cek Status Pendaftaran
-      </div>
-      <div style="padding: 1.25rem;">
-        <p style="font-size: 0.8rem; color: #64748b; margin-bottom: 1rem; line-height: 1.5;">Masukkan nomor referensi untuk melihat progres pendaftaran Anda secara real-time.</p>
-        <div style="margin-bottom: 0.75rem;">
-          <input type="text" id="checkRefId" placeholder="REG-ABCD1234" style="width: 100%; padding: 12px; border-radius: 10px; border: 2px solid #e2e8f0; font-size: 0.9rem; text-transform: uppercase; font-weight: 600; outline: none; transition: border-color 0.2s;" onfocus="this.style.borderColor='var(--green)'" onblur="this.style.borderColor='#e2e8f0'">
-        </div>
-        <button type="button" onclick="checkRegStatus()" id="btnCheckStatus" style="width: 100%; background: var(--green); color: white; border: none; padding: 12px; border-radius: 10px; font-weight: 700; cursor: pointer; font-size: 0.9rem; display: flex; align-items: center; justify-content: center; gap: 10px; transition: all 0.3s; box-shadow: 0 4px 12px var(--green-light);">
-          🔍 Cek Sekarang
-        </button>
-        
-        <div id="statusResult" class="d-none" style="margin-top: 1.25rem; padding: 15px; border-radius: 12px; background: #f1f5f9; border: 1px solid #e2e8f0; animation: fadeInUp 0.4s ease-out;">
-          <div style="font-size: 0.75rem; color: #64748b; margin-bottom: 5px; font-weight: 500;">Nama Jemaah:</div>
-          <div id="resNama" style="font-weight: 800; color: #0f172a; font-size: 1rem; margin-bottom: 12px;">-</div>
-          <div style="font-size: 0.75rem; color: #64748b; margin-bottom: 6px; font-weight: 500;">Status Saat Ini:</div>
-          <div id="resStatus" style="display: inline-block; padding: 6px 14px; border-radius: 30px; font-size: 0.8rem; font-weight: 800; background: #dbeafe; color: #1e40af; box-shadow: 0 2px 5px rgba(0,0,0,0.05);"> - </div>
-          <div style="font-size: 0.7rem; color: #94a3b8; margin-top: 12px; border-top: 1px solid #e2e8f0; padding-top: 8px;">Daftar pada: <span id="resTgl" style="color: #64748b; font-weight: 600;">-</span></div>
-        </div>
-      </div>
-    </div>
+
 
   </div>
 
@@ -508,61 +485,6 @@ function submitForm() {
   }, 400);
 }
 
-async function checkRegStatus() {
-    const refId = document.getElementById('checkRefId').value.trim();
-    const btn = document.getElementById('btnCheckStatus');
-    const resBox = document.getElementById('statusResult');
-    
-    if (!refId) {
-        alert('Silakan masukkan nomor referensi Anda.');
-        return;
-    }
-
-    // Loading state
-    btn.disabled = true;
-    btn.innerHTML = `<span style="display:inline-block; animation: spin 1s linear infinite;">⌛</span> Memeriksa...`;
-    resBox.classList.add('d-none');
-
-    try {
-        const response = await fetch('{{ route('register.checkStatus') }}', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-            },
-            body: JSON.stringify({ ref_id: refId })
-        });
-        const data = await response.json();
-        
-        if (data.success) {
-            document.getElementById('resNama').textContent = data.nama;
-            document.getElementById('resStatus').textContent = data.status;
-            document.getElementById('resTgl').textContent = data.tgl;
-            
-            // Color mapping for status
-            const s = data.status;
-            const statusEl = document.getElementById('resStatus');
-            if (s === 'Selesai') {
-                statusEl.style.background = '#dcfce7'; statusEl.style.color = '#15803d';
-            } else if (s === 'Sedang Diproses') {
-                statusEl.style.background = '#fef3c7'; statusEl.style.color = '#b45309';
-            } else if (s === 'Dibatalkan') {
-                statusEl.style.background = '#fee2e2'; statusEl.style.color = '#b91c1c';
-            } else {
-                statusEl.style.background = '#dbeafe'; statusEl.style.color = '#1e40af';
-            }
-
-            resBox.classList.remove('d-none');
-        } else {
-            alert(data.message);
-        }
-    } catch (e) {
-        alert('Terjadi kesalahan. Silakan coba lagi nanti.');
-    } finally {
-        btn.disabled = false;
-        btn.innerHTML = `🔍 Cek Sekarang`;
-    }
-}
 
 /* ── LIVE SYNC LISTENER ── */
 let syncTimeout = null;
