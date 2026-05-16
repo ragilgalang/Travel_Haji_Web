@@ -346,6 +346,9 @@ window.addEventListener('error', function(e) {
         </div>
       </div>
     </form>
+    <div style="text-align: center; margin-top: 1.5rem; font-size: 0.85rem; color: #94a3b8; font-weight: 500;">
+      Support by : <span style="font-weight: 700; color: var(--green);">PT UMB</span>
+    </div>
   </div>
 
   <!-- SIDEBAR -->
