@@ -310,7 +310,6 @@ window.addEventListener('error', function(e) {
             0% { transform: translateX(0); }
             100% { transform: translateX(-50%); }
         }
->>>>>>> 42887a6 (progress sebelum pull)
     </style>
     
     <!-- STYLESHEETS -->
@@ -1421,7 +1420,6 @@ if (facSlider) {
     });
 }
 
->>>>>>> 42887a6 (progress sebelum pull)
 /* ── NOTIFICATION SYSTEM ── */
 function showNotification(message, type = 'success') {
     // Buat elemen notifikasi
