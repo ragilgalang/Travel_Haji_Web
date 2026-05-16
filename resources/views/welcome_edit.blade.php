@@ -260,76 +260,19 @@ window.addEventListener('error', function(e) {
       <p id="sync-sec_pkg_desc" class="sec-sub" contenteditable="true">{{ $settings['sec_pkg_desc'] ?? 'Temukan paket yang sesuai dengan kebutuhan dan anggaran Anda.' }}</p>
     </div>
 
-    {{-- ── TAB FILTER KATEGORI ── --}}
-    @php
-      $allCategories = collect($packages)->pluck('category')->filter()->unique()->values();
-    @endphp
-    @if($allCategories->count() > 1)
-    <div class="pkg-filter-tabs" id="pkgFilterTabs">
-      <button class="pkg-filter-btn active" data-cat="semua" onclick="filterPaket('semua', this)">Semua</button>
-      @foreach($allCategories as $cat)
-      <button class="pkg-filter-btn" data-cat="{{ $cat }}" onclick="filterPaket('{{ $cat }}', this)">{{ $cat }}</button>
-      @endforeach
-    </div>
-    @endif
-
-    <div class="pkg-slider-wrapper">
-      <div class="pkg-slider-controls">
-        <button class="pkg-slider-btn prev" onclick="scrollPkg(-1)">◀</button>
-        <button class="pkg-slider-btn next" onclick="scrollPkg(1)">▶</button>
-      </div>
-      
-      <div class="pkg-grid-slider" id="pkgSlider">
-        @foreach($packages as $package)
-        <div class="pkg-card-wrapper" data-category="{{ $package['category'] ?? '' }}">
-          <div class="pkg-card reveal">
-            <div class="pkg-img">
-              <img src="{{ $package['image_url'] ?? 'https://images.unsplash.com/photo-1591604129939-f1efa4d9f7fa?w=600&q=80&fit=crop' }}" alt="{{ $package['name'] }}">
-              <div class="pkg-img-overlay"></div>
-              <div class="pkg-img-label">{{ $package['category'] ?? 'Paket' }}</div>
-            </div>
-            <div class="pkg-body">
-              <div class="pkg-name">{{ $package['name'] }}</div>
-              <div class="pkg-days">{{ $package['duration'] ?? '9 Hari' }} · {{ $package['departure'] ?? 'Keberangkatan' }}</div>
-              <div class="pkg-price">Rp {{ number_format((float) preg_replace('/[^0-9]/', '', $package['price'] ?? 0), 0, ',', '.') }} <small>/orang</small></div>
-              <div class="pkg-divider"></div>
-              <div class="pkg-actions">
-                <a href="{{ route('register.show', ['package' => $package['id']]) }}" class="pkg-btn btn-daftar">Daftar</a>
-                <button type="button" class="pkg-btn btn-detail-outline" onclick='openPkgModal({!! json_encode([
-                  "name" => $package["name"],
-                  "duration" => $package["duration"] ?? "9 Hari",
-                  "hotel" => $package["hotel"] ?? "Bintang 5",
-                  "airline" => $package["airline"] ?? "Saudia Airlines",
-                  "price" => "Rp " . number_format((float) preg_replace("/[^0-9]/", "", $package["price"] ?? 0), 0, ",", "."),
-                  "features" => isset($package["features"]) ? (is_array($package["features"]) ? $package["features"] : explode(",", $package["features"])) : [],
-                  "hotel_facilities" => isset($package["hotel_facilities"]) ? (is_array($package["hotel_facilities"]) ? $package["hotel_facilities"] : explode(",", $package["hotel_facilities"])) : []
-                ]) !!})'>Detail</button>
-              </div>
-            </div>
-          </div>
-        </div>
-        @endforeach
-      </div>
+    <div class="editor-info-box" style="margin-top: 2rem; background: #f8fafc; border: 2px dashed #cbd5e1; border-radius: 16px; padding: 2.5rem 2rem; text-align: center;">
+      <div style="font-size: 2.5rem; margin-bottom: 1rem;">📦</div>
+      <h3 style="color: #0f172a; font-size: 1.25rem; font-weight: 700; margin-bottom: 0.5rem;">Manajemen Daftar Paket Travel</h3>
+      <p style="color: #64748b; font-size: 0.95rem; max-width: 600px; margin: 0 auto 1.5rem; line-height: 1.5;">
+        Daftar paket travel dikelola secara terpisah melalui menu <strong>Admin &gt; Paket Travel</strong>. Paket yang Anda tambahkan, edit, atau hapus di menu tersebut akan otomatis tampil di halaman Landing Page utama.
+      </p>
+      <a href="{{ route('admin.packages.index') }}" class="btn btn-solid" style="display: inline-flex; align-items: center; gap: 8px; text-decoration: none; padding: 12px 24px; border-radius: 10px; font-weight: 600;">
+        <span>Kelola Paket Travel</span>
+        <span>→</span>
+      </a>
     </div>
   </div>
 </section>
-
-<script>
-function filterPaket(cat, btn) {
-  // Update active tab
-  document.querySelectorAll('.pkg-filter-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-
-  // Filter cards
-  document.querySelectorAll('#pkgSlider .pkg-card-wrapper').forEach(card => {
-    if (cat === 'semua' || card.dataset.category === cat) {
-      card.style.display = '';
-    } else {
-      card.style.display = 'none';
-    }
-  });
-}
-</script>
 
 <!-- GALLERY MARQUEE -->
 <div class="gallery-section" id="sync-galeri">
@@ -549,87 +492,19 @@ function filterPaket(cat, btn) {
       <p id="sync-sec_fac_desc" class="sec-sub" contenteditable="true">{{ $settings['sec_fac_desc'] ?? 'Setiap detail layanan dirancang untuk kenyamanan dan kekhusyu\'an ibadah Anda.' }}</p>
     </div>
 
-    <div class="fac-slider-wrapper-outer">
-      <div class="fac-slider-controls">
-        <button class="fac-nav-btn prev no-edit" onclick="scrollFac(-1)" aria-label="Previous">
-          <svg viewBox="0 0 24 24" fill="currentColor" class="no-edit"><path d="M15.41 16.59L10.83 12l4.58-4.59L14 6l-6 6 6 6 1.41-1.41z" class="no-edit"/></svg>
-        </button>
-        <button class="fac-nav-btn next no-edit" onclick="scrollFac(1)" aria-label="Next">
-          <svg viewBox="0 0 24 24" fill="currentColor" class="no-edit"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z" class="no-edit"/></svg>
-        </button>
-      </div>
-
-      <div class="fac-slider-wrapper" id="facSliderWrapper">
-        <div class="fac-grid-slider" id="facSlider">
-        
-        @forelse($facilities as $item)
-          @php 
-            $finalTitle = $item['title'] ?? ($item['name'] ?? 'Fasilitas');
-            $finalIcon = $item['icon'] ?? '✨';
-            $finalDesc = $item['description'] ?? '';
-            $finalLong = $item['description'] ?? '';
-          @endphp
-          <div class="fac-card-wrapper">
-            <div class="fac-card reveal no-edit" onclick="showFacModal('{{ $finalIcon }}', '{{ $finalTitle }}', '{{ addslashes($finalLong) }}')">
-              <div class="fac-card-icon">{{ $finalIcon }}</div>
-              <div class="fac-title">{{ $finalTitle }}</div>
-              <p class="fac-desc">{{ \Illuminate\Support\Str::limit($finalDesc, 80) }}</p>
-            </div>
-          </div>
-        @empty
-          <div class="empty-fac-msg" style="width: 100%; text-align: center; color: #94a3b8; padding: 40px 0;">
-             Belum ada fasilitas yang ditambahkan.
-          </div>
-        @endforelse
-
-        </div>
-
-      </div>
+    <div class="editor-info-box" style="margin-top: 2rem; background: #f8fafc; border: 2px dashed #cbd5e1; border-radius: 16px; padding: 2.5rem 2rem; text-align: center;">
+      <div style="font-size: 2.5rem; margin-bottom: 1rem;">✨</div>
+      <h3 style="color: #0f172a; font-size: 1.25rem; font-weight: 700; margin-bottom: 0.5rem;">Manajemen Daftar Fasilitas</h3>
+      <p style="color: #64748b; font-size: 0.95rem; max-width: 600px; margin: 0 auto 1.5rem; line-height: 1.5;">
+        Daftar fasilitas travel dikelola secara terpisah melalui menu <strong>Admin &gt; Fasilitas</strong>. Fasilitas yang Anda tambahkan, edit, atau hapus di menu tersebut akan otomatis tampil di halaman Landing Page utama.
+      </p>
+      <a href="{{ route('admin.facilities.index') }}" class="btn btn-solid" style="display: inline-flex; align-items: center; gap: 8px; text-decoration: none; padding: 12px 24px; border-radius: 10px; font-weight: 600;">
+        <span>Kelola Fasilitas</span>
+        <span>→</span>
+      </a>
     </div>
   </div>
 </section>
-
-<!-- MODAL FASILITAS PREMIUM -->
-<div class="fac-modal-overlay" id="facModal" onclick="closeFacModal(event)">
-  <div class="fac-modal-card no-edit">
-    <button class="fac-modal-close" onclick="closeFacModal(event)">&times;</button>
-    <div class="fac-modal-icon" id="modalIcon">✨</div>
-    <h3 class="fac-modal-title" id="modalTitle">Judul Fasilitas</h3>
-    <div class="fac-modal-line"></div>
-    <p class="fac-modal-desc" id="modalDesc">Deskripsi lengkap fasilitas akan muncul di sini.</p>
-    <button class="btn btn-solid no-edit" style="width: 100%; margin-top: 2rem;" onclick="closeFacModal(event)">Tutup</button>
-  </div>
-</div>
-
-<script>
-function scrollFac(dir) {
-    const slider = document.getElementById('facSlider');
-    const scrollAmount = 350; // Lebar kartu + gap
-    slider.scrollBy({
-        left: dir * scrollAmount,
-        behavior: 'smooth'
-    });
-}
-
-function showFacModal(icon, title, desc) {
-    const modal = document.getElementById('facModal');
-    if (!modal) return;
-    document.getElementById('modalIcon').innerText = icon;
-    document.getElementById('modalTitle').innerText = title;
-    document.getElementById('modalDesc').innerText = desc;
-    modal.classList.add('active');
-    document.body.style.overflow = 'hidden';
-}
-
-function closeFacModal(e) {
-    const modal = document.getElementById('facModal');
-    if (!modal) return;
-    if (e.target.id === 'facModal' || e.target.classList.contains('fac-modal-close') || e.target.closest('.btn')) {
-        modal.classList.remove('active');
-        document.body.style.overflow = 'auto';
-    }
-}
-</script>
 
 
 <!-- TESTIMONIALS -->
