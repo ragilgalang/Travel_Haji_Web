@@ -9,7 +9,7 @@
     }
 </style>
 @endif
-<footer class="main-footer" id="sync-footer">
+<footer class="main-footer no-edit" id="sync-footer">
     <div class="footer-container">
         <div class="footer-content">
             <!-- Brand Column -->
