@@ -3,12 +3,10 @@
   <nav class="nav" id="mainNav">
     <div class="nav-logo" id="sync-site-logo">
 
-      <img src="{{ fixUrl($settings['site_logo'] ?? asset('logo/Logo-PT-Umi-Muthmainah-Berkah.jpg')) }}" 
-        alt="Logo"
+      <img src="{{ fixUrl($settings['site_logo'] ?? asset('logo/Logo-PT-Umi-Muthmainah-Berkah.jpg')) }}" alt="Logo"
         class="header-logo-img" width="auto" height="38" id="sync-header-logo-img"
         style="max-height: 38px; width: auto; object-fit: contain;"
-        onerror="this.onerror=null; this.src='{{ asset('logo/images.png') }}';"
-        @if(request()->has('preview'))
+        onerror="this.onerror=null; this.src='{{ asset('logo/images.png') }}';" @if(request()->has('preview'))
         onclick="document.getElementById('site-logo-picker').click()" @else onclick="window.location.href='/'" @endif>
 
       @if(request()->has('preview'))
@@ -54,7 +52,17 @@
       <a href="#fasilitas">Fasilitas</a>
       <a href="#testimoni">Testimoni</a>
     </div>
-    <div class="nav-actions">
+    <div class="nav-actions" style="display: flex; align-items: center; gap: 0.75rem;">
+      <button type="button" class="btn"
+        style="background:transparent; border:1.5px solid var(--green); color:var(--green); font-weight:700; padding:0.6rem 1.2rem; border-radius:100px; display:inline-flex; align-items:center; gap:0.5rem;"
+        onclick="openStatusModal()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+          <polyline points="22 4 12 14.01 9 11.01"></polyline>
+        </svg>
+        Cek Status Pendaftaran
+      </button>
       <a href="@if(request()->has('preview')) javascript:void(0) @else {{ route('register.show') }} @endif"
         class="btn btn-solid" @if(request()->has('preview')) contenteditable="true" @endif>Daftar Sekarang</a>
     </div>
@@ -71,15 +79,18 @@
   <div class="mobile-nav-drawer" id="mobileNavDrawer">
     <div class="mobile-nav-header">
       <div class="mobile-nav-logo">
-      <img src="{{ fixUrl($settings['site_logo'] ?? asset('logo/Logo-PT-Umi-Muthmainah-Berkah.jpg')) }}" alt="Logo" height="32" style="max-height:32px; width:auto;">
-        <span style="font-weight:800; color:var(--green); font-size:0.9rem;">{{ !empty(trim($settings['site_name'] ?? '')) ? $settings['site_name'] : 'PT. UMI MUTHMAINAH BERKAH' }}</span>
+        <img src="{{ fixUrl($settings['site_logo'] ?? asset('logo/Logo-PT-Umi-Muthmainah-Berkah.jpg')) }}" alt="Logo"
+          height="32" style="max-height:32px; width:auto;">
+        <span
+          style="font-weight:800; color:var(--green); font-size:0.9rem;">{{ !empty(trim($settings['site_name'] ?? '')) ? $settings['site_name'] : 'PT. UMI MUTHMAINAH BERKAH' }}</span>
       </div>
       <button class="mobile-nav-close" onclick="closeMobileNav()" aria-label="Tutup Menu">✕</button>
     </div>
     <nav class="mobile-nav-links">
       <a href="#tentang" onclick="closeMobileNav()">Tentang</a>
       <div class="mobile-nav-group">
-        <button class="mobile-nav-group-toggle" onclick="toggleMobileSubMenu(this)">Paket <span class="mobile-chevron">▾</span></button>
+        <button class="mobile-nav-group-toggle" onclick="toggleMobileSubMenu(this)">Paket <span
+            class="mobile-chevron">▾</span></button>
         <div class="mobile-nav-submenu">
           @php $grouped = collect($packages)->groupBy(fn($p) => $p['category'] ?? 'Lainnya'); @endphp
           @foreach($grouped as $kategori => $pkgList)
@@ -98,16 +109,18 @@
       <a href="#testimoni" onclick="closeMobileNav()">Testimoni</a>
     </nav>
     <div class="mobile-nav-footer">
+      <button type="button" class="btn"
+        style="width:100%; margin-bottom:0.75rem; background:transparent; border:1.5px solid var(--green); color:var(--green); font-weight:700; padding:0.85rem 1.5rem; border-radius:100px; display:flex; align-items:center; justify-content:center; gap:0.5rem;"
+        onclick="closeMobileNav(); openStatusModal();">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+          <polyline points="22 4 12 14.01 9 11.01"></polyline>
+        </svg>
+        Cek Status Pendaftaran
+      </button>
       <a href="@if(request()->has('preview')) javascript:void(0) @else {{ route('register.show') }} @endif"
         class="btn btn-solid mobile-daftar-btn">Daftar Sekarang</a>
     </div>
   </div>
-  <div class="nav-actions">
-    <button type="button" class="btn" style="background:transparent; border:1.5px solid var(--green); color:var(--green); font-weight:700; padding:0.6rem 1.2rem; border-radius:100px; display:inline-flex; align-items:center; gap:0.5rem;" onclick="openStatusModal()">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg> 
-      Cek Status
-    </button>
-    <a href="@if(request()->has('preview')) javascript:void(0) @else {{ route('register.show') }} @endif" class="btn btn-solid" @if(request()->has('preview')) contenteditable="true" @endif>Daftar Sekarang</a>
-  </div>
-</nav>
 </header>

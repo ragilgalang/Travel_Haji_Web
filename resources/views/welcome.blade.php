@@ -146,8 +146,6 @@ window.addEventListener('error', function(e) {
             
             --about-badge: var(--green);
         }
-<<<<<<< HEAD
-=======
 
         /* PACKAGE SLIDER CSS */
         .pkg-slider-wrapper {
@@ -1220,15 +1218,12 @@ function openModal(){
     }
 }
 function closeModal(e){if(e.target===document.getElementById('videoModal'))closeModalDirect();}
-<<<<<<< HEAD
 function closeModalDirect(){
     document.getElementById('videoModal').classList.remove('open');
     // Pause & reset video saat modal ditutup
     const vid = document.getElementById('heroVideoPlayer');
     if (vid) { vid.pause(); vid.currentTime = 0; }
 }
-=======
-function closeModalDirect(){document.getElementById('videoModal').classList.remove('open');}
 
 /* ── STATUS MODAL ── */
 function openStatusModal() {
@@ -1304,16 +1299,12 @@ function handleCheckStatus(e) {
     });
 }
 
->>>>>>> 42887a6 (progress sebelum pull)
 document.addEventListener('keydown',e=>{
     if(e.key==='Escape') {
         closeModalDirect();
         closePkgModal();
-<<<<<<< HEAD
         closeMobileNav();
-=======
         closeStatusModal();
->>>>>>> 42887a6 (progress sebelum pull)
     }
 });
 
@@ -1372,8 +1363,6 @@ function scrollPkg(dir) {
     });
 }
 
-<<<<<<< HEAD
-=======
 // Drag to scroll untuk Package Slider
 const pkgSlider = document.getElementById('pkgSlider');
 if (pkgSlider) {
