@@ -832,17 +832,6 @@ const ro = new IntersectionObserver((entries)=>{
 },{threshold:0.1});
 revealEls.forEach(el=>ro.observe(el));
 
-/* ── TESTIMONIAL SLIDER ── */
-const slider = document.getElementById('testiSlider');
-document.getElementById('prevBtn').onclick = ()=>{ slider.scrollBy({left:-340,behavior:'smooth'}); };
-document.getElementById('nextBtn').onclick = ()=>{ slider.scrollBy({left:340,behavior:'smooth'}); };
-// drag to scroll
-let isDragging=false,startX,scrollLeft;
-slider.addEventListener('mousedown',e=>{isDragging=true;startX=e.pageX-slider.offsetLeft;scrollLeft=slider.scrollLeft;slider.classList.add('cursor-grabbing');slider.classList.remove('cursor-grab');});
-slider.addEventListener('mouseleave',()=>{isDragging=false;slider.classList.add('cursor-grab');slider.classList.remove('cursor-grabbing');});
-slider.addEventListener('mouseup',()=>{isDragging=false;slider.classList.add('cursor-grab');slider.classList.remove('cursor-grabbing');});
-slider.addEventListener('mousemove',e=>{if(!isDragging)return;e.preventDefault();const x=e.pageX-slider.offsetLeft;slider.scrollLeft=scrollLeft-(x-startX)*1.2;});
-
 /* ── PACKAGE MODAL ── */
 function openPkgModal(pkg) {
     const modal = document.getElementById('pkgModal');
