@@ -334,14 +334,153 @@ function filterPaket(cat, btn) {
 <!-- GALLERY MARQUEE -->
 <div class="gallery-section" id="sync-galeri">
   <div class="gallery-inner">
-    <div class="section-header gallery-header reveal">
-      <div id="sync-sec_gal_eye" class="sec-eyebrow gallery-eyebrow-gold" contenteditable="true">{{ $settings['sec_gal_eye'] ?? 'Galeri Perjalanan' }}</div>
-      <h2 id="sync-sec_gal_title" class="sec-title" contenteditable="true">{!! $settings['sec_gal_title'] ?? 'Momen <em>Berkesan</em> Jemaah Kami' !!}</h2>
-      <p id="sync-sec_gal_desc" class="sec-sub" contenteditable="true">{{ $settings['sec_gal_desc'] ?? 'Ribuan momen penuh makna tertangkap dalam setiap perjalanan suci bersama ' . ($settings['site_name'] ?? 'PT. UMI MUTHMAINAH BERKAH') . '.' }}</p>
+    @php
+        /* NORMALIZE SETTINGS */
+        if (!empty($settings) && is_array($settings)) {
+            array_walk_recursive($settings, function (&$value) {
+                if (is_string($value)) $value = fixUrl($value);
+            });
+        }
+
+        $allMedia = [];
+        $vis = $galleryVisibility ?? [];
+
+        /* 1. DYNAMIC GALLERY (Firebase) - Cek is_published per item */
+        $dynamicGallery = $gallery ?? [];
+        foreach ($dynamicGallery as $id => $item) {
+            if (empty($item['url'])) continue;
+            $isPublished = $item['is_published'] ?? true;
+            if (!$isPublished) continue; // Skip jika disembunyikan
+            $url = fixUrl($item['url']);
+            $type = $item['type'] ?? (preg_match('/\.(mp4|webm|ogg)$/i', $url) ? 'video' : 'foto');
+            $allMedia[] = ['id' => $id, 'url' => $url, 'type' => $type];
+        }
+
+        /* 2. LEGACY GALLERY - FOTO (dari settings/gallery_img_X) */
+        for ($i = 1; $i <= 20; $i++) {
+            $key = 'gallery_img_' . $i;
+            $p = $settings[$key] ?? '';
+            if (empty($p)) continue;
+            $isPublished = $vis[$key] ?? true;
+            if (!$isPublished) continue; // Skip jika disembunyikan
+            $url = fixUrl($p);
+            $allMedia[] = ['id' => $key, 'url' => $url, 'type' => 'foto'];
+        }
+
+        /* 3. LEGACY GALLERY - VIDEO (dari settings/gallery_video_X) */
+        for ($i = 1; $i <= 10; $i++) {
+            $key = 'gallery_video_' . $i;
+            $p = $settings[$key] ?? '';
+            if (empty($p)) continue;
+            $isPublished = $vis[$key] ?? true;
+            if (!$isPublished) continue; // Skip jika disembunyikan
+            $url = fixUrl($p);
+            $allMedia[] = ['id' => $key, 'url' => $url, 'type' => 'video'];
+        }
+
+        /* FILTER AKHIR: HAPUS DUPLIKAT URL */
+        $allMedia = collect($allMedia)->unique('url')->values()->all();
+
+        $totalGalleryCount = count($allMedia);
+    @endphp
+
+    <div class="section-header gallery-header reveal" style="display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 20px;">
+      <div style="flex: 1; min-width: 300px;">
+        <div id="sync-sec_gal_eye" class="sec-eyebrow gallery-eyebrow-gold" contenteditable="true">{{ $settings['sec_gal_eye'] ?? 'Galeri Perjalanan' }}</div>
+        <h2 id="sync-sec_gal_title" class="sec-title" contenteditable="true" style="margin-bottom: 10px;">{!! $settings['sec_gal_title'] ?? 'Momen <em>Berkesan</em> Jemaah Kami' !!}</h2>
+        <p id="sync-sec_gal_desc" class="sec-sub" contenteditable="true">{{ $settings['sec_gal_desc'] ?? 'Ribuan momen penuh makna tertangkap dalam setiap perjalanan suci bersama ' . ($settings['site_name'] ?? 'PT. UMI MUTHMAINAH BERKAH') . '.' }}</p>
+      </div>
+
+      @if($totalGalleryCount >= 5)
+        <div class="gallery-action">
+            <a href="{{ route('gallery') }}" class="btn btn-gold-outline" style="border: 2px solid var(--gold); color: var(--gold); padding: 12px 30px; border-radius: 100px; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 10px; transition: all 0.3s; background: white;">
+                Lihat Lainnya
+                <span>→</span>
+            </a>
+        </div>
+      @endif
     </div>
     <div class="marquee-wrap">
-      <div class="marquee-row" id="row1"></div>
-      <div class="marquee-row rev" id="row2"></div>
+      <style>
+        .gal-marquee-outer { overflow: hidden; width: 100%; padding: 8px 0; }
+        .gal-marquee-track { display: flex; gap: 14px; width: max-content; }
+        .gal-marquee-track.go-left  { animation: galLeft  var(--gal-dur, 35s) linear infinite; }
+        .gal-marquee-track.go-right { animation: galRight var(--gal-dur, 40s) linear infinite; }
+        .gal-marquee-outer:hover .gal-marquee-track { animation-play-state: paused; }
+        @keyframes galLeft  { from { transform: translateX(0); } to { transform: translateX(-33.333%); } }
+        @keyframes galRight { from { transform: translateX(-33.333%); } to { transform: translateX(0); } }
+        .gal-item {
+          flex: 0 0 auto;
+          width: 260px; height: 190px;
+          border-radius: 14px;
+          overflow: hidden;
+          cursor: pointer;
+          box-shadow: 0 4px 18px rgba(0,0,0,.15);
+          transition: transform .3s, box-shadow .3s;
+          background: #1a2a1a;
+        }
+        .gal-item:hover { transform: scale(1.04); box-shadow: 0 8px 30px rgba(0,0,0,.3); }
+        .gal-item img, .gal-item video {
+          width: 100%; height: 100%;
+          object-fit: cover;
+          display: block;
+        }
+      </style>
+
+      @php
+        /* Buat duplikat untuk seamless loop (3 set = saat set 1 habis, set 2 masuk, etc.) */
+        $row1Items = array_values($allMedia);
+        $row2Items = array_values(array_reverse($allMedia)); // arah kebalikan untuk variasi
+        /* Minimal 3 item per baris agar loop mulus */
+        while (count($row1Items) < 4) $row1Items = array_merge($row1Items, $row1Items);
+        while (count($row2Items) < 4) $row2Items = array_merge($row2Items, $row2Items);
+        /* Tripel untuk seamless translateX(-33.333%) */
+        $row1Loop = array_merge($row1Items, $row1Items, $row1Items);
+        $row2Loop = array_merge($row2Items, $row2Items, $row2Items);
+      @endphp
+
+      {{-- BARIS 1: Scroll ke KIRI ← --}}
+      <div class="gal-marquee-outer" style="margin-bottom: 14px;">
+        <div class="gal-marquee-track go-left" style="--gal-dur: 35s;">
+          @foreach($row1Loop as $media)
+            @if(!empty($media['url']))
+              <div class="gal-item"
+                   onclick="openAboutLightbox('{{ $media['url'] }}')">
+                @if(($media['type'] ?? 'foto') === 'video')
+                  <video src="{{ $media['url'] }}" autoplay muted loop playsinline
+                         style="width:100%;height:100%;object-fit:cover;"
+                         onerror="this.closest('.gal-item').remove()"></video>
+                @else
+                  <img src="{{ $media['url'] }}" alt="Galeri Perjalanan" loading="lazy"
+                       onerror="this.closest('.gal-item').remove()">
+                @endif
+              </div>
+            @endif
+          @endforeach
+        </div>
+      </div>
+
+      {{-- BARIS 2: Scroll ke KANAN → --}}
+      <div class="gal-marquee-outer">
+        <div class="gal-marquee-track go-right" style="--gal-dur: 40s;">
+          @foreach($row2Loop as $media)
+            @if(!empty($media['url']))
+              <div class="gal-item"
+                   onclick="openAboutLightbox('{{ $media['url'] }}')">
+                @if(($media['type'] ?? 'foto') === 'video')
+                  <video src="{{ $media['url'] }}" autoplay muted loop playsinline
+                         style="width:100%;height:100%;object-fit:cover;"
+                         onerror="this.closest('.gal-item').remove()"></video>
+                @else
+                  <img src="{{ $media['url'] }}" alt="Galeri Perjalanan" loading="lazy"
+                       onerror="this.closest('.gal-item').remove()">
+                @endif
+              </div>
+            @endif
+          @endforeach
+        </div>
+      </div>
+
     </div>
   </div>
 </div>
@@ -710,63 +849,6 @@ for(let i=0;i<18;i++){
   pc.appendChild(p);
 }
 
-/* ── MARQUEE GALLERY ── */
-@php
-  $defaultGallery = [
-    optUrl('https://images.unsplash.com/photo-1591604129939-f1efa4d9f7fa', 300),
-    optUrl('https://images.unsplash.com/photo-1564769625092-b6df1b3e13f0', 300),
-    optUrl('https://images.unsplash.com/photo-1609950547341-a9e24bfeece9', 300),
-    optUrl('https://images.unsplash.com/photo-1466442929976-97f336a657be', 300),
-    optUrl('https://images.unsplash.com/photo-1574120240282-60c4da46edaf', 300),
-    optUrl('https://images.unsplash.com/photo-1604594849809-dfedbc827105', 300),
-    optUrl('https://images.unsplash.com/photo-1515091943-9d5c0ad475af', 300),
-    optUrl('https://images.unsplash.com/photo-1521295121783-8a321d551ad2', 300),
-    optUrl('https://images.unsplash.com/photo-1513836279014-a89f7a76ae86', 300),
-    optUrl('https://images.unsplash.com/photo-1506905925346-21bda4d32df4', 300),
-  ];
-  $galleryUrls = [];
-  
-  // Ambil FOTO (1-20)
-  for($gi = 1; $gi <= 20; $gi++) {
-    if(!empty($settings['gallery_img_'.$gi])) {
-      $galleryUrls[] = optUrl($settings['gallery_img_'.$gi], 300);
-    } elseif ($gi <= 10) {
-      $galleryUrls[] = $defaultGallery[$gi - 1]; // Fallback ke default hanya untuk 10 pertama
-    }
-  }
-
-  // VIDEO GALERI DINONAKTIFKAN - hanya foto yang ditampilkan
-@endphp
-const galleryImgs = {!! json_encode($galleryUrls) !!};
-
-const row1 = document.getElementById('row1');
-const row2 = document.getElementById('row2');
-
-// Filter hanya foto (tanpa video)
-const photoOnly = galleryImgs.filter(src => {
-    const isVid = src.toLowerCase().match(/\.(mp4|webm|ogg|mov|m4v|avi|wmv|flv)/) || src.includes('videos');
-    return !isVid;
-});
-
-// Pastikan minimal 10 foto untuk marquee yang mulus
-let displayPhotos = photoOnly.length > 0 ? [...photoOnly] : [...galleryImgs];
-while (displayPhotos.length < 10) { displayPhotos = [...displayPhotos, ...displayPhotos]; }
-
-// Baris 1: foto arah kiri
-displayPhotos.forEach(src => {
-    const d = document.createElement('div');
-    d.className = 'marquee-item';
-    d.innerHTML = `<img src="${src}" alt="Gallery Photo" loading="lazy" width="300" height="200" onclick="openAboutLightbox('${src}')" style="cursor:zoom-in;">`;
-    row1.appendChild(d);
-});
-
-// Baris 2: foto arah kanan (urutan terbalik)
-[...displayPhotos].reverse().forEach(src => {
-    const d = document.createElement('div');
-    d.className = 'marquee-item';
-    d.innerHTML = `<img src="${src}" alt="Gallery Photo" loading="lazy" width="300" height="200" onclick="openAboutLightbox('${src}')" style="cursor:zoom-in;">`;
-    row2.appendChild(d);
-});
 
 /* ── TESTIMONIAL MARQUEE ── */
 const testiData = {!! json_encode($testimonials->values()->toArray()) !!};
