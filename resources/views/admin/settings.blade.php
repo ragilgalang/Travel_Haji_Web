@@ -80,7 +80,7 @@
                 <i class="fas fa-cog"></i>
             </button>
             <div class="v-divider"></div>
-            <button type="button" onclick="document.getElementById('updateBtn').click()" class="save-btn-floating">
+            <button type="button" onclick="doSave()" class="save-btn-floating">
                 <i class="fas fa-check"></i> Simpan
             </button>
         </div>
@@ -157,21 +157,36 @@
             evt.currentTarget.classList.add("active");
         }
 
+        // ── KAMUS PERUBAHAN INLINE dari IFRAME ──
+        // Menyimpan semua perubahan teks yang diedit langsung di editor
+        const inlineChanges = {};
+
         window.addEventListener('message', function (event) {
             const data = event.data;
 
             if (data.type === 'INLINE_CHANGE') {
-                const input = document.querySelector(`[data-sync-target="${data.target}"]`) || document.querySelector(data.target);
+                // 1. Simpan ke kamus (pasti tersimpan, tidak bergantung DOM)
+                inlineChanges[data.target] = data.value;
+
+                // 2. Coba update form input secara real-time (best effort)
+                const input = document.querySelector(`[data-sync-target="${data.target}"]`)
+                           || document.querySelector(data.target);
                 if (input) {
                     input.value = data.value;
-                    input.dispatchEvent(new Event('change', { bubbles: true }));
+                }
+
+                // 3. Tandai bahwa ada perubahan yang belum disimpan
+                const saveBtn = document.querySelector('.save-btn-floating');
+                if (saveBtn && !saveBtn.dataset.dirty) {
+                    saveBtn.dataset.dirty = '1';
+                    saveBtn.style.background = '#d97706'; // Warna orange = ada perubahan
+                    saveBtn.title = 'Ada perubahan yang belum disimpan';
                 }
             }
 
             if (data.type === 'PICK_IMAGE') {
                 openGlobalSettings();
 
-                // Map the target to a tab and an input
                 const mappings = {
                     'logo': { tab: 'tab-umum', input: 'logo' },
                     'hero_image': { tab: 'tab-hero', input: 'hero_image' },
@@ -180,20 +195,66 @@
 
                 const map = mappings[data.target];
                 if (map) {
-                    // Open the correct tab
-                    openTabM(null, map.tab);
-
-                    // Trigger the file input
+                    openTabM({ currentTarget: document.querySelector('.pill-btn-m') }, map.tab);
                     const fileInput = document.querySelector(`input[name="${map.input}"]`);
                     if (fileInput) {
                         fileInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
                         fileInput.style.outline = '4px solid #10b981';
                         setTimeout(() => fileInput.style.outline = 'none', 2000);
-                        fileInput.click(); // Open file dialog!
+                        fileInput.click();
                     }
                 }
             }
+
+            if (data.type === 'SYNC_COLOR' || data.type === 'SYNC_FONT_SIZE' || data.type === 'SYNC_SCROLL') {
+                // Forward to iframe jika diperlukan
+                const iframe = document.getElementById('mainIframe');
+                if (iframe && iframe.contentWindow) {
+                    iframe.contentWindow.postMessage(data, '*');
+                }
+            }
         });
+
+        // ── FUNGSI SIMPAN: Inject hidden inputs SEBELUM submit ──
+        function doSave() {
+            const form = document.getElementById('settingsForm');
+            if (!form) return;
+
+            // Hapus hidden input inline changes lama (kalau ada)
+            form.querySelectorAll('input[data-inline-injected]').forEach(el => el.remove());
+
+            // Untuk setiap perubahan inline, update textarea jika ada,
+            // atau tambahkan hidden input agar nilai ikut terkirim ke server
+            Object.entries(inlineChanges).forEach(([target, value]) => {
+                // Cari form input yang punya data-sync-target cocok
+                const formField = form.querySelector(`[data-sync-target="${target}"]`);
+                if (formField) {
+                    formField.value = value;
+                } else {
+                    // Tidak ada form field → buat hidden input
+                    // target biasanya "#sync-hero_title" → ubah ke "hero_title"
+                    const fieldName = target.replace(/^#sync-/, '');
+                    // Hindari duplikat dengan input yang sudah ada
+                    if (!form.querySelector(`[name="${fieldName}"]`)) {
+                        const hidden = document.createElement('input');
+                        hidden.type = 'hidden';
+                        hidden.name = fieldName;
+                        hidden.value = value;
+                        hidden.dataset.inlineInjected = '1';
+                        form.appendChild(hidden);
+                    } else {
+                        // Update nilai input yang sudah ada
+                        const existing = form.querySelector(`[name="${fieldName}"]`);
+                        if (existing && existing.tagName !== 'INPUT' || existing.type !== 'file') {
+                            existing.value = value;
+                        }
+                    }
+                }
+            });
+
+            // Submit form
+            document.getElementById('updateBtn').click();
+        }
 
         // Close modal on click outside
         window.onclick = function (event) {
