@@ -353,14 +353,32 @@ class AdminController extends Controller
 
     public function preview()
     {
-        $settings = $this->firebase->getValue('settings') ?? [];
-        $packages = collect($this->firebase->getValue('packages') ?? []);
-        $testimonials = collect($this->firebase->getValue('testimonials') ?? [])->filter(function ($testi) {
+        $settings          = $this->firebase->getValue('settings') ?? [];
+        $packages          = collect($this->firebase->getValue('packages') ?? []);
+        $testimonials      = collect($this->firebase->getValue('testimonials') ?? [])->filter(function ($testi) {
             return isset($testi['is_published']) && $testi['is_published'] == true;
         });
-        $facilities = collect($this->firebase->getValue('facilities') ?? []);
+        $facilities        = collect($this->firebase->getValue('facilities') ?? []);
+        $gallery           = $this->firebase->getValue('gallery') ?? [];
+        $galleryVisibility = $this->firebase->getValue('gallery_visibility') ?? [];
 
-        return view('welcome_edit', compact('settings', 'packages', 'testimonials', 'facilities'));
+        // Hitung statistik realtime (digunakan di beberapa bagian welcome_edit)
+        $allReg = collect($this->firebase->getValue('registrations') ?? []);
+        $registrationsCount = $allReg->filter(function ($reg) {
+            $status     = $reg['status'] ?? '';
+            $isArchived = $reg['is_archived'] ?? false;
+            return ($status === 'Selesai' || $status === 'Berangkat') && $isArchived == true;
+        })->count();
+
+        $allTesti = collect($this->firebase->getValue('testimonials') ?? []);
+        $satisfactionRate = $allTesti->isEmpty() ? 100 : round(
+            ($allTesti->filter(fn($t) => (int)($t['rating'] ?? 0) >= 4)->count() / $allTesti->count()) * 100
+        );
+
+        return view('welcome_edit', compact(
+            'settings', 'packages', 'testimonials', 'facilities',
+            'gallery', 'galleryVisibility', 'registrationsCount', 'satisfactionRate'
+        ));
     }
 
     public function updateSettings(Request $request)
@@ -597,9 +615,17 @@ class AdminController extends Controller
                 FILE_APPEND
             );
 
-            // Clear cache
+            // Clear semua cache agar landing page & editor langsung menampilkan data terbaru
             \Illuminate\Support\Facades\Cache::forget('site_settings');
             \Illuminate\Support\Facades\Cache::forget('site_packages');
+            \Illuminate\Support\Facades\Cache::forget('site_testimonials');
+            \Illuminate\Support\Facades\Cache::forget('site_facilities');
+            \Illuminate\Support\Facades\Cache::forget('site_gallery');
+            \Illuminate\Support\Facades\Cache::forget('site_gallery_visibility');
+            \Illuminate\Support\Facades\Cache::forget('site_gallery_settings');
+            \Illuminate\Support\Facades\Cache::forget('dashboard_main_stats_v3');
+            \Illuminate\Support\Facades\Cache::forget('departed_count');
+            \Illuminate\Support\Facades\Cache::forget('satisfaction_rate');
 
             if (
                 $request->ajax()
