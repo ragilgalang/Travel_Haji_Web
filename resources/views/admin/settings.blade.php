@@ -215,45 +215,80 @@
             }
         });
 
-        // ── FUNGSI SIMPAN: Inject hidden inputs SEBELUM submit ──
-        function doSave() {
+        // ── FUNGSI SIMPAN: AJAX + FormData ──
+        async function doSave() {
             const form = document.getElementById('settingsForm');
-            if (!form) return;
+            if (!form) { alert('Form tidak ditemukan!'); return; }
 
-            // Hapus hidden input inline changes lama (kalau ada)
-            form.querySelectorAll('input[data-inline-injected]').forEach(el => el.remove());
+            const saveBtn = document.querySelector('.save-btn-floating');
+            const origHtml = saveBtn ? saveBtn.innerHTML : '';
+            if (saveBtn) {
+                saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan...';
+                saveBtn.disabled = true;
+            }
 
-            // Untuk setiap perubahan inline, update textarea jika ada,
-            // atau tambahkan hidden input agar nilai ikut terkirim ke server
-            Object.entries(inlineChanges).forEach(([target, value]) => {
-                // Cari form input yang punya data-sync-target cocok
-                const formField = form.querySelector(`[data-sync-target="${target}"]`);
-                if (formField) {
-                    formField.value = value;
+            try {
+                // Kumpulkan form data (termasuk file input jika ada)
+                const formData = new FormData(form);
+
+                // Override/tambahkan perubahan inline teks dari editor
+                const keys = Object.keys(inlineChanges);
+                keys.forEach(target => {
+                    // target = '#sync-hero_title' → fieldName = 'hero_title'
+                    const fieldName = target.replace(/^#sync-/, '').replace(/^#/, '');
+                    const value = inlineChanges[target];
+                    formData.set(fieldName, value);
+                    console.log('[doSave] Setting field:', fieldName, '=', value.substring(0, 50));
+                });
+
+                const response = await fetch(form.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json'
+                    }
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    // Reset kamus perubahan
+                    Object.keys(inlineChanges).forEach(k => delete inlineChanges[k]);
+
+                    // Reset tombol Simpan
+                    if (saveBtn) {
+                        saveBtn.innerHTML = '<i class="fas fa-check"></i> Tersimpan!';
+                        saveBtn.style.background = '#10b981';
+                        saveBtn.dataset.dirty = '';
+                        saveBtn.title = '';
+                        setTimeout(() => {
+                            saveBtn.innerHTML = '<i class="fas fa-check"></i> Simpan';
+                            saveBtn.style.background = '';
+                            saveBtn.disabled = false;
+                        }, 2000);
+                    }
+
+                    // Reload iframe agar tampilan preview terupdate
+                    const iframe = document.getElementById('mainIframe');
+                    if (iframe) {
+                        iframe.src = iframe.src.split('?')[0] + '?preview=1&t=' + Date.now();
+                    }
                 } else {
-                    // Tidak ada form field → buat hidden input
-                    // target biasanya "#sync-hero_title" → ubah ke "hero_title"
-                    const fieldName = target.replace(/^#sync-/, '');
-                    // Hindari duplikat dengan input yang sudah ada
-                    if (!form.querySelector(`[name="${fieldName}"]`)) {
-                        const hidden = document.createElement('input');
-                        hidden.type = 'hidden';
-                        hidden.name = fieldName;
-                        hidden.value = value;
-                        hidden.dataset.inlineInjected = '1';
-                        form.appendChild(hidden);
-                    } else {
-                        // Update nilai input yang sudah ada
-                        const existing = form.querySelector(`[name="${fieldName}"]`);
-                        if (existing && existing.tagName !== 'INPUT' || existing.type !== 'file') {
-                            existing.value = value;
-                        }
+                    alert('Gagal menyimpan: ' + (result.message || 'Terjadi kesalahan'));
+                    if (saveBtn) {
+                        saveBtn.innerHTML = origHtml;
+                        saveBtn.disabled = false;
                     }
                 }
-            });
-
-            // Submit form
-            document.getElementById('updateBtn').click();
+            } catch (err) {
+                console.error('[doSave] Error:', err);
+                alert('Terjadi kesalahan jaringan. Coba lagi.');
+                if (saveBtn) {
+                    saveBtn.innerHTML = origHtml;
+                    saveBtn.disabled = false;
+                }
+            }
         }
 
         // Close modal on click outside
