@@ -34,7 +34,7 @@ class FirebaseUserProvider implements UserProvider
                     'email' => $user_data['email'] ?? null,
                     'username' => $user_data['username'] ?? null,
                     'name' => $user_data['name'] ?? 'Administrator',
-                    'password' => $user_data['password'] ?? null,
+                    'password' => $dbUser->password ?? ($user_data['password'] ?? null),
                     'role' => $dbUser ? $dbUser->role : ($user_data['role'] ?? 'user'),
                 ]);
             }
@@ -143,7 +143,7 @@ class FirebaseUserProvider implements UserProvider
                         'email' => $email,
                         'username' => $data['username'] ?? null,
                         'name' => $data['name'] ?? 'Administrator',
-                        'password' => $data['password'] ?? null,
+                        'password' => $dbUser->password ?? ($data['password'] ?? null),
                         'role' => $dbUser ? $dbUser->role : ($data['role'] ?? 'user'),
                     ]);
                 }
