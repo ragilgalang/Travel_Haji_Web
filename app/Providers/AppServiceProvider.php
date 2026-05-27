@@ -34,13 +34,21 @@ class AppServiceProvider extends ServiceProvider
             static $siteData = null;
             if ($siteData === null) {
                 // Cache data for better performance
-                $siteData = \Illuminate\Support\Facades\Cache::remember('site_global_data', 60*24, function() {
-                    $firebase = app(\App\Services\FirebaseService::class);
-                    return [
-                        'settings' => $firebase->getValue('settings') ?? [],
-                        'packages' => collect($firebase->getValue('packages') ?? [])
+                try {
+                    $siteData = \Illuminate\Support\Facades\Cache::remember('site_global_data', 60*24, function() {
+                        $firebase = app(\App\Services\FirebaseService::class);
+                        return [
+                            'settings' => $firebase->getValue('settings') ?? [],
+                            'packages' => collect($firebase->getValue('packages') ?? [])
+                        ];
+                    });
+                } catch (\Exception $e) {
+                    // Fallback jika koneksi ke Firebase bermasalah (misalnya token/kredensial invalid)
+                    $siteData = [
+                        'settings' => [],
+                        'packages' => collect([])
                     ];
-                });
+                }
             }
             $view->with('settings', $siteData['settings']);
             $view->with('packages', $siteData['packages']);
