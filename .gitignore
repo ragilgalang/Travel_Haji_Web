@@ -8,8 +8,6 @@
 .env.backup
 .env.production
 /storage/app/*.json
-/public/uploads/*
-!/public/uploads/.gitkeep
 .firebase/
 *.log
 .DS_Store
