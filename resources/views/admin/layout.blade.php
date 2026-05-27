@@ -604,6 +604,14 @@
     </div>
   </div>
 
+  @php
+    $currentRemoteUrl = '';
+    exec('git remote get-url origin 2>&1', $outputRemote, $returnRemote);
+    if ($returnRemote === 0 && !empty($outputRemote)) {
+        $currentRemoteUrl = trim($outputRemote[0]);
+    }
+  @endphp
+
   <!-- MODAL GITHUB UPLOAD -->
   <div id="githubUploadModal" style="display: none; position: fixed; inset: 0; z-index: 99999; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px); align-items: center; justify-content: center; padding: 20px;">
     <div style="background: white; border-radius: 20px; width: 100%; max-width: 600px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); overflow: hidden; animation: fadeInUp 0.3s ease-out;">
@@ -626,6 +634,12 @@
       <div style="padding: 30px; font-size: 0.95rem; color: #334155; line-height: 1.6; background: white;">
         <p style="margin-top: 0;">Sistem akan melakukan <strong>git add .</strong>, <strong>git commit</strong> (dengan catatan komit otomatis), dan <strong>git push</strong> ke GitHub repositori Anda.</p>
         
+        <div style="margin-top: 20px; margin-bottom: 20px;">
+          <label for="githubRepoUrl" style="display: block; font-weight: 600; font-size: 0.85rem; color: #475569; margin-bottom: 6px;">Link Repository GitHub (.git):</label>
+          <input type="text" id="githubRepoUrl" value="{{ $currentRemoteUrl }}" placeholder="Contoh: https://github.com/username/repo.git" style="width: 100%; padding: 12px 16px; border: 1.5px solid #cbd5e1; border-radius: 10px; font-size: 0.9rem; color: #0f172a; outline: none; box-sizing: border-box; transition: all 0.2s;" onfocus="this.style.borderColor='#7c3aed'; this.style.boxShadow='0 0 0 3px rgba(124, 58, 237, 0.15)'" onblur="this.style.borderColor='#cbd5e1'; this.style.boxShadow='none'">
+          <span style="display: block; font-size: 0.75rem; color: #64748b; margin-top: 4px;">Pastikan Anda menggunakan link HTTPS repository GitHub yang valid.</span>
+        </div>
+
         <div id="githubLogContainer" style="display: none; margin-top: 20px;">
           <div style="font-weight: 600; margin-bottom: 8px; font-size: 0.85rem; color: #475569;">Log Unggahan:</div>
           <pre id="githubLog" style="background: #1e293b; color: #a5b4fc; padding: 15px; border-radius: 8px; font-size: 0.8rem; overflow-y: auto; max-height: 200px; white-space: pre-wrap; margin: 0; border: 1px solid #334155; font-family: monospace;"></pre>
@@ -748,6 +762,15 @@
     }
 
     function startGithubUpload() {
+      const repoUrlInput = document.getElementById('githubRepoUrl');
+      const repoUrl = repoUrlInput ? repoUrlInput.value.trim() : '';
+
+      if (!repoUrl) {
+        alert('Silakan masukkan link repository GitHub Anda terlebih dahulu!');
+        if (repoUrlInput) repoUrlInput.focus();
+        return;
+      }
+
       const btnStart = document.getElementById('btnStartGithub');
       const btnCancel = document.getElementById('btnCancelGithub');
       const logContainer = document.getElementById('githubLogContainer');
@@ -759,6 +782,7 @@
       btnStart.style.cursor = 'not-allowed';
       btnStart.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="animation: spin 1s linear infinite;"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.59-9.21l-5.4 5.4"></path></svg> Memproses...';
       btnCancel.disabled = true;
+      if (repoUrlInput) repoUrlInput.disabled = true;
       
       logContainer.style.display = 'block';
       logBox.innerHTML = '<span style="color: #fbbf24;">[INFO]</span> Menjalankan proses Git...\n';
@@ -777,7 +801,8 @@
           'Content-Type': 'application/json',
           'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
           'Accept': 'application/json'
-        }
+        },
+        body: JSON.stringify({ repo_url: repoUrl })
       })
       .then(response => response.json())
       .then(data => {
@@ -791,13 +816,14 @@
         } else {
             logBox.innerHTML += '<span style="color: #f87171;">[ERROR]</span> ' + (data.message || 'Terjadi kesalahan') + '\n';
             if (data.log) {
-              logBox.innerHTML += '\n' + data.log + '\n';
+               logBox.innerHTML += '\n' + data.log + '\n';
             }
             btnStart.innerHTML = 'Gagal (Coba Lagi)';
             btnStart.style.background = '#ef4444';
             btnStart.disabled = false;
             btnStart.style.opacity = '1';
             btnStart.style.cursor = 'pointer';
+            if (repoUrlInput) repoUrlInput.disabled = false;
         }
         btnCancel.disabled = false;
         btnCancel.innerHTML = 'Tutup';

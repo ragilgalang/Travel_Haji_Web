@@ -61,8 +61,50 @@ class DeployController extends Controller
      */
     public function uploadToGithub(Request $request)
     {
+        $request->validate([
+            'repo_url' => 'required|string'
+        ]);
+
+        $repoUrl = trim($request->input('repo_url'));
+
+        if (empty($repoUrl)) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Link repository GitHub tidak boleh kosong.'
+            ], 400);
+        }
+
         $log = [];
         $hasLocalChanges = false;
+
+        // [0/4] Update remote origin URL terlebih dahulu
+        $log[] = "[0/4] Memperbarui remote URL ke: " . $repoUrl;
+        
+        // Cek apakah remote origin sudah ada
+        exec('git remote 2>&1', $outRemoteCheck, $retRemoteCheck);
+        $hasOrigin = false;
+        foreach ($outRemoteCheck as $remoteName) {
+            if (trim($remoteName) === 'origin') {
+                $hasOrigin = true;
+                break;
+            }
+        }
+
+        if ($hasOrigin) {
+            exec('git remote set-url origin ' . escapeshellarg($repoUrl) . ' 2>&1', $outRemoteUpdate, $retRemoteUpdate);
+            $log = array_merge($log, $outRemoteUpdate);
+        } else {
+            exec('git remote add origin ' . escapeshellarg($repoUrl) . ' 2>&1', $outRemoteUpdate, $retRemoteUpdate);
+            $log = array_merge($log, $outRemoteUpdate);
+        }
+
+        if ($retRemoteUpdate !== 0) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Gagal memperbarui remote URL GitHub.',
+                'log' => implode("\n", $log)
+            ], 500);
+        }
 
         // [1/4] Cek apakah ada perubahan lokal
         $statusOutput = [];
@@ -72,13 +114,13 @@ class DeployController extends Controller
             return response()->json([
                 'status' => 'error',
                 'message' => 'Gagal menjalankan git status. Pastikan Git terinstall dan terkonfigurasi di PATH.',
-                'log' => implode("\n", $statusOutput)
+                'log' => implode("\n", $log)
             ], 500);
         }
 
         if (!empty($statusOutput)) {
             $hasLocalChanges = true;
-            $log[] = "[1/4] Menemukan perubahan lokal:";
+            $log[] = "\n[1/4] Menemukan perubahan lokal:";
             $log = array_merge($log, $statusOutput);
 
             // [2/4] Tambahkan semua file
@@ -109,7 +151,7 @@ class DeployController extends Controller
                 ], 500);
             }
         } else {
-            $log[] = "[1/4] Tidak ada perubahan lokal untuk di-commit.";
+            $log[] = "\n[1/4] Tidak ada perubahan lokal untuk di-commit.";
         }
 
         // [3/4] Sinkronisasi dengan remote (git pull --rebase origin main)
