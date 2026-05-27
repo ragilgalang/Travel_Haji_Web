@@ -185,7 +185,7 @@ class DeployController extends Controller
         }
 
         $log[] = "\n[3/4] Sinkronisasi (git pull --rebase origin main)...";
-        exec('git pull --rebase origin main 2>&1', $outPull, $retPull);
+        exec('git -c credential.helper= -c core.askpass= -c credential.interactive=false pull --rebase origin main 2>&1', $outPull, $retPull);
         $log = array_merge($log, $outPull);
 
         if ($retPull !== 0) {
@@ -195,7 +195,7 @@ class DeployController extends Controller
 
         if ($hasLocalChanges) {
             $log[] = "\n[4/4] Mengunggah ke GitHub (git push origin main)...";
-            exec('git push origin main 2>&1', $outPush, $retPush);
+            exec('git -c credential.helper= -c core.askpass= -c credential.interactive=false push origin main 2>&1', $outPush, $retPush);
             $log = array_merge($log, $outPush);
 
             if ($retPush !== 0) {
