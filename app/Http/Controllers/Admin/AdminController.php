@@ -20,21 +20,36 @@ class AdminController extends Controller
         $stats = $this->getDashboardStats();
 
         $packagesList = \Illuminate\Support\Facades\Cache::remember('dashboard_packages', 60, function () {
-            return collect($this->firebase->getValue('packages') ?? [])->take(4);
+            try {
+                return collect($this->firebase->getValue('packages') ?? [])->take(4);
+            } catch (\Exception $e) {
+                \Log::warning('Firebase packages fetch error in dashboard index (ignored): ' . $e->getMessage());
+                return collect([]);
+            }
         });
 
         $recentRegistrations = \Illuminate\Support\Facades\Cache::remember('dashboard_recent_registrations', 30, function () {
-            $regs = $this->firebase->getValue('registrations') ?? [];
-            return collect($regs)->map(function ($item, $key) {
-                if (is_array($item))
-                    $item['id'] = $key;
-                return $item;
-            })->sortByDesc('created_at')->take(3);
+            try {
+                $regs = $this->firebase->getValue('registrations') ?? [];
+                return collect($regs)->map(function ($item, $key) {
+                    if (is_array($item))
+                        $item['id'] = $key;
+                    return $item;
+                })->sortByDesc('created_at')->take(3);
+            } catch (\Exception $e) {
+                \Log::warning('Firebase registrations fetch error in dashboard index (ignored): ' . $e->getMessage());
+                return collect([]);
+            }
         });
 
         $recentVisitors = \Illuminate\Support\Facades\Cache::remember('dashboard_recent_visitors', 30, function () {
-            $log = $this->firebase->getValue('visitor_log') ?? [];
-            return collect($log)->sortByDesc('timestamp')->take(5);
+            try {
+                $log = $this->firebase->getValue('visitor_log') ?? [];
+                return collect($log)->sortByDesc('timestamp')->take(5);
+            } catch (\Exception $e) {
+                \Log::warning('Firebase visitor log fetch error in dashboard index (ignored): ' . $e->getMessage());
+                return collect([]);
+            }
         });
 
         return view('admin.dashboard', compact('stats', 'packagesList', 'recentRegistrations', 'recentVisitors'));
@@ -58,28 +73,40 @@ class AdminController extends Controller
     private function getDashboardStats($bypassCache = false)
     {
         $fetchStats = function () {
-            $allPackages = $this->firebase->getValue('packages') ?? [];
-            $allTestimonials = $this->firebase->getValue('testimonials') ?? [];
-            $allRegs = collect($this->firebase->getValue('registrations') ?? []);
-            $allUsers = $this->firebase->getValue('users') ?? [];
+            try {
+                $allPackages = $this->firebase->getValue('packages') ?? [];
+                $allTestimonials = $this->firebase->getValue('testimonials') ?? [];
+                $allRegs = collect($this->firebase->getValue('registrations') ?? []);
+                $allUsers = $this->firebase->getValue('users') ?? [];
 
-            // Tambahkan deteksi data kosong agar tidak error
-            if (empty($allPackages) && empty($allRegs)) {
-                return ['packages_count' => 0, 'testimonials_count' => 0, 'users_count' => 0, 'registrations_count' => 0, 'page_views' => 0, 'optimization_score' => 0];
+                // Tambahkan deteksi data kosong agar tidak error
+                if (empty($allPackages) && empty($allRegs)) {
+                    return ['packages_count' => 0, 'testimonials_count' => 0, 'users_count' => 0, 'registrations_count' => 0, 'page_views' => 0, 'optimization_score' => 0];
+                }
+
+                $activeRegsCount = $allRegs->filter(function ($reg) {
+                    return is_array($reg) && !($reg['is_archived'] ?? false);
+                })->count();
+
+                return [
+                    'packages_count' => count($allPackages),
+                    'testimonials_count' => count($allTestimonials),
+                    'users_count' => count($allUsers),
+                    'registrations_count' => $activeRegsCount,
+                    'page_views' => $this->firebase->getValue('metrics/page_views') ?? 0,
+                    'optimization_score' => 98,
+                ];
+            } catch (\Exception $e) {
+                \Log::error('Firebase connection error inside getDashboardStats: ' . $e->getMessage());
+                return [
+                    'packages_count' => 0,
+                    'testimonials_count' => 0,
+                    'users_count' => 0,
+                    'registrations_count' => 0,
+                    'page_views' => 0,
+                    'optimization_score' => 98,
+                ];
             }
-
-            $activeRegsCount = $allRegs->filter(function ($reg) {
-                return is_array($reg) && !($reg['is_archived'] ?? false);
-            })->count();
-
-            return [
-                'packages_count' => count($allPackages),
-                'testimonials_count' => count($allTestimonials),
-                'users_count' => count($allUsers),
-                'registrations_count' => $activeRegsCount,
-                'page_views' => $this->firebase->getValue('metrics/page_views') ?? 0,
-                'optimization_score' => 98,
-            ];
         };
 
         if ($bypassCache) {

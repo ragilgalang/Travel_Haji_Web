@@ -7,7 +7,7 @@
 .env
 .env.backup
 .env.production
-/storage/app/*.json
+storage/app/*.json
 .firebase/
 *.log
 .DS_Store
