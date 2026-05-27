@@ -22,10 +22,10 @@ class DeployController extends Controller
      */
     public function deploy(Request $request)
     {
-        // Keamanan: Blokir aksi jika dijalankan di server production
+        // Keamanan: Blokir aksi jika dijalankan di server production (kecuali via CLI/Console)
         $appHost = parse_url(config('app.url'), PHP_URL_HOST);
         $currentHost = request()->getHost();
-        if ($currentHost === $appHost || str_contains($currentHost, 'umrohceriaabadi.com')) {
+        if (!app()->runningInConsole() && ($currentHost === $appHost || str_contains($currentHost, 'umrohceriaabadi.com'))) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Fitur deployment hanya diizinkan dijalankan dari server lokal.'
@@ -81,10 +81,10 @@ class DeployController extends Controller
      */
     public function uploadToGithub(Request $request)
     {
-        // Keamanan: Blokir aksi jika dijalankan di server production
+        // Keamanan: Blokir aksi jika dijalankan di server production (kecuali via CLI/Console)
         $appHost = parse_url(config('app.url'), PHP_URL_HOST);
         $currentHost = request()->getHost();
-        if ($currentHost === $appHost || str_contains($currentHost, 'umrohceriaabadi.com')) {
+        if (!app()->runningInConsole() && ($currentHost === $appHost || str_contains($currentHost, 'umrohceriaabadi.com'))) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Fitur pengunggahan kode ke GitHub hanya diizinkan dijalankan dari server lokal.'
