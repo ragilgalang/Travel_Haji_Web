@@ -111,10 +111,11 @@ Route::get('/ptumb', [AuthController::class, 'login'])->name('login');
 Route::post('/ptumb', [AuthController::class, 'authenticate'])->name('login.authenticate');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-// Admin
-// ==========================================
-// [TANDA: PENERAPAN MIDDLEWARE AUTH UNTUK AREA ADMIN]
-// ==========================================
+// Redirect /admin ke /admin/dashboard
+Route::get('/admin', function () {
+    return redirect()->route('admin.dashboard');
+});
+
 Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [AdminController::class, 'index'])->name('dashboard');
     Route::get('/dashboard/stats', [AdminController::class, 'getStatsApi'])->name('stats.api');
