@@ -15,18 +15,33 @@
     <p>Melalui dashboard ini, Anda dapat mengelola seluruh konten website PT. UMI MUTHMAINAH BERKAH — paket, testimoni, dan pendaftaran jemaah secara langsung.</p>
   </div>
   <div class="welcome-actions">
+    <!-- ========================================== -->
+    <!-- [TANDA: TOMBOL SAMBUTAN - BUKU PANDUAN] -->
+    <!-- ========================================== -->
     <a href="{{ route('admin.guide') }}" class="action-btn secondary" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"></path><path d="M6.5 20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"></path></svg>
       Buku Panduan
     </a>
+    
+    <!-- ========================================== -->
+    <!-- [TANDA: TOMBOL SAMBUTAN - TAMBAH PAKET BARU] -->
+    <!-- ========================================== -->
     <a href="{{ route('admin.packages.create') }}" class="action-btn primary">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14" stroke-linecap="round"/></svg>
       Tambah Paket Baru
     </a>
+    
+    <!-- ========================================== -->
+    <!-- [TANDA: TOMBOL SAMBUTAN - LIHAT WEBSITE] -->
+    <!-- ========================================== -->
     <a href="/" target="_blank" class="action-btn secondary">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
       Lihat Website
     </a>
+    
+    <!-- ========================================== -->
+    <!-- [TANDA: TOMBOL SAMBUTAN - HAPUS CACHE] -->
+    <!-- ========================================== -->
     <form action="{{ route('admin.clearCache') }}" method="POST" class="d-block w-100 mt-2">
       @csrf
       <button type="submit" class="action-btn secondary w-100" style="background: rgba(255,255,255,0.05); border: 1px dashed rgba(255,255,255,0.2); font-size: 0.85rem; padding: 8px 16px;">
@@ -37,6 +52,9 @@
   </div>
 </div>
 
+<!-- ========================================== -->
+<!-- [TANDA: BERANDA ADMIN - KARTU STATISTIK UTAMA] -->
+<!-- ========================================== -->
 <!-- Stats Grid -->
 <div class="stats-grid">
   <!-- Card 1: Paket -->
@@ -47,7 +65,7 @@
       </div>
       <div class="stat-trend up">↑ Aktif</div>
     </div>
-    <div class="stat-number green">{{ $stats['packages_count'] ?? 0 }}</div>
+    <div class="stat-number green" id="stat-packages">{{ $stats['packages_count'] ?? 0 }}</div>
     <div class="stat-label">Paket Aktif</div>
     <div class="stat-sub">Umrah & Haji Reguler</div>
     <div class="mini-bars">
@@ -65,7 +83,7 @@
       </div>
       <div class="stat-trend gold-t">★ Baru</div>
     </div>
-    <div class="stat-number gold">{{ $stats['testimonials_count'] ?? 0 }}</div>
+    <div class="stat-number gold" id="stat-testimonials">{{ $stats['testimonials_count'] ?? 0 }}</div>
     <div class="stat-label">Testimoni Jemaah</div>
     <div class="stat-sub">Rating rata-rata jemaah</div>
     <div class="mini-bars">
@@ -83,7 +101,7 @@
       </div>
       <div class="stat-trend blue-t">● Terbaru</div>
     </div>
-    <div class="stat-number blue">{{ $stats['registrations_count'] ?? 0 }}</div>
+    <div class="stat-number blue" id="stat-registrations">{{ $stats['registrations_count'] ?? 0 }}</div>
     <div class="stat-label">Total Pendaftar</div>
     <div class="stat-sub">Data jemaah masuk</div>
     <div class="mini-bars">
@@ -101,7 +119,7 @@
       </div>
       <div class="stat-trend stat-trend-red">Live</div>
     </div>
-    <div class="stat-number stat-number-red">{{ number_format($stats['page_views'] ?? 0) }}</div>
+    <div class="stat-number stat-number-red" id="stat-views">{{ number_format($stats['page_views'] ?? 0) }}</div>
     <div class="stat-label">Total Pengunjung</div>
     <div class="stat-sub">Klik halaman website</div>
     <div class="mini-bar-red-wrapper">
@@ -179,6 +197,9 @@
       <div class="card-title">Aksi Cepat</div>
     </div>
     <div class="quick-actions">
+      <!-- ========================================== -->
+      <!-- [TANDA: TOMBOL AKSI CEPAT - TAMBAH PAKET] -->
+      <!-- ========================================== -->
       <a href="{{ route('admin.packages.create') }}" class="quick-btn">
         <div class="quick-btn-icon g">
           <svg viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2"><path d="M20 7H4a2 2 0 00-2 2v6a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2z"/><path d="M12 5v14"/></svg>
@@ -190,17 +211,23 @@
         <svg class="arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
       </a>
 
+      <!-- ========================================== -->
+      <!-- [TANDA: TOMBOL AKSI CEPAT - KELOLA TESTIMONI] -->
+      <!-- ========================================== -->
       <a href="{{ route('admin.testimonials.index') }}" class="quick-btn">
         <div class="quick-btn-icon y">
           <svg viewBox="0 0 24 24" fill="none" stroke="#ca8a04" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
         </div>
         <div class="quick-btn-text">
           <div class="qb-title">Kelola Testimoni</div>
-          <div class="qb-sub">{{ $stats['testimonials_count'] ?? 0 }} testimoni jemaah</div>
+          <div class="qb-sub" id="qa-testi-count">{{ $stats['testimonials_count'] ?? 0 }} testimoni jemaah</div>
         </div>
         <svg class="arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
       </a>
 
+      <!-- ========================================== -->
+      <!-- [TANDA: TOMBOL AKSI CEPAT - PENDAFTARAN JEMAAH] -->
+      <!-- ========================================== -->
       <a href="{{ route('admin.registrations.index') }}" class="quick-btn">
         <div class="quick-btn-icon b">
           <svg viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/></svg>
@@ -212,13 +239,16 @@
         <svg class="arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
       </a>
 
-      <a href="{{ route('admin.settings') }}" class="quick-btn">
+      <!-- ========================================== -->
+      <!-- [TANDA: TOMBOL AKSI CEPAT - KELOLA GALERI] -->
+      <!-- ========================================== -->
+      <a href="{{ route('admin.gallery.index') }}" class="quick-btn">
         <div class="quick-btn-icon g">
-          <svg viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" /><circle cx="8.5" cy="8.5" r="1.5" /><path d="M21 15l-5-5L5 21" /></svg>
         </div>
         <div class="quick-btn-text">
-          <div class="qb-title">Pengaturan Website</div>
-          <div class="qb-sub">Ubah tampilan & konten website</div>
+          <div class="qb-title">Kelola Galeri</div>
+          <div class="qb-sub">Kelola galeri & dokumentasi media</div>
         </div>
         <svg class="arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
       </a>
@@ -231,8 +261,106 @@
   <div class="info-icon">
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ca8a04" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
   </div>
-  <p>💡 <strong>Tips:</strong> Gunakan menu "Pengaturan Website" untuk memperbarui konten halaman utama, galeri, dan informasi kontak perusahaan Anda.</p>
+  <p>💡 <strong>Tips:</strong> Gunakan menu "Kelola Galeri" atau "Kelola Fasilitas" untuk memperbarui dokumentasi perjalanan dan layanan yang ditawarkan.</p>
   <button class="info-close" onclick="document.getElementById('infoBar').classList.add('d-none')">×</button>
 </div>
+
+@push('scripts')
+<script>
+  // Function to animate a value changing smoothly
+  function animateValue(element, start, end, duration) {
+    if (!element) return;
+    if (start === end) return;
+    
+    // Add temporary updated class for micro-animation flash/pop
+    element.classList.add('stat-number-updated');
+    setTimeout(() => element.classList.remove('stat-number-updated'), 600);
+    
+    let range = end - start;
+    let current = start;
+    let increment = end > start ? 1 : -1;
+    let stepTime = Math.abs(Math.floor(duration / range));
+    stepTime = Math.max(stepTime, 20); // enforce min 20ms delay
+    
+    let timer = setInterval(() => {
+      current += increment;
+      element.textContent = Number(current).toLocaleString('id-ID');
+      if (current == end) {
+        clearInterval(timer);
+      }
+    }, stepTime);
+  }
+
+  // Periodic polling function
+  function pollDashboardStats() {
+    fetch("{{ route('admin.stats.api') }}")
+      .then(response => response.json())
+      .then(data => {
+        if (data) {
+          // Get values in DOM
+          const pkgEl = document.getElementById('stat-packages');
+          const testiEl = document.getElementById('stat-testimonials');
+          const regEl = document.getElementById('stat-registrations');
+          const viewEl = document.getElementById('stat-views');
+          
+          if (pkgEl) {
+            const currentPkgs = parseInt(pkgEl.textContent.replace(/[^0-9]/g, '')) || 0;
+            const newPkgs = parseInt(data.packages_count) || 0;
+            if (currentPkgs !== newPkgs) {
+              animateValue(pkgEl, currentPkgs, newPkgs, 500);
+            }
+          }
+          
+          if (testiEl) {
+            const currentTestis = parseInt(testiEl.textContent.replace(/[^0-9]/g, '')) || 0;
+            const newTestis = parseInt(data.testimonials_count) || 0;
+            if (currentTestis !== newTestis) {
+              animateValue(testiEl, currentTestis, newTestis, 500);
+              
+              // Also update quick actions count text
+              const qaTestiSub = document.getElementById('qa-testi-count');
+              if (qaTestiSub) {
+                qaTestiSub.textContent = newTestis + ' testimoni jemaah';
+              }
+            }
+          }
+          
+          if (regEl) {
+            const currentRegs = parseInt(regEl.textContent.replace(/[^0-9]/g, '')) || 0;
+            const newRegs = parseInt(data.registrations_count) || 0;
+            if (currentRegs !== newRegs) {
+              animateValue(regEl, currentRegs, newRegs, 500);
+            }
+          }
+          
+          if (viewEl) {
+            const currentViews = parseInt(viewEl.textContent.replace(/[^0-9]/g, '')) || 0;
+            const newViews = parseInt(data.page_views) || 0;
+            if (currentViews !== newViews) {
+              animateValue(viewEl, currentViews, newViews, 500);
+            }
+          }
+        }
+      })
+      .catch(err => console.error("Gagal melakukan sinkronisasi statistik:", err));
+  }
+
+  // Start polling every 3 seconds (3000 milliseconds)
+  setInterval(pollDashboardStats, 3000);
+</script>
+
+<style>
+  /* Premium Micro-animation class when stats change */
+  .stat-number-updated {
+    animation: statPop 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    color: #eab308 !important; /* Elegant golden color transition */
+  }
+  @keyframes statPop {
+    0% { transform: scale(1); filter: brightness(1); }
+    30% { transform: scale(1.15); filter: brightness(1.3); }
+    100% { transform: scale(1); filter: brightness(1); }
+  }
+</style>
+@endpush
 
 @endsection

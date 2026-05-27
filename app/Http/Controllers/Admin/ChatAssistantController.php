@@ -21,8 +21,8 @@ class ChatAssistantController extends Controller
         
         $registrations = [];
         foreach ($all as $id => $data) {
-            // Hanya tampilkan yang tidak diarsipkan
-            if (!($data['is_archived'] ?? false)) {
+            // Hanya tampilkan yang tidak diarsipkan dan statusnya 'Diproses'
+            if (!($data['is_archived'] ?? false) && ($data['status'] ?? '') === 'Diproses') {
                 $registrations[] = array_merge(['id' => $id], $data);
             }
         }

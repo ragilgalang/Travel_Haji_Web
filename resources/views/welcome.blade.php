@@ -63,6 +63,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
 <script>
 /** ── AUTO-HEAL MEDIA URL ── **/
 window.addEventListener('error', function(e) {
@@ -168,17 +169,31 @@ window.addEventListener('error', function(e) {
 
 <main id="main-content">
 
+<!-- ========================================== -->
+<!-- [TANDA: HERO - TAMPILAN UTAMA (SLIDESHOW)] -->
+<!-- ========================================== -->
 <!-- HERO with Slideshow -->
 <section class="hero" id="sync-hero">
   <!-- Panggilan file background yang sudah dipisah -->
   @include('layouts.hero_background')
 
   <div class="hero-content">
+    <!-- ========================================== -->
+    <!-- [TANDA: HERO BADGES - TINGKAT SERTIFIKASI] -->
+    <!-- ========================================== -->
     <div class="hero-badges-wrapper">
       <div id="sync-hero_badge" class="hero-badge"><span></span> {{ $settings['hero_badge'] ?? 'TERDAFTAR RESMI KEMENAG RI · IZIN PPIU NO. U - 207/2021' }}</div>
       <div id="sync-hero_badge_2" class="hero-badge"><span></span> {{ $settings['hero_badge_2'] ?? 'PIHK 81200009510360001' }}</div>
     </div>
+    
+    <!-- ========================================== -->
+    <!-- [TANDA: HERO TITLE - JUDUL UTAMA BERANDA] -->
+    <!-- ========================================== -->
     <h1 id="sync-hero_title">{!! $settings['hero_title'] ?? 'Wujudkan Perjalanan<br><em>Suci ke Baitullah</em>' !!}</h1>
+    
+    <!-- ========================================== -->
+    <!-- [TANDA: HERO DESCRIPTION - DESKRIPSI UTAMA] -->
+    <!-- ========================================== -->
     <p id="sync-hero_description" class="hero-desc">{{ $settings['hero_description'] ?? 'Lebih dari 12.000 jemaah telah kami antarkan ke Tanah Suci dengan aman, nyaman, dan penuh keberkahan.' }}</p>
     <div class="hero-cta">
       <a href="#paket" class="btn btn-gold btn-lg">Lihat Paket Haji</a>
@@ -198,6 +213,9 @@ window.addEventListener('error', function(e) {
 </section>
 
 
+<!-- ========================================== -->
+<!-- [TANDA: STATS BAR - ANGKA STATISTIK JEMAAH] -->
+<!-- ========================================== -->
 <!-- STATS -->
 <div id="sync-stats" class="stats-bar">
   <div class="stats-inner">
@@ -208,6 +226,9 @@ window.addEventListener('error', function(e) {
   </div>
 </div>
 
+<!-- ========================================== -->
+<!-- [TANDA: ABOUT - SEKSI TENTANG KAMI] -->
+<!-- ========================================== -->
 <!-- ABOUT -->
 <section class="section about-section" id="tentang">
   <div class="section-inner">
@@ -216,6 +237,7 @@ window.addEventListener('error', function(e) {
       @include('layouts.about_background')
 
       <div class="reveal-right">
+        <!-- [TANDA: ABOUT - JUDUL & DESKRIPSI TENTANG KAMI] -->
         <div id="sync-about-badge" class="sec-eyebrow">Tentang {{ $settings['site_name'] ?? 'PT. UMI MUTHMAINAH BERKAH' }}</div>
         <h2 id="sync-about_title" class="sec-title">{!! $settings['about_title'] ?? 'Melayani Sepenuh Hati Sejak <em>2014</em>' !!}</h2>
         <p id="sync-about_description" class="sec-sub about-desc-no-mb">{{ $settings['about_description'] ?? 'PT. Umi Muthmainah Berkah hadir untuk memberikan pengalaman ibadah terbaik bagi Anda. Dengan komitmen pada kualitas pelayanan dan bimbingan ibadah sesuai sunnah, kami telah mendampingi ribuan jemaah mewujudkan impian mereka ke Tanah Suci.' }}</p>
@@ -266,6 +288,9 @@ window.addEventListener('error', function(e) {
   </div>
 </section>
 
+<!-- ========================================== -->
+<!-- [TANDA: PACKAGES - DAFTAR PAKET HAJI/UMRAH] -->
+<!-- ========================================== -->
 <!-- PACKAGES -->
 <section class="section pkg-section" id="paket">
   <div class="section-inner">
@@ -346,6 +371,9 @@ function filterPaket(cat, btn) {
 }
 </script>
 
+<!-- ========================================== -->
+<!-- [TANDA: GALLERY - GALERI FOTO BERJALAN (MARQUEE)] -->
+<!-- ========================================== -->
 <!-- GALLERY MARQUEE -->
 <div class="gallery-section" id="sync-galeri">
   <div class="gallery-inner">
@@ -501,6 +529,9 @@ function filterPaket(cat, btn) {
   </div>
 </div>
 
+<!-- ========================================== -->
+<!-- [TANDA: ITINERARY - JADWAL PERJALANAN] -->
+<!-- ========================================== -->
 <!-- ITINERARY -->
 <section class="section itin-section" id="jadwal">
   <div class="section-inner">
@@ -556,6 +587,9 @@ function filterPaket(cat, btn) {
   </div>
 </section>
 
+<!-- ========================================== -->
+<!-- [TANDA: FACILITIES - FASILITAS LENGKAP] -->
+<!-- ========================================== -->
 <!-- FACILITIES LENGKAP -->
 <section class="section fac-section" id="fasilitas">
   <div class="section-inner">
@@ -605,6 +639,9 @@ function filterPaket(cat, btn) {
   </div>
 </section>
 
+<!-- ========================================== -->
+<!-- [TANDA: MODAL FASILITAS - POPUP DETAIL FASILITAS] -->
+<!-- ========================================== -->
 <!-- MODAL FASILITAS PREMIUM -->
 <div class="fac-modal-overlay" id="facModal" onclick="closeFacModal(event)">
   <div class="fac-modal-card no-edit">
@@ -648,6 +685,9 @@ function closeFacModal(e) {
 </script>
 
 
+<!-- ========================================== -->
+<!-- [TANDA: TESTIMONIALS - ULASAN & TESTIMONI JEMAAH] -->
+<!-- ========================================== -->
 <!-- TESTIMONIALS -->
 <section class="section testi-section" id="testimoni">
   <div class="section-inner">
@@ -655,6 +695,16 @@ function closeFacModal(e) {
       <div class="sec-eyebrow">Testimoni</div>
       <h2 class="sec-title">{!! $settings['sec_testi_title'] ?? 'Kata <em>Jemaah Kami</em>' !!}</h2>
       <p class="sec-sub">Kepuasan Anda adalah kebahagiaan kami dalam melayani tamu Allah.</p>
+      
+      <!-- [TANDA: TOMBOL BERI ULASAN] -->
+      <div>
+        <button onclick="openReviewModal()" class="btn-review-testi">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2">
+            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+          </svg>
+          Beri Kami Ulasan
+        </button>
+      </div>
     </div>
 
     <div class="testi-marquee-wrapper">
@@ -668,6 +718,9 @@ function closeFacModal(e) {
   </div>
 </section>
 
+<!-- ========================================== -->
+<!-- [TANDA: CTA BANNER - TOMBOL AJAKAN DAFTAR] -->
+<!-- ========================================== -->
 <!-- CTA BANNER -->
 <section class="cta-section" id="kontak">
   <div class="cta-bg">
@@ -680,6 +733,9 @@ function closeFacModal(e) {
       <p id="sync-cta-desc-simple" class="cta-desc-simple">Hubungi tim kami sekarang juga untuk konsultasi gratis dan informasi ketersediaan kuota. Kami siap membantu merencanakan perjalanan suci Anda.</p>
     </div>
 
+    <!-- ========================================== -->
+    <!-- [TANDA: LAYANAN WHATSAPP - CTA TOMBOL UTAMA] -->
+    <!-- ========================================== -->
     @php
       $wa_raw = $settings['contact_wa'] ?? '081234567890';
       $wa_clean = preg_replace('/[^0-9]/', '', $wa_raw);
@@ -725,6 +781,9 @@ function closeFacModal(e) {
 
 @include('layouts.footer')
 
+<!-- ========================================== -->
+<!-- [TANDA: PACKAGE DETAIL MODAL - POPUP DETAIL PAKET] -->
+<!-- ========================================== -->
 <!-- PACKAGE DETAIL MODAL -->
 <div class="modal-overlay" id="pkgModal" onclick="if(event.target===this)closePkgModal()">
   <div class="modal-box pkg-modal">
@@ -749,18 +808,30 @@ function closeFacModal(e) {
         </div>
     </div>
     <div class="modal-footer">
+        <!-- ========================================== -->
+        <!-- [TANDA: LAYANAN WHATSAPP - DETAIL PAKET MODAL] -->
+        <!-- ========================================== -->
         <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $settings['contact_wa'] ?? '081234567890') }}" id="m-wa-link" target="_blank" class="btn btn-gold pkg-modal-wa-btn" style="width:100%; justify-content:center;">Tanya Admin via WhatsApp</a>
 
     </div>
   </div>
 </div>
 
+<!-- ========================================== -->
+<!-- [TANDA: VIDEO MODAL - POPUP PUTAR VIDEO] -->
+<!-- ========================================== -->
 <!-- VIDEO MODAL -->
 <div class="modal-overlay" id="videoModal" onclick="closeModal(event)">
   <div class="modal-box">
     @if(!empty($settings['hero_video_url']))
       {{-- Video sudah diupload dari admin --}}
       <div class="modal-video-placeholder" id="videoModalContent">
+        @php
+            $rawHeroVid = $settings['hero_video_url'];
+            $cleanHeroVidPath = preg_replace('/^https?:\/\/[^\/]+/', '', $rawHeroVid);
+            $cleanHeroVidPath = ltrim($cleanHeroVidPath, '/');
+            $finalHeroVidUrl = asset($cleanHeroVidPath);
+        @endphp
         <video
           id="heroVideoPlayer"
           controls
@@ -768,19 +839,10 @@ function closeFacModal(e) {
           preload="auto"
           style="width:100%; border-radius:12px; box-shadow:0 20px 50px rgba(0,0,0,0.5); max-height:80vh;"
         >
-        @php
-            $rawPath = $settings['hero_video_url'];
-            // Bersihkan path dari host jika sudah ada (karena asset() akan menambahkannya lagi)
-            $cleanPath = preg_replace('/^https?:\/\/[^\/]+/', '', $rawPath);
-            $cleanPath = ltrim($cleanPath, '/');
-            $finalUrl = asset($cleanPath);
-        @endphp
-          <source src="{{ $finalUrl }}" type="video/mp4">
+          <source src="{{ $finalHeroVidUrl }}" type="video/mp4">
+          <source src="{{ $finalHeroVidUrl }}" type="video/webm">
           Browser Anda tidak mendukung tag video.
         </video>
-        <div style="font-size:10px; color:#666; margin-top:10px; text-align:center; word-break:break-all;">
-            Debug URL: {{ $finalUrl }}
-        </div>
       </div>
     @else
       {{-- Belum ada video, tampilkan placeholder --}}
@@ -794,7 +856,9 @@ function closeFacModal(e) {
   </div>
 </div>
 
-<!-- STATUS MODAL -->
+<!-- ========================================== -->
+<!-- [TANDA: STATUS MODAL - POPUP CEK STATUS PENDAFTARAN] -->
+<!-- ========================================== -->
 <!-- STATUS MODAL -->
 <div class="modal-overlay" id="statusModal" onclick="closeStatusModal(event)">
   <div class="modal-box status-modal" style="background: #ffffff; max-width: 420px; width: 90%; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.15); position: relative; display: block; aspect-ratio: auto; height: auto; padding: 0;">
@@ -808,18 +872,41 @@ function closeFacModal(e) {
         
         <h3 style="color: var(--dark); margin: 0 0 0.75rem 0; font-size: 1.25rem; font-weight: 800;">Cek Status Pendaftaran</h3>
         
-        <p style="color: #64748b; font-size: 0.9rem; margin: 0 0 1.5rem 0; line-height: 1.6;">Masukkan nomor referensi untuk melihat progres pendaftaran Anda secara real-time.</p>
+        <p style="color: #64748b; font-size: 0.9rem; margin: 0 0 1.5rem 0; line-height: 1.6;">Masukkan nomor referensi atau NIK untuk melihat progres pendaftaran Anda secara real-time.</p>
         
-        <form id="checkStatusForm" onsubmit="handleCheckStatus(event)" style="text-align: left;">
+        <form id="checkStatusForm" onsubmit="handleCheckStatus(event)" style="text-align: left; margin-bottom: 1rem;">
             @csrf
-            <input type="text" id="statusRefInput" placeholder="REG-ABCD1234" required
-                   style="width: 100%; box-sizing: border-box; padding: 0.9rem 1rem; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 1rem; font-weight: 700; color: #334155; margin-bottom: 1rem; outline: none; transition: border-color 0.2s;"
-                   onfocus="this.style.borderColor='var(--green)'" onblur="this.style.borderColor='#cbd5e1'">
+            <div style="position: relative; margin-bottom: 1rem;">
+                <input type="text" id="statusRefInput" placeholder="REG-ABCD1234 atau NIK" required
+                       style="width: 100%; box-sizing: border-box; padding: 0.9rem 3.5rem 0.9rem 1rem; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 1rem; font-weight: 700; color: #334155; outline: none; transition: border-color 0.2s;"
+                       onfocus="this.style.borderColor='var(--green)'" onblur="this.style.borderColor='#cbd5e1'">
+                <button type="button" onclick="startScanner()" title="Scan QR Code / Barcode Tiket"
+                        style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534; width: 38px; height: 38px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; transition: 0.2s; padding: 0;"
+                        onmouseover="this.style.background='#dcfce7'" onmouseout="this.style.background='#f0fdf4'">
+                    📷
+                </button>
+            </div>
             
-            <button type="submit" id="btnCheckStatus" class="btn btn-solid" style="width: 100%; padding: 0.9rem; border-radius: 8px; display: flex; align-items: center; justify-content: center; gap: 0.5rem; border: none; cursor: pointer; color: white; font-weight: 700;">
-                <span>🔍</span> <span id="btnCheckStatusText">Cek Sekarang</span>
-            </button>
+            <div style="display: flex; gap: 8px;">
+                <button type="submit" id="btnCheckStatus" class="btn btn-solid" style="flex: 2; padding: 0.9rem; border-radius: 8px; display: flex; align-items: center; justify-content: center; gap: 0.5rem; border: none; cursor: pointer; color: white; font-weight: 700; height: 48px;">
+                    <span>🔍</span> <span id="btnCheckStatusText">Cek Sekarang</span>
+                </button>
+                <button type="button" onclick="triggerQrUpload()" title="Upload Screenshot Barcode/QR Code"
+                        style="flex: 1; padding: 0.9rem; border-radius: 8px; display: flex; align-items: center; justify-content: center; gap: 0.4rem; border: 1px solid #cbd5e1; background: #f8fafc; color: #475569; font-weight: 700; cursor: pointer; transition: 0.2s; height: 48px; box-sizing: border-box;"
+                        onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='#f8fafc'">
+                    <span>📁</span> Upload
+                </button>
+            </div>
+            <input type="file" id="qrFileInput" accept="image/*" style="position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); border: 0; opacity: 0; pointer-events: none;" onchange="handleQrFileUpload(event)">
         </form>
+
+        <!-- Scanner Box -->
+        <div id="qrScannerWrapper" style="display: none; margin-bottom: 1.5rem; border-radius: 12px; overflow: hidden; border: 2px solid var(--green); background: #000; position: relative;">
+            <div id="qr-reader" style="width: 100%;"></div>
+            <button type="button" onclick="stopScanner()" style="position: absolute; top: 10px; right: 10px; background: rgba(220, 38, 38, 0.9); color: white; border: none; padding: 6px 12px; border-radius: 6px; font-weight: 700; cursor: pointer; z-index: 10; font-size: 0.8rem;">
+                ✕ Batal Scan
+            </button>
+        </div>
 
         <!-- Result Box -->
         <div id="statusResultBox" style="margin-top: 1.5rem; background: #f8fafc; border-radius: 12px; padding: 1.25rem; border: 1px solid #e2e8f0; text-align: left;">
@@ -827,12 +914,18 @@ function closeFacModal(e) {
                 <div style="font-size: 0.85rem; color: #64748b; margin-bottom: 0.25rem;">Nama Jemaah:</div>
                 <div id="resNama" style="font-weight: 800; color: #334155; font-size: 1rem;">-</div>
             </div>
-            <div style="margin-bottom: 1.25rem;">
+            <div style="margin-bottom: 1rem;">
                 <div style="font-size: 0.85rem; color: #64748b; margin-bottom: 0.5rem;">Status Saat Ini:</div>
                 <div style="display: inline-flex; align-items: center; justify-content: center; background: #e0e7ff; color: #3730a3; padding: 0.4rem 1rem; border-radius: 100px; font-size: 0.85rem; font-weight: 700;" id="resStatus">-</div>
             </div>
-            <div style="border-top: 1px solid #e2e8f0; padding-top: 0.75rem; font-size: 0.85rem; color: #94a3b8;">
-                Daftar pada: <span id="resTgl">-</span>
+            <div style="margin-bottom: 1rem;">
+                <div style="font-size: 0.85rem; color: #64748b; margin-bottom: 0.25rem;">Daftar pada:</div>
+                <div id="resTgl" style="font-weight: 700; color: #475569; font-size: 0.9rem;">-</div>
+            </div>
+            <div id="resTicketWrapper" style="display: none; border-top: 1px solid #e2e8f0; padding-top: 1rem; margin-top: 1rem;">
+                <a id="btnResTicket" href="#" target="_blank" class="btn btn-solid" style="display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; width: 100%; padding: 0.75rem; border-radius: 8px; font-size: 0.9rem; font-weight: 700; text-decoration: none; color: white; background: var(--green); border: none; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+                    <span>🎟️</span> Lihat & Cetak E-Ticket
+                </a>
             </div>
         </div>
     </div>
@@ -1049,23 +1142,162 @@ function closeModalDirect(){
     if (vid) { vid.pause(); vid.currentTime = 0; }
 }
 
-/* ── STATUS MODAL ── */
+/* ── STATUS MODAL & BARCODE SCANNER ── */
+let html5QrCode = null;
+
+function startScanner() {
+    const wrapper = document.getElementById('qrScannerWrapper');
+    wrapper.style.display = 'block';
+    
+    resetStatusBox();
+
+    // Pastikan instansi scanner sebelumnya bersih
+    if (html5QrCode) {
+        html5QrCode.clear();
+    }
+
+    // Gunakan pendeteksian format spesifik (QR Code & Barcode Code 39/128)
+    let formats = [];
+    if (typeof Html5QrcodeSupportedFormats !== 'undefined') {
+        formats = [
+            Html5QrcodeSupportedFormats.QR_CODE,
+            Html5QrcodeSupportedFormats.CODE_39,
+            Html5QrcodeSupportedFormats.CODE_128,
+            Html5QrcodeSupportedFormats.EAN_13,
+            Html5QrcodeSupportedFormats.EAN_8,
+            Html5QrcodeSupportedFormats.UPC_A
+        ];
+    }
+
+    html5QrCode = new Html5Qrcode("qr-reader", formats.length > 0 ? { formatsToSupport: formats } : undefined);
+    
+    // Konfigurasi area scan persegi panjang (sangat optimal untuk Barcode mendatar & QR Code)
+    const config = { 
+        fps: 20, 
+        qrbox: (width, height) => {
+            const boxWidth = Math.min(width * 0.85, 320);
+            const boxHeight = Math.min(height * 0.45, 160);
+            return { width: boxWidth, height: boxHeight };
+        }
+    };
+
+    html5QrCode.start(
+        { facingMode: "environment" },
+        config,
+        (decodedText, decodedResult) => {
+            console.log("Barcode/QR Code terdeteksi:", decodedText);
+            
+            // Ekstrak kode REG-XXXX dari hasil scan (apakah berupa teks mentah atau URL tiket)
+            let matchedCode = decodedText.trim();
+            const regex = /(REG-[A-Z0-9]+)/i;
+            const match = decodedText.match(regex);
+            if (match) {
+                matchedCode = match[1].toUpperCase();
+            }
+            
+            document.getElementById('statusRefInput').value = matchedCode;
+            
+            // Berhenti memindai & sembunyikan kamera
+            stopScanner();
+            showNotification('QR Code / Barcode berhasil dipindai!', 'success');
+            
+            // Kirim form cek status otomatis
+            const form = document.getElementById('checkStatusForm');
+            if (form) {
+                const event = new Event('submit', { cancelable: true });
+                form.dispatchEvent(event);
+            }
+        },
+        (errorMessage) => {
+            // Abaikan error pembacaan frame per frame (proses scanning berjalan terus)
+        }
+    ).catch(err => {
+        console.error("Gagal memulai kamera: ", err);
+        showNotification("Gagal mengakses kamera. Silakan periksa izin kamera perangkat Anda.", "error");
+        wrapper.style.display = 'none';
+    });
+}
+
+function stopScanner() {
+    const wrapper = document.getElementById('qrScannerWrapper');
+    wrapper.style.display = 'none';
+    
+    if (html5QrCode) {
+        html5QrCode.stop().then(() => {
+            console.log("Scanner dihentikan.");
+            html5QrCode = null;
+        }).catch(err => {
+            console.error("Gagal menghentikan scanner: ", err);
+        });
+    }
+}
+
+function triggerQrUpload() {
+    stopScanner(); // Hentikan kamera jika sedang aktif agar tidak tabrakan
+    document.getElementById('qrFileInput').click();
+}
+
+function handleQrFileUpload(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    showNotification('Sedang membaca gambar...', 'info');
+
+    // Buat objek pembaca file QR sementara menggunakan container #qr-reader
+    const fileScanner = new Html5Qrcode("qr-reader");
+
+    fileScanner.scanFile(file, true)
+        .then(decodedText => {
+            console.log("QR Code berhasil dibaca dari file:", decodedText);
+            
+            // Ekstrak kode REG-XXXX dari hasil scan (apakah berupa teks mentah atau URL tiket)
+            let matchedCode = decodedText.trim();
+            const regex = /(REG-[A-Z0-9]+)/i;
+            const match = decodedText.match(regex);
+            if (match) {
+                matchedCode = match[1].toUpperCase();
+            }
+            
+            document.getElementById('statusRefInput').value = matchedCode;
+            showNotification('QR Code / Barcode dari gambar berhasil dibaca!', 'success');
+            
+            // Kirim form cek status otomatis
+            const form = document.getElementById('checkStatusForm');
+            if (form) {
+                const submitEvent = new Event('submit', { cancelable: true });
+                form.dispatchEvent(submitEvent);
+            }
+            
+            // Reset input file agar dapat mengunggah gambar yang sama kembali jika diperlukan
+            event.target.value = '';
+        })
+        .catch(err => {
+            console.error("Gagal memindai file gambar:", err);
+            showNotification("Barcode/QR Code tidak terdeteksi pada gambar. Pastikan gambar jelas dan pas.", "error");
+            event.target.value = '';
+        });
+}
+
 function openStatusModal() {
     document.getElementById('statusModal').classList.add('open');
     document.getElementById('statusRefInput').value = '';
     resetStatusBox();
 }
+
 function closeStatusModal(e) {
     if(!e || e.target === document.getElementById('statusModal') || e.target.classList.contains('modal-close')) {
         document.getElementById('statusModal').classList.remove('open');
+        stopScanner();
     }
 }
+
 function resetStatusBox() {
     document.getElementById('resNama').innerText = '-';
     document.getElementById('resStatus').innerText = '-';
     document.getElementById('resStatus').style.background = '#e0e7ff';
     document.getElementById('resStatus').style.color = '#3730a3';
     document.getElementById('resTgl').innerText = '-';
+    document.getElementById('resTicketWrapper').style.display = 'none';
 }
 function handleCheckStatus(e) {
     e.preventDefault();
@@ -1094,6 +1326,11 @@ function handleCheckStatus(e) {
             document.getElementById('resNama').innerText = data.nama;
             document.getElementById('resStatus').innerText = data.status;
             document.getElementById('resTgl').innerText = data.tgl;
+            
+            // Set ticket URL and show wrapper
+            const ticketUrl = '{{ url("/tiket") }}/' + encodeURIComponent(data.ref_id);
+            document.getElementById('btnResTicket').href = ticketUrl;
+            document.getElementById('resTicketWrapper').style.display = 'block';
             
             // Set status color
             const statusEl = document.getElementById('resStatus');

@@ -1,5 +1,9 @@
 <?php
 
+// ==========================================
+// [TANDA: MIDDLEWARE CRUD KUSTOM]
+// ==========================================
+
 namespace App\Http\Middleware;
 
 use Closure;

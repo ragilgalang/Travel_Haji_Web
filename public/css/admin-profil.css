@@ -1,3 +1,7 @@
+/* ==========================================
+   [TANDA: TATA LETAK UTAMA HALAMAN PROFIL]
+   Grid 2 kolom untuk form & riwayat login berdampingan
+========================================== */
 .profile-container {
     padding-bottom: 40px;
 }
@@ -26,6 +30,10 @@
     box-shadow: 0 8px 32px rgba(0,0,0,0.2);
 }
 
+/* ==========================================
+   [TANDA: FORM INPUT DENGAN IKON & TOMBOL SIMPAN]
+   Termasuk wrapper ikon, tombol toggle password, dan footer aksi
+========================================== */
 .form-input-icon-wrapper {
     position: relative;
 }
@@ -76,6 +84,10 @@
     margin-top: 24px;
 }
 
+/* ==========================================
+   [TANDA: KARTU RIWAYAT LOGIN (SESI AKTIF & IP)]
+   Perangkat login, badge sesi aktif, alamat IP, waktu login
+========================================== */
 .device-icon-box {
     width: 36px;
     height: 36px;
@@ -140,6 +152,9 @@
     font-weight: 600;
 }
 
+/* ==========================================
+   [TANDA: TAMPILAN KOSONG JIKA BELUM ADA RIWAYAT LOGIN]
+========================================== */
 .empty-history {
     text-align: center;
     padding: 40px;
@@ -186,6 +201,9 @@
     font-size: 14px;
 }
 
+/* ==========================================
+   [TANDA: KELAS UTILITAS PEMBANTU (JARAK, Z-INDEX)]
+========================================== */
 /* Utilities */
 .v-align-mid {
     vertical-align: middle;

@@ -39,27 +39,27 @@
                         @endif
                     </div>
                     @endif
-                    @if(!empty($settings['office_phone']))
+                    @if(!empty($settings['contact_phone']))
                     <div class="footer-contact-flex">
                         <span class="footer-contact-icon px-px">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="#22c55e" xmlns="http://www.w3.org/2000/svg">
                                 <path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/>
                             </svg>
                         </span>
-                        <span class="brand-desc footer-brand-desc-sm" id="sync-office-phone">{{ !empty($settings['office_phone']) ? $settings['office_phone'] : 'Nomor Belum Diatur' }}</span>
+                        <a href="tel:{{ preg_replace('/[^0-9+]/', '', $settings['contact_phone']) }}" class="footer-contact-link" id="sync-office-phone">{{ $settings['contact_phone'] }}</a>
                     </div>
                     @endif
-                    @if(!empty($settings['office_email']))
+                    @if(!empty($settings['contact_email']))
                     <div class="footer-contact-flex">
                         <span class="footer-contact-icon px-px">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="#22c55e" xmlns="http://www.w3.org/2000/svg">
                                 <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
                             </svg>
                         </span>
-                        <span class="brand-desc footer-brand-desc-sm" id="sync-office-email">{{ !empty($settings['office_email']) ? $settings['office_email'] : 'Email Belum Diatur' }}</span>
+                        <a href="mailto:{{ $settings['contact_email'] }}" class="footer-contact-link" id="sync-office-email">{{ $settings['contact_email'] }}</a>
                     </div>
                     @endif
-                    @if(empty($settings['office_address']) && empty($settings['office_phone']) && empty($settings['office_email']))
+                    @if(empty($settings['office_address']) && empty($settings['contact_phone']) && empty($settings['contact_email']))
                     <p class="brand-desc m-0">Silakan atur alamat kantor di menu Pengaturan Web → Footer.</p>
                     @endif
                 </div>
@@ -76,6 +76,9 @@
                         }
                     @endphp
                     @if(!empty($settings['contact_wa']))
+                        <!-- ========================================== -->
+                        <!-- [TANDA: LAYANAN WHATSAPP - TOMBOL SOSMED FOOTER] -->
+                        <!-- ========================================== -->
                         <a href="https://wa.me/{{ $wa_number }}?text={{ urlencode($settings['wa_msg_default'] ?? "Assalamu'alaikum Admin, saya ingin bertanya mengenai layanan di PT. Umi Muthmainah.") }}" target="_blank" class="social-btn wa" title="WhatsApp">
                             <svg viewBox="0 0 448 512"><path d="M380.9 97.1C339 55.1 283.2 32 223.9 32c-122.4 0-222 99.6-222 222 0 39.1 10.2 77.3 29.6 111L0 480l117.7-30.9c32.7 17.8 69.4 27.2 106.2 27.2h.1c122.3 0 222-99.6 222-222 0-59.3-23-115.1-65.1-157.2zM223.9 445.8c-33.1 0-65.5-8.9-93.7-25.7l-6.7-4-69.8 18.3 18.7-68.1-4.4-7c-18.5-29.4-28.2-63.3-28.2-98.2 0-101.7 82.8-184.5 184.6-184.5 49.3 0 95.6 19.2 130.4 54.1 34.8 34.9 54 81.2 54 130.5 0 101.7-82.8 184.5-184.5 184.5zm101.1-138.3c-5.5-2.8-32.8-16.2-37.9-18-5.1-1.9-8.8-2.8-12.5 2.8-3.7 5.6-14.3 18-17.6 21.8-3.2 3.7-6.5 4.2-12 1.4-5.5-2.8-23.2-8.5-44.2-27.2-16.4-14.6-27.4-32.7-30.6-38.2-3.2-5.6-.3-8.6 2.4-11.3 2.5-2.4 5.5-6.5 8.3-9.7 2.8-3.3 3.7-5.6 5.6-9.3 1.8-3.7.9-6.9-.5-9.7-1.4-2.8-12.5-30.1-17.1-41.2-4.5-10.8-9.1-9.3-12.5-9.5-3.2-.2-6.9-.2-10.6-.2-3.7 0-9.7 1.4-14.8 6.9-5.1 5.6-19.4 19-19.4 46.3 0 27.3 19.9 53.7 22.6 57.4 2.8 3.7 39.1 59.7 94.8 83.8 13.3 5.7 23.6 9.2 31.7 11.7 13.3 4.2 25.4 3.6 35 2.2 10.7-1.5 32.8-13.4 37.4-26.4 4.6-13 4.6-24.1 3.2-26.4-1.3-2.5-5-3.9-10.5-6.6z"/></svg>
                         </a>
@@ -147,10 +150,6 @@
                         @endif
                     </div>
                 </div>
-                <button onclick="openReviewModal()" class="btn-review">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
-                    Beri Kami Ulasan
-                </button>
             </div>
         </div>
 
@@ -174,10 +173,31 @@
         <h3>Bagikan Pengalaman Anda</h3>
         <p class="review-subtitle">Ulasan Anda membantu kami melayani lebih baik.</p>
         
-        <form id="reviewForm" onsubmit="submitReviewForm(event)">
+        <form id="reviewForm" onsubmit="submitReviewForm(event)" enctype="multipart/form-data">
             @csrf
-            <div class="review-form-group">
-                <input type="text" name="token" required placeholder="Token / No. Referensi Pendaftaran (contoh: REG-ABCD1234)">
+            <div class="review-form-group" style="position: relative;">
+                <input type="text" id="reviewTokenInput" name="token" required placeholder="Token / No. Referensi Pendaftaran (contoh: REG-ABCD1234)" style="padding-right: 5.5rem;">
+                <div style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); display: flex; gap: 4px; z-index: 10;">
+                    <button type="button" onclick="startReviewScanner()" title="Scan QR Code / Barcode"
+                            style="background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534; width: 34px; height: 34px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1rem; padding: 0; transition: 0.2s;"
+                            onmouseover="this.style.background='#dcfce7'" onmouseout="this.style.background='#f0fdf4'">
+                        📷
+                    </button>
+                    <button type="button" onclick="triggerReviewQrUpload()" title="Upload Screenshot Barcode/QR Code"
+                            style="background: #eff6ff; border: 1px solid #bfdbfe; color: #1d4ed8; width: 34px; height: 34px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1rem; padding: 0; transition: 0.2s;"
+                            onmouseover="this.style.background='#dbeafe'" onmouseout="this.style.background='#eff6ff'">
+                        📁
+                    </button>
+                </div>
+            </div>
+            <input type="file" id="reviewQrFileInput" accept="image/*" style="position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); border: 0; opacity: 0; pointer-events: none;" onchange="handleReviewQrFileUpload(event)">
+
+            <!-- Review Scanner Box -->
+            <div id="reviewQrScannerWrapper" style="display: none; margin-bottom: 1.5rem; border-radius: 12px; overflow: hidden; border: 2px solid var(--green, #22c55e); background: #000; position: relative;">
+                <div id="review-qr-reader" style="width: 100%;"></div>
+                <button type="button" onclick="stopReviewScanner()" style="position: absolute; top: 10px; right: 10px; background: rgba(220, 38, 38, 0.9); color: white; border: none; padding: 6px 12px; border-radius: 6px; font-weight: 700; cursor: pointer; z-index: 20; font-size: 0.8rem;">
+                    ✕ Batal Scan
+                </button>
             </div>
             <div class="review-form-group">
                 <input type="text" name="name" required placeholder="Nama Lengkap">
@@ -210,11 +230,11 @@
                 <label style="display:block; font-size:0.85rem; color:#64748b; margin-bottom:8px;">
                     📸 Lampirkan Foto Kenangan (Opsional, maks. 3MB)
                 </label>
-                <label for="reviewImageInput" class="review-upload-label" id="reviewUploadLabel">
+                <label for="reviewImageInput" class="review-upload-label" id="reviewUploadLabel" onclick="document.getElementById('reviewImageInput').click(); event.preventDefault();">
                     <span id="reviewUploadText">Klik untuk pilih foto...</span>
                     <img id="reviewImagePreview" src="" alt="" style="display:none; max-height:140px; border-radius:8px; margin-top:8px; object-fit:cover;">
                 </label>
-                <input type="file" name="image" id="reviewImageInput" accept="image/jpeg,image/png,image/webp" style="display:none;" onchange="previewReviewImage(this)">
+                <input type="file" name="image" id="reviewImageInput" accept="image/jpeg,image/png,image/webp" style="position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); border: 0; opacity: 0; pointer-events: none;" onchange="previewReviewImage(this)">
             </div>
             
             <button type="submit" class="review-submit-btn" id="reviewSubmitBtn">
@@ -229,8 +249,133 @@
     .d-none { display: none !important; }
 </style>
 
+<!-- html5-qrcode Library for Barcode/QR Scanning & Image Upload -->
+<script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+
 <script>
-    // Review Modal Logic
+    // Review Modal Logic & Barcode/QR Scanner
+    let reviewHtml5QrCode = null;
+
+    function safeNotify(message, type = 'success') {
+        if (typeof showNotification === 'function') {
+            showNotification(message, type);
+        } else {
+            alert(message);
+        }
+    }
+
+    function startReviewScanner() {
+        const wrapper = document.getElementById('reviewQrScannerWrapper');
+        wrapper.style.display = 'block';
+
+        if (reviewHtml5QrCode) {
+            reviewHtml5QrCode.clear();
+        }
+
+        // Gunakan pendeteksian format spesifik (QR Code & Barcode Code 39/128)
+        let formats = [];
+        if (typeof Html5QrcodeSupportedFormats !== 'undefined') {
+            formats = [
+                Html5QrcodeSupportedFormats.QR_CODE,
+                Html5QrcodeSupportedFormats.CODE_39,
+                Html5QrcodeSupportedFormats.CODE_128,
+                Html5QrcodeSupportedFormats.EAN_13,
+                Html5QrcodeSupportedFormats.EAN_8,
+                Html5QrcodeSupportedFormats.UPC_A
+            ];
+        }
+
+        reviewHtml5QrCode = new Html5Qrcode("review-qr-reader", formats.length > 0 ? { formatsToSupport: formats } : undefined);
+        
+        // Konfigurasi area scan persegi panjang (sangat optimal untuk Barcode mendatar & QR Code)
+        const config = { 
+            fps: 20, 
+            qrbox: (width, height) => {
+                const boxWidth = Math.min(width * 0.85, 320);
+                const boxHeight = Math.min(height * 0.45, 160);
+                return { width: boxWidth, height: boxHeight };
+            }
+        };
+
+        reviewHtml5QrCode.start(
+            { facingMode: "environment" },
+            config,
+            (decodedText, decodedResult) => {
+                console.log("Review Barcode/QR Code terdeteksi:", decodedText);
+
+                // Ekstrak kode REG-XXXX
+                let matchedCode = decodedText.trim();
+                const regex = /(REG-[A-Z0-9]+)/i;
+                const match = decodedText.match(regex);
+                if (match) {
+                    matchedCode = match[1].toUpperCase();
+                }
+
+                document.getElementById('reviewTokenInput').value = matchedCode;
+
+                stopReviewScanner();
+                safeNotify('QR Code / Barcode berhasil dipindai!', 'success');
+            },
+            (errorMessage) => {
+                // Abaikan pembacaan frame gagal
+            }
+        ).catch(err => {
+            console.error("Gagal memulai kamera ulasan: ", err);
+            safeNotify("Gagal mengakses kamera. Silakan periksa izin kamera perangkat Anda.", "error");
+            wrapper.style.display = 'none';
+        });
+    }
+
+    function stopReviewScanner() {
+        const wrapper = document.getElementById('reviewQrScannerWrapper');
+        wrapper.style.display = 'none';
+
+        if (reviewHtml5QrCode) {
+            reviewHtml5QrCode.stop().then(() => {
+                console.log("Scanner ulasan dihentikan.");
+                reviewHtml5QrCode = null;
+            }).catch(err => {
+                console.error("Gagal menghentikan scanner ulasan: ", err);
+            });
+        }
+    }
+
+    function triggerReviewQrUpload() {
+        stopReviewScanner();
+        document.getElementById('reviewQrFileInput').click();
+    }
+
+    function handleReviewQrFileUpload(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        safeNotify('Sedang membaca gambar...', 'info');
+
+        const fileScanner = new Html5Qrcode("review-qr-reader");
+
+        fileScanner.scanFile(file, true)
+            .then(decodedText => {
+                console.log("Review QR Code berhasil dibaca dari file:", decodedText);
+
+                let matchedCode = decodedText.trim();
+                const regex = /(REG-[A-Z0-9]+)/i;
+                const match = decodedText.match(regex);
+                if (match) {
+                    matchedCode = match[1].toUpperCase();
+                }
+
+                document.getElementById('reviewTokenInput').value = matchedCode;
+                safeNotify('QR Code / Barcode dari gambar berhasil dibaca!', 'success');
+
+                event.target.value = '';
+            })
+            .catch(err => {
+                console.error("Gagal memindai file gambar ulasan:", err);
+                safeNotify("Barcode/QR Code tidak terdeteksi pada gambar. Pastikan gambar jelas dan pas.", "error");
+                event.target.value = '';
+            });
+    }
+
     function openReviewModal() {
         // RESET TOMBOL SEBELUM DIBUKA
         const submitBtn = document.getElementById('reviewSubmitBtn');
@@ -248,6 +393,7 @@
     function closeReviewModal() {
         document.getElementById('reviewModal').classList.remove('active');
         document.body.style.overflow = '';
+        stopReviewScanner();
     }
 
     function previewReviewImage(input) {

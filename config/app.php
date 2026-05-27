@@ -118,9 +118,12 @@ return [
     |
     */
 
+    'block_visual_editor' => env('BLOCK_VISUAL_EDITOR', false),
+
     'maintenance' => [
         'driver' => env('APP_MAINTENANCE_DRIVER', 'file'),
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
+
 
 ];

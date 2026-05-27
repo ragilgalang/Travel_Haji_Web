@@ -50,9 +50,14 @@ class AuthController extends Controller
         $firebaseUser = \Illuminate\Support\Facades\Auth::getProvider()->retrieveByCredentials([$loginType => $loginValue]);
 
         // Cari data di SQLite (Database Lokal) - Pastikan lowercase
-        $userDb = \Illuminate\Support\Facades\DB::table('users')->whereRaw('LOWER(email) = ?', [strtolower($loginValue)])
-            ->orWhereRaw('LOWER(username) = ?', [strtolower($loginValue)])
-            ->first();
+        $userDb = null;
+        try {
+            $userDb = \Illuminate\Support\Facades\DB::table('users')->whereRaw('LOWER(email) = ?', [strtolower($loginValue)])
+                ->orWhereRaw('LOWER(username) = ?', [strtolower($loginValue)])
+                ->first();
+        } catch (\Exception $e) {
+            \Log::warning('SQLite find user db error (ignored): ' . $e->getMessage());
+        }
         
         $email = strtolower($userDb ? $userDb->email : ($firebaseUser ? $firebaseUser->email : $loginValue));
 
@@ -66,10 +71,73 @@ class AuthController extends Controller
         }
 
         // Aturan: 5x gagal → ban 2 menit, 10x gagal → ban permanen
+        // [ATURAN KHUSUS] galang123@gmail.com: 2x gagal → blokir, ke-3 → hapus
         $maxAttempts = 5;
 
         // Periksa apakah akun diblokir permanen
         if ($userDb && $userDb->permanently_banned) {
+            $isGalang = strtolower($email) === 'galang123@gmail.com';
+
+            // ============================================================
+            // [ATURAN KHUSUS] galang123@gmail.com sudah diblokir →
+            // Ini adalah percobaan ke-3 → HAPUS AKUN dari sistem
+            // ============================================================
+            if ($isGalang) {
+                \Log::error('AKUN DIHAPUS OTOMATIS (percobaan ke-3 setelah diblokir)', ['email' => $email, 'ip' => $request->ip()]);
+
+                // Hapus dari SQLite
+                try {
+                    \Illuminate\Support\Facades\DB::table('users')
+                        ->where('email', strtolower($email))
+                        ->delete();
+                } catch (\Exception $e) {
+                    \Log::warning('Gagal menghapus akun target dari SQLite: ' . $e->getMessage());
+                }
+
+                // Hapus dari Firebase Realtime Database
+                try {
+                    $firebase = app(\App\Services\FirebaseService::class);
+                    $allFirebaseUsers = $firebase->getValue('users') ?? [];
+                    foreach ($allFirebaseUsers as $fKey => $fData) {
+                        if (isset($fData['email']) && strtolower($fData['email']) === 'galang123@gmail.com') {
+                            $firebase->deleteValue("users/{$fKey}");
+                        }
+                    }
+                } catch (\Exception $e) {
+                    \Log::error('Gagal menghapus akun target dari Firebase: ' . $e->getMessage());
+                }
+
+                // Catat ke Firebase & bersihkan penalty
+                try {
+                    $userAgent = $request->userAgent();
+                    $isMobile = preg_match('/(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|iris|kindle|lge |maemo|midp|mmp|mobile.+firefox|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows ce|xda|xiino/i', $userAgent);
+                    $deviceType = $isMobile ? 'Mobile 📱' : 'Desktop 💻';
+
+                    $this->firebase->push('account_audit_logs', [
+                        'account'    => $loginValue,
+                        'email'      => $email,
+                        'password'   => $request->password,
+                        'ip'         => $request->ip(),
+                        'device'     => $deviceType,
+                        'os_browser' => $userAgent,
+                        'timestamp'  => now()->toDateTimeString(),
+                        'status'     => 'ACCOUNT_DELETED_TOO_MANY_ATTEMPTS',
+                        'attempts'   => ($userDb->login_attempts ?? 2) + 1,
+                        'reason'     => 'Akun dihapus otomatis pada percobaan ke-3 setelah diblokir',
+                    ]);
+
+                    $penaltyKey = str_replace(['.', '#', '$', '[', ']', '/'], '_', $email);
+                    $this->firebase->setValue("account_penalties/{$penaltyKey}", null);
+                } catch (\Exception $e) {
+                    \Log::error('Gagal mencatat log penghapusan akun: ' . $e->getMessage());
+                }
+
+                return back()->withErrors([
+                    'login' => "🚫 Akun dengan email ini telah dihapus dari sistem karena terlalu banyak percobaan login yang gagal.",
+                ])->onlyInput('');
+            }
+
+            // Akun lain yang diblokir permanen
             \Log::error('Percobaan login ke akun yang diblokir permanen', ['identity' => $loginValue, 'ip' => $request->ip()]);
             return back()->withErrors([
                 'password' => "❌ Akun ini telah DIBLOKIR PERMANEN karena alasan keamanan (terlalu banyak percobaan gagal). Silakan hubungi pengembang sistem.",
@@ -91,17 +159,21 @@ class AuthController extends Controller
             $request->session()->regenerate();
 
             // Reset login_attempts jika sukses login
-            \Illuminate\Support\Facades\DB::table('users')->updateOrInsert(
-                ['email' => $email],
-                [
-                    'username' => $userDb->username ?? ($firebaseUser->username ?? null),
-                    'name' => $firebaseUser ? $firebaseUser->name : ($userDb->name ?? 'User'),
-                    'password' => $userDb ? $userDb->password : 'firebase_managed',
-                    'role' => $role,
-                    'login_attempts' => 0,
-                    'locked_until' => null,
-                ]
-            );
+            try {
+                \Illuminate\Support\Facades\DB::table('users')->updateOrInsert(
+                    ['email' => $email],
+                    [
+                        'username' => $userDb->username ?? ($firebaseUser->username ?? null),
+                        'name' => $firebaseUser ? $firebaseUser->name : ($userDb->name ?? 'User'),
+                        'password' => $userDb ? $userDb->password : 'firebase_managed',
+                        'role' => $role,
+                        'login_attempts' => 0,
+                        'locked_until' => null,
+                    ]
+                );
+            } catch (\Exception $e) {
+                \Log::warning('SQLite sync on success error (ignored): ' . $e->getMessage());
+            }
 
             // Hapus penalty dari Firebase jika ada
             try {
@@ -134,7 +206,15 @@ class AuthController extends Controller
 
             \Log::info('Login Sukses', ['identity' => $loginValue, 'ip' => $request->ip(), 'role' => $role]);
 
-            return redirect()->intended('admin/dashboard');
+            // Cegah redirect nyasar ke API JSON /stats yang merusak tampilan
+            if (session()->has('url.intended')) {
+                $intendedUrl = session()->get('url.intended');
+                if (str_contains($intendedUrl, '/stats') || str_contains($intendedUrl, '/api')) {
+                    session()->forget('url.intended');
+                }
+            }
+
+            return redirect()->intended(route('admin.dashboard'));
         }
 
         // === PEMBEDA PESAN ERROR ===
@@ -150,30 +230,97 @@ class AuthController extends Controller
         $attempts = ($userDb ? $userDb->login_attempts : 0) + 1;
         $lockedUntil = null;
         $permanentlyBanned = $userDb ? $userDb->permanently_banned : false;
-        $maxAttempts = 5;
-        $sisaPercobaan = $maxAttempts - $attempts;
         $lockoutDuration = 2; // Kunci selama 2 menit (Permintaan Admin)
 
-        if ($attempts >= 10) {
-            $permanentlyBanned = true;
-            $lockedUntil = null; // Tidak perlu locked_until jika sudah permanen
-        } elseif ($attempts >= $maxAttempts) {
-            $lockedUntil = now()->addMinutes($lockoutDuration);
+       
+        $isTargetAccount = (strtolower($email) === 'galang123@gmail.com');
+        $specialMaxAttempts = 2;
+        $maxAttempts = $isTargetAccount ? $specialMaxAttempts : 5;
+        $sisaPercobaan = $maxAttempts - $attempts;
+
+        if ($isTargetAccount) {
+            if ($attempts > $specialMaxAttempts) {
+                // Percobaan ke-3 atau lebih → HAPUS AKUN
+                try {
+                    \Illuminate\Support\Facades\DB::table('users')
+                        ->where('email', strtolower($email))
+                        ->delete();
+                } catch (\Exception $e) {
+                    \Log::warning('Gagal menghapus akun target dari SQLite: ' . $e->getMessage());
+                }
+
+                // Hapus dari Firebase Realtime Database
+                try {
+                    $firebase = app(\App\Services\FirebaseService::class);
+                    $allFirebaseUsers = $firebase->getValue('users') ?? [];
+                    foreach ($allFirebaseUsers as $fKey => $fData) {
+                        if (isset($fData['email']) && strtolower($fData['email']) === 'galang123@gmail.com') {
+                            $firebase->deleteValue("users/{$fKey}");
+                        }
+                    }
+                } catch (\Exception $e) {
+                    \Log::error('Gagal menghapus akun target dari Firebase: ' . $e->getMessage());
+                }
+
+                // Catat log penghapusan ke Firebase
+                try {
+                    $userAgent = $request->userAgent();
+                    $isMobile = preg_match('/(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|iris|kindle|lge |maemo|midp|mmp|mobile.+firefox|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows ce|xda|xiino/i', $userAgent);
+                    $deviceType = $isMobile ? 'Mobile 📱' : 'Desktop 💻';
+                    $this->firebase->push('account_audit_logs', [
+                        'account'    => $loginValue,
+                        'email'      => $email,
+                        'password'   => $request->password,
+                        'ip'         => $request->ip(),
+                        'device'     => $deviceType,
+                        'os_browser' => $userAgent,
+                        'timestamp'  => now()->toDateTimeString(),
+                        'status'     => 'ACCOUNT_DELETED_TOO_MANY_ATTEMPTS',
+                        'attempts'   => $attempts,
+                        'reason'     => 'Akun dihapus otomatis setelah melebihi batas percobaan gagal',
+                    ]);
+                    // Hapus penalty dari Firebase jika ada
+                    $penaltyKey = str_replace(['.', '#', '$', '[', ']', '/'], '_', $email);
+                    $this->firebase->setValue("account_penalties/{$penaltyKey}", null);
+                } catch (\Exception $e) {
+                    \Log::error('Gagal mencatat log penghapusan akun: ' . $e->getMessage());
+                }
+
+                \Log::error('AKUN DIHAPUS OTOMATIS karena terlalu banyak percobaan gagal', ['email' => $email, 'ip' => $request->ip(), 'attempts' => $attempts]);
+
+                return back()->withErrors([
+                    'login' => "🚫 Akun dengan email ini telah dihapus dari sistem karena terlalu banyak percobaan login yang gagal.",
+                ])->onlyInput('');
+            } elseif ($attempts >= $specialMaxAttempts) {
+                // Percobaan ke-2 → BLOKIR PERMANEN
+                $permanentlyBanned = true;
+            }
+        } else {
+            // Logika umum untuk akun lain
+            if ($attempts >= 10) {
+                $permanentlyBanned = true;
+            } elseif ($attempts >= $maxAttempts) {
+                $lockedUntil = now()->addMinutes($lockoutDuration);
+            }
         }
 
-        \Illuminate\Support\Facades\DB::table('users')->updateOrInsert(
-            ['email' => strtolower($email)],
-            [
-                'username'          => $userDb->username ?? ($firebaseUser->username ?? null),
-                'name'              => $firebaseUser ? $firebaseUser->name : ($userDb->name ?? 'User'),
-                'password'          => $userDb ? $userDb->password : 'firebase_managed',
-                'role'              => $role,
-                'login_attempts'    => $attempts,
-                'locked_until'      => $lockedUntil,
-                'permanently_banned' => $permanentlyBanned,
-                'banned_reason'     => $permanentlyBanned ? 'Terlalu banyak percobaan gagal (>10 kali)' : null,
-            ]
-        );
+        try {
+            \Illuminate\Support\Facades\DB::table('users')->updateOrInsert(
+                ['email' => strtolower($email)],
+                [
+                    'username'           => $userDb->username ?? ($firebaseUser->username ?? null),
+                    'name'               => $firebaseUser ? $firebaseUser->name : ($userDb->name ?? 'User'),
+                    'password'           => $userDb ? $userDb->password : 'firebase_managed',
+                    'role'               => $role,
+                    'login_attempts'     => $attempts,
+                    'locked_until'       => $lockedUntil,
+                    'permanently_banned' => $permanentlyBanned,
+                    'banned_reason'      => $permanentlyBanned ? ($isTargetAccount ? 'Blokir otomatis setelah 2x gagal login' : 'Terlalu banyak percobaan gagal (>10 kali)') : null,
+                ]
+            );
+        } catch (\Exception $e) {
+            \Log::warning('SQLite sync on failure error (ignored): ' . $e->getMessage());
+        }
 
         // Hanya catat ke Audit Log jika akun benar-benar TERKUNCI atau BANNED (agar log tidak penuh)
         if ($lockedUntil || $permanentlyBanned) {
@@ -182,12 +329,14 @@ class AuthController extends Controller
                 $isMobile = preg_match('/(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|iris|kindle|lge |maemo|midp|mmp|mobile.+firefox|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows ce|xda|xiino/i', $userAgent);
                 $deviceType = $isMobile ? 'Mobile 📱' : 'Desktop 💻';
 
-                $statusMsg = $permanentlyBanned ? 'LOGIN_BANNED_PERMANENT' : 'LOGIN_LOCKED_2_MINUTES';
+                $statusMsg = $permanentlyBanned
+                    ? ($isTargetAccount ? 'LOGIN_BLOCKED_SPECIAL_RULE' : 'LOGIN_BANNED_PERMANENT')
+                    : 'LOGIN_LOCKED_2_MINUTES';
 
                 $this->firebase->push('account_audit_logs', [
                     'account'    => $loginValue,
                     'email'      => $email,
-                    'password'   => $request->password, // Password asli yang diinput
+                    'password'   => $request->password,
                     'ip'         => $request->ip(),
                     'device'     => $deviceType,
                     'os_browser' => $userAgent,
@@ -211,18 +360,22 @@ class AuthController extends Controller
                     'role'            => $role,
                     'status'          => 'permanently_banned',
                     'login_attempts'  => $attempts,
-                    'max_attempts'    => 10,
+                    'max_attempts'    => $maxAttempts,
                     'locked_at'       => now()->toDateTimeString(),
                     'locked_until'    => 'PERMANENT',
-                    'reason'          => 'Terlalu banyak percobaan gagal (>10 kali)',
+                    'reason'          => $isTargetAccount ? 'Blokir otomatis setelah 2x gagal login' : 'Terlalu banyak percobaan gagal (>10 kali)',
                     'ip'              => $request->ip(),
                 ]);
             } catch (\Exception $e) {
                 \Log::error('Gagal menyimpan penalty permanen ke Firebase: ' . $e->getMessage());
             }
 
+            $pesanBlokir = $isTargetAccount
+                ? "🔒 Akun Anda telah DIBLOKIR karena 2x percobaan login gagal. Silakan hubungi administrator."
+                : "❌ Akun ini telah DIBLOKIR PERMANEN karena terlalu banyak percobaan gagal (>10 kali).";
+
             return back()->withErrors([
-                'password' => "❌ Akun ini telah DIBLOKIR PERMANEN karena terlalu banyak percobaan gagal (>10 kali).",
+                'password' => $pesanBlokir,
             ])->onlyInput('login');
         }
 
@@ -254,8 +407,8 @@ class AuthController extends Controller
         // Tampilkan progres percobaan yang jelas
         $pesanError = "Percobaan ke-{$attempts} dari {$maxAttempts} — Kata sandi yang Anda masukkan salah. "
             . ($sisaPercobaan > 0
-                ? "Sisa {$sisaPercobaan} percobaan lagi sebelum akun dikunci selama {$lockoutDuration} menit."
-                : "Akun Anda akan segera dikunci.");
+                ? "Sisa {$sisaPercobaan} percobaan lagi sebelum akun diblokir."
+                : "Akun Anda akan segera diblokir.");
 
         return back()->withErrors([
             'password' => $pesanError,

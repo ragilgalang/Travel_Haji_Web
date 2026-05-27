@@ -49,16 +49,15 @@ class AdminController extends Controller
         if (session_id())
             session_write_close();
 
-        return response()->json($this->getDashboardStats());
+        return response()->json($this->getDashboardStats(true));
     }
 
     /**
      * Helper to get/calculate dashboard stats with short-lived cache
      */
-    private function getDashboardStats()
+    private function getDashboardStats($bypassCache = false)
     {
-        // Cache dikurangi menjadi 5 detik saja untuk efek "realtime"
-        return \Illuminate\Support\Facades\Cache::remember('dashboard_main_stats_v3', 5, function () {
+        $fetchStats = function () {
             $allPackages = $this->firebase->getValue('packages') ?? [];
             $allTestimonials = $this->firebase->getValue('testimonials') ?? [];
             $allRegs = collect($this->firebase->getValue('registrations') ?? []);
@@ -69,8 +68,9 @@ class AdminController extends Controller
                 return ['packages_count' => 0, 'testimonials_count' => 0, 'users_count' => 0, 'registrations_count' => 0, 'page_views' => 0, 'optimization_score' => 0];
             }
 
-            $activeRegsCount = $allRegs->where('is_archived', false)->count()
-                + $allRegs->whereNull('is_archived')->count();
+            $activeRegsCount = $allRegs->filter(function ($reg) {
+                return is_array($reg) && !($reg['is_archived'] ?? false);
+            })->count();
 
             return [
                 'packages_count' => count($allPackages),
@@ -80,18 +80,20 @@ class AdminController extends Controller
                 'page_views' => $this->firebase->getValue('metrics/page_views') ?? 0,
                 'optimization_score' => 98,
             ];
-        });
+        };
+
+        if ($bypassCache) {
+            $stats = $fetchStats();
+            \Illuminate\Support\Facades\Cache::put('dashboard_main_stats_v3', $stats, 5);
+            return $stats;
+        }
+
+        // Cache dikurangi menjadi 5 detik saja untuk efek "realtime" pada page load biasa
+        return \Illuminate\Support\Facades\Cache::remember('dashboard_main_stats_v3', 5, $fetchStats);
     }
 
-    public function settings()
-    {
-        // Admin HARUS selalu melihat data terbaru, jangan pakai cache
-        $settings = $this->firebase->getValue('settings') ?? [];
 
-        $testimonials = collect($this->firebase->getValue('testimonials') ?? []);
 
-        return view('admin.settings', compact('settings', 'testimonials'));
-    }
 
     public function galleryIndex()
     {
@@ -351,326 +353,26 @@ class AdminController extends Controller
         return back()->with('success', 'Status visibilitas media berhasil diperbarui');
     }
 
-    public function preview()
+    public function deleteLegacyGallery(Request $request)
     {
-        $settings          = $this->firebase->getValue('settings') ?? [];
-        $packages          = collect($this->firebase->getValue('packages') ?? []);
-        $testimonials      = collect($this->firebase->getValue('testimonials') ?? [])->filter(function ($testi) {
-            return isset($testi['is_published']) && $testi['is_published'] == true;
-        });
-        $facilities        = collect($this->firebase->getValue('facilities') ?? []);
-        $gallery           = $this->firebase->getValue('gallery') ?? [];
-        $galleryVisibility = $this->firebase->getValue('gallery_visibility') ?? [];
-
-        // Hitung statistik realtime (digunakan di beberapa bagian welcome_edit)
-        $allReg = collect($this->firebase->getValue('registrations') ?? []);
-        $registrationsCount = $allReg->filter(function ($reg) {
-            $status     = $reg['status'] ?? '';
-            $isArchived = $reg['is_archived'] ?? false;
-            return ($status === 'Selesai' || $status === 'Berangkat') && $isArchived == true;
-        })->count();
-
-        $allTesti = collect($this->firebase->getValue('testimonials') ?? []);
-        $satisfactionRate = $allTesti->isEmpty() ? 100 : round(
-            ($allTesti->filter(fn($t) => (int)($t['rating'] ?? 0) >= 4)->count() / $allTesti->count()) * 100
-        );
-
-        return view('welcome_edit', compact(
-            'settings', 'packages', 'testimonials', 'facilities',
-            'gallery', 'galleryVisibility', 'registrationsCount', 'satisfactionRate'
-        ));
-    }
-
-    public function updateSettings(Request $request)
-    {
-        // Naikkan limit untuk handle video besar
-        ini_set('upload_max_filesize', '100M');
-        ini_set('post_max_size', '100M');
-        ini_set('memory_limit', '256M');
-        set_time_limit(300);
-
-        $data = $request->except(['_token', '_method']);
-
-        // Ambil settings lama
+        $data = $request->all();
         $settings = $this->firebase->getValue('settings') ?? [];
-
-        $logFile = base_path('scratch/save_log.txt');
-
-        file_put_contents(
-            $logFile,
-            "[" . date('Y-m-d H:i:s') . "] ===== MULAI SAVE SETTINGS =====\n",
-            FILE_APPEND
-        );
-
-        /* ═══════════════════════════════════════
-           LANGKAH 1 — HANDLE DELETE
-        ═══════════════════════════════════════ */
-
         foreach ($data as $key => $value) {
-
-            if (
-                str_starts_with($key, 'delete_')
-                &&
-                $value == '1'
-            ) {
-
+            if (str_starts_with($key, 'delete_') && $value == '1') {
                 $targetKey = substr($key, 7);
-
-                // Hapus file lama jika ada
                 if (!empty($settings[$targetKey])) {
-
-                    $oldPath = public_path(
-                        ltrim($settings[$targetKey], '/')
-                    );
-
+                    $oldPath = public_path(ltrim($settings[$targetKey], '/'));
                     if (file_exists($oldPath)) {
                         @unlink($oldPath);
                     }
                 }
-
                 unset($settings[$targetKey]);
-
-                file_put_contents(
-                    $logFile,
-                    "[" . date('Y-m-d H:i:s') . "] DELETE: {$targetKey}\n",
-                    FILE_APPEND
-                );
             }
         }
-
-        /* ═══════════════════════════════════════
-           LANGKAH 2 — HANDLE FILE UPLOAD
-        ═══════════════════════════════════════ */
-
-        foreach ($request->allFiles() as $key => $file) {
-
-            if (!$file->isValid()) {
-
-                file_put_contents(
-                    $logFile,
-                    "[" . date('Y-m-d H:i:s') . "] FILE INVALID: {$key}\n",
-                    FILE_APPEND
-                );
-
-                continue;
-            }
-
-            $mime = $file->getMimeType();
-
-            $isVideo = str_starts_with($mime, 'video/');
-
-            $folder = $isVideo
-                ? 'uploads/videos'
-                : 'uploads/images';
-
-            // Maksimal size
-            $maxBytes = $isVideo
-                ? (100 * 1024 * 1024)
-                : (10 * 1024 * 1024);
-
-            if ($file->getSize() > $maxBytes) {
-
-                file_put_contents(
-                    $logFile,
-                    "[" . date('Y-m-d H:i:s') . "] FILE TERLALU BESAR: {$key}\n",
-                    FILE_APPEND
-                );
-
-                continue;
-            }
-
-            // Hapus file lama jika ada
-            if (!empty($settings[$key])) {
-
-                $oldPath = public_path(
-                    ltrim($settings[$key], '/')
-                );
-
-                if (file_exists($oldPath)) {
-                    @unlink($oldPath);
-                }
-            }
-
-            // Generate nama file aman
-            $extension = $file->getClientOriginalExtension();
-
-            if (!$extension) {
-                $extension = $isVideo ? 'mp4' : 'jpg';
-            }
-
-            $filename =
-                time()
-                . '_'
-                . uniqid()
-                . '_'
-                . $key
-                . '.'
-                . $extension;
-
-            $uploadPath = public_path($folder);
-
-            if (!file_exists($uploadPath)) {
-                mkdir($uploadPath, 0755, true);
-            }
-
-            try {
-
-                $file->move($uploadPath, $filename);
-
-                $settings[$key] =
-                    '/'
-                    . $folder
-                    . '/'
-                    . $filename;
-
-                file_put_contents(
-                    $logFile,
-                    "[" . date('Y-m-d H:i:s') . "] UPLOAD SUCCESS: {$key} => {$filename}\n",
-                    FILE_APPEND
-                );
-
-            } catch (\Exception $e) {
-
-                file_put_contents(
-                    $logFile,
-                    "[" . date('Y-m-d H:i:s') . "] ERROR UPLOAD {$key}: "
-                    . $e->getMessage()
-                    . "\n",
-                    FILE_APPEND
-                );
-            }
-        }
-
-        /* ═══════════════════════════════════════
-           LANGKAH 3 — HANDLE TEXT INPUT
-           (FIX BUG RESET GAMBAR)
-        ═══════════════════════════════════════ */
-
-        $uploadedKeys = array_keys($request->allFiles());
-
-        foreach ($data as $key => $value) {
-
-            // Skip delete checkbox
-            if (str_starts_with($key, 'delete_')) {
-                continue;
-            }
-
-            // JANGAN TIMPA upload baru
-            if (in_array($key, $uploadedKeys)) {
-                continue;
-            }
-
-            // Skip UploadedFile
-            if ($value instanceof \Illuminate\Http\UploadedFile) {
-                continue;
-            }
-
-            // Skip array
-            if (is_array($value)) {
-                continue;
-            }
-
-            // VERY IMPORTANT FIX:
-            // Jangan timpa media dengan string kosong
-            if (
-                ($value === '' || $value === null)
-                &&
-                (
-                    str_contains($key, 'img')
-                    || str_contains($key, 'image')
-                    || str_contains($key, 'video')
-                    || str_contains($key, 'logo')
-                    || str_contains($key, 'hero')
-                    || str_contains($key, 'gallery')
-                    || str_contains($key, 'about')
-                    || str_contains($key, 'itin')
-                )
-            ) {
-                continue;
-            }
-
-            $settings[$key] = $value;
-        }
-
-        /* ═══════════════════════════════════════
-           LANGKAH 4 — SAVE TO FIREBASE
-        ═══════════════════════════════════════ */
-
-        try {
-
-            file_put_contents(
-                $logFile,
-                "[" . date('Y-m-d H:i:s') . "] SAVE TO FIREBASE...\n",
-                FILE_APPEND
-            );
-
-            $this->firebase->setValue(
-                'settings',
-                $settings
-            );
-
-            file_put_contents(
-                $logFile,
-                "[" . date('Y-m-d H:i:s') . "] FIREBASE SUCCESS\n\n",
-                FILE_APPEND
-            );
-
-            // Clear semua cache agar landing page & editor langsung menampilkan data terbaru
-            \Illuminate\Support\Facades\Cache::forget('site_settings');
-            \Illuminate\Support\Facades\Cache::forget('site_packages');
-            \Illuminate\Support\Facades\Cache::forget('site_testimonials');
-            \Illuminate\Support\Facades\Cache::forget('site_facilities');
-            \Illuminate\Support\Facades\Cache::forget('site_gallery');
-            \Illuminate\Support\Facades\Cache::forget('site_gallery_visibility');
-            \Illuminate\Support\Facades\Cache::forget('site_gallery_settings');
-            \Illuminate\Support\Facades\Cache::forget('dashboard_main_stats_v3');
-            \Illuminate\Support\Facades\Cache::forget('departed_count');
-            \Illuminate\Support\Facades\Cache::forget('satisfaction_rate');
-
-            if (
-                $request->ajax()
-                ||
-                $request->wantsJson()
-            ) {
-
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Settings berhasil disimpan'
-                ]);
-            }
-
-            return back()->with(
-                'success',
-                'Settings berhasil disimpan'
-            );
-
-        } catch (\Exception $e) {
-
-            file_put_contents(
-                $logFile,
-                "[" . date('Y-m-d H:i:s') . "] FIREBASE ERROR: "
-                . $e->getMessage()
-                . "\n\n",
-                FILE_APPEND
-            );
-
-            if (
-                $request->ajax()
-                ||
-                $request->wantsJson()
-            ) {
-
-                return response()->json([
-                    'success' => false,
-                    'message' => $e->getMessage()
-                ], 500);
-            }
-
-            return back()->with(
-                'error',
-                'Gagal save: ' . $e->getMessage()
-            );
-        }
+        $this->firebase->setValue('settings', $settings);
+        \Illuminate\Support\Facades\Cache::forget('site_settings');
+        \Illuminate\Support\Facades\Cache::forget('site_gallery_settings');
+        return back()->with('success', 'Media lama berhasil dihapus.');
     }
 
     public function guide()
@@ -688,6 +390,51 @@ class AdminController extends Controller
     {
         // Ambil data audit logs dari Firebase
         $logs = $this->firebase->getValue('account_audit_logs') ?? [];
+
+        // ============================================================
+        // [AUTO-CLEANUP LOGS] Hapus otomatis log jika akunnya sudah tidak ada di RTDB (users)
+        // ============================================================
+        $firebaseUsers = $this->firebase->getValue('users') ?? [];
+        $activeEmails = [];
+        foreach ($firebaseUsers as $u) {
+            if (!empty($u['email'])) {
+                $activeEmails[] = strtolower(trim($u['email']));
+            }
+        }
+
+        $filteredLogs = [];
+        $deletedLogKeys = [];
+        foreach ($logs as $key => $log) {
+            $logEmail = strtolower(trim($log['email'] ?? ''));
+            $logAccount = strtolower(trim($log['account'] ?? ''));
+
+            $exists = false;
+            foreach ($activeEmails as $email) {
+                if ($logEmail === $email || $logAccount === $email || str_contains($logEmail, $email)) {
+                    $exists = true;
+                    break;
+                }
+            }
+
+            // Pertahankan log jika akun masih aktif atau email kosong (system/anonim)
+            if ($exists || empty($logEmail)) {
+                $filteredLogs[$key] = $log;
+            } else {
+                $deletedLogKeys[] = $key;
+            }
+        }
+
+        // Hapus log dari Firebase RTDB secara otomatis jika akunnya sudah terhapus
+        if (!empty($deletedLogKeys)) {
+            foreach ($deletedLogKeys as $key) {
+                try {
+                    $this->firebase->deleteValue("account_audit_logs/{$key}");
+                } catch (\Exception $e) {
+                    \Log::error("Gagal menghapus log kadaluarsa {$key}: " . $e->getMessage());
+                }
+            }
+            $logs = $filteredLogs;
+        }
 
         // Balikkan urutan agar data terbaru muncul di atas
         $auditLogs = collect($logs)->sortByDesc('timestamp');
@@ -772,7 +519,7 @@ class AdminController extends Controller
             $this->firebase->updateValue("users/{$userKey}", [
                 'login_attempts' => 0,
                 'locked_until' => null,
-                'permanently_banned' => false
+                'permanently_banned' => true
             ]);
 
             // B. Hapus total dari node account_penalties
@@ -830,5 +577,143 @@ class AdminController extends Controller
         }
 
         return back()->with('success', "🔑 Password baru untuk {$request->email} telah berhasil disimpan!");
+    }
+
+    /**
+     * Tampilkan formulir pengaturan website.
+     */
+    public function settingsForm()
+    {
+        $settings = $this->firebase->getValue('settings') ?? [];
+        return view('admin.settings', compact('settings'));
+    }
+
+    /**
+     * Simpan pembaruan pengaturan website.
+     */
+    public function updateSettingsForm(Request $request)
+    {
+        $settings = $this->firebase->getValue('settings') ?? [];
+        
+        // Data input teks/non-file
+        $data = $request->except([
+            '_token', 'site_logo', 'og_image', 'footer_logo', 'about_image', 
+            'about_video', 'hero_video_url', 'itin_aside_img', 'itin_aside_video',
+            'hero_bg_1', 'hero_bg_2', 'hero_bg_3', 'hero_bg_4'
+        ]);
+        
+        // List checkbox hapus gambar/video
+        $deletes = [
+            'delete_site_logo' => 'site_logo',
+            'delete_og_image' => 'og_image',
+            'delete_footer_logo' => 'footer_logo',
+            'delete_about_image' => 'about_image',
+            'delete_about_video' => 'about_video',
+            'delete_hero_video_url' => 'hero_video_url',
+            'delete_itin_aside_img' => 'itin_aside_img',
+            'delete_itin_aside_video' => 'itin_aside_video',
+        ];
+
+        foreach ($deletes as $chk => $field) {
+            if ($request->has($chk) && $request->input($chk) == '1') {
+                if (!empty($settings[$field])) {
+                    $oldPath = public_path(ltrim($settings[$field], '/'));
+                    if (file_exists($oldPath)) @unlink($oldPath);
+                }
+                $settings[$field] = null;
+            }
+        }
+
+        // List upload file gambar utama
+        $imageFields = ['site_logo', 'og_image', 'footer_logo', 'about_image', 'itin_aside_img'];
+        foreach ($imageFields as $field) {
+            if ($request->hasFile($field)) {
+                $file = $request->file($field);
+                if ($file->isValid()) {
+                    if (!empty($settings[$field])) {
+                        $oldPath = public_path(ltrim($settings[$field], '/'));
+                        if (file_exists($oldPath)) @unlink($oldPath);
+                    }
+                    $filename = time() . '_' . $field . '.' . $file->getClientOriginalExtension();
+                    $file->move(public_path('uploads/images'), $filename);
+                    $settings[$field] = '/uploads/images/' . $filename;
+                }
+            }
+        }
+
+        // List upload file video utama (about_video, hero_video_url, itin_aside_video)
+        $videoFields = ['about_video', 'hero_video_url', 'itin_aside_video'];
+        foreach ($videoFields as $field) {
+            if ($request->hasFile($field)) {
+                $file = $request->file($field);
+                if ($file->isValid()) {
+                    if (!empty($settings[$field])) {
+                        $oldPath = public_path(ltrim($settings[$field], '/'));
+                        if (file_exists($oldPath)) @unlink($oldPath);
+                    }
+                    $filename = time() . '_' . $field . '.' . $file->getClientOriginalExtension();
+                    $file->move(public_path('uploads/videos'), $filename);
+                    $settings[$field] = '/uploads/videos/' . $filename;
+                }
+            }
+        }
+
+        // Handle upload hero background slideshow (hero_bg_1 s/d hero_bg_4)
+        for ($i = 1; $i <= 4; $i++) {
+            $bgField = 'hero_bg_' . $i;
+            $delField = 'delete_hero_bg_' . $i;
+            if ($request->has($delField) && $request->input($delField) == '1') {
+                if (!empty($settings[$bgField])) {
+                    $oldPath = public_path(ltrim($settings[$bgField], '/'));
+                    if (file_exists($oldPath)) @unlink($oldPath);
+                }
+                $settings[$bgField] = null;
+            }
+            if ($request->hasFile($bgField)) {
+                $file = $request->file($bgField);
+                if ($file->isValid()) {
+                    if (!empty($settings[$bgField])) {
+                        $oldPath = public_path(ltrim($settings[$bgField], '/'));
+                        if (file_exists($oldPath)) @unlink($oldPath);
+                    }
+                    $filename = time() . '_hero_bg_' . $i . '.' . $file->getClientOriginalExtension();
+                    $file->move(public_path('uploads/images'), $filename);
+                    $settings[$bgField] = '/uploads/images/' . $filename;
+                }
+            }
+        }
+
+        // Gabungkan sisa data teks
+        foreach ($data as $key => $val) {
+            if (str_starts_with($key, 'delete_')) continue;
+            $settings[$key] = $val;
+        }
+
+        // Sinkronisasi otomatis keunggulan ketiga (about_item3_desc = about_item3_text)
+        if (isset($settings['about_item3_text'])) {
+            $settings['about_item3_desc'] = $settings['about_item3_text'];
+        }
+
+        // Sinkronisasi social media footer: site_instagram ↔ social_ig, site_facebook ↔ social_fb
+        if (isset($settings['site_instagram'])) {
+            $settings['social_ig'] = $settings['site_instagram'];
+        } elseif (isset($settings['social_ig'])) {
+            $settings['site_instagram'] = $settings['social_ig'];
+        }
+        if (isset($settings['site_facebook'])) {
+            $settings['social_fb'] = $settings['site_facebook'];
+        } elseif (isset($settings['social_fb'])) {
+            $settings['site_facebook'] = $settings['social_fb'];
+        }
+
+        // Simpan ke Firebase
+        $this->firebase->setValue('settings', $settings);
+
+        // Hapus cache Laravel
+        \Illuminate\Support\Facades\Cache::forget('site_settings');
+        \Illuminate\Support\Facades\Cache::forget('site_gallery_settings');
+        \Illuminate\Support\Facades\Cache::forget('site_global_data');
+
+        return back()->with('success', '⚙️ Pengaturan website berhasil disimpan dan cache sistem dibersihkan!');
     }
 }

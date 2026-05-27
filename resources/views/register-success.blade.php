@@ -7,6 +7,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="{{ asset('css/register_success.css') }}">
 <link rel="stylesheet" href="{{ asset('css/welcome_extra.css') }}">
+<script src="https://cdn.jsdelivr.net/npm/qrious@4.0.2/dist/qrious.min.js"></script>
 </head>
 <body>
 
@@ -64,6 +65,29 @@
       <div class="ref-note">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
         Simpan nomor referensi ini sebagai bukti pendaftaran Anda
+      </div>
+
+      <!-- QR and Barcode Presentation -->
+      <div class="success-ticket-stubs" style="display: flex; flex-direction: column; align-items: center; margin: 1.5rem 0; padding: 1.5rem; background: rgba(243, 244, 246, 0.5); border-radius: 12px; border: 1px dashed rgba(212, 175, 55, 0.4); gap: 1rem;">
+        <p style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 700; color: #0f5132; margin-bottom: 0;">Verifikasi E-Ticket Digital</p>
+        
+        <!-- ========================================== -->
+        <!-- [TANDA: QR CODE KOTAK] -->
+        <!-- ========================================== -->
+        <div style="background: white; padding: 0.5rem; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); display: inline-flex;">
+          <canvas id="successQrCanvas"></canvas>
+        </div>
+        <p style="font-size: 0.7rem; color: #6b7280; text-align: center; margin-bottom: 0;">Scan QR Code di atas dengan handphone untuk memverifikasi keaslian E-ticket secara langsung.</p>
+        
+        <!-- ========================================== -->
+        <!-- [TANDA: BARCODE GARIS] -->
+        <!-- ========================================== -->
+        <div class="barcode-wrapper" style="display: flex; flex-direction: column; align-items: center; gap: 0.25rem; width: 100%; max-width: 100%; overflow: hidden; margin-top: 0.5rem;">
+          <div class="barcode-lines" style="max-width: 100%; text-align: center; display: block; width: 100%;">
+            {!! DNS1D::getBarcodeSVG(session('ref_id', 'REF-ID'), 'C39', 1.2, 45, '#0f5132') !!}
+          </div>
+          <div style="font-family: 'Courier New', monospace; font-size: 0.75rem; font-weight: 700; color: #0d4a2f; letter-spacing: 2px;">{{ session('ref_id', 'REF-ID') }}</div>
+        </div>
       </div>
 
       <!-- Timeline -->
@@ -132,10 +156,10 @@
       </div>
 
       <!-- E-Tiket Download Button -->
-      <button class="dl-ticket-btn" onclick="downloadTicket()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-        Unduh Bukti E-Tiket (PDF)
-      </button>
+      <a href="{{ route('register.ticket', session('ref_id', 'REF-ID')) }}" target="_blank" class="dl-ticket-btn" style="text-decoration: none; justify-content: center; display: flex; align-items: center; gap: 0.5rem; text-align: center;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Lihat & Cetak Bukti E-Tiket (PDF)
+      </a>
 
       <!-- Action buttons -->
       <div class="action-row">
@@ -192,6 +216,25 @@ function spawnConfetti() {
 window.addEventListener('load', () => {
   setTimeout(spawnConfetti, 400);
   setTimeout(spawnConfetti, 1400);
+
+  // ==========================================
+  // [TANDA: PROSES PENJANAAN (GENERATOR) QR CODE KOTAK]
+  // ==========================================
+  // Generate QR Code dynamically
+  const refCode = document.getElementById('refCode').textContent.trim();
+  const ticketBaseUrl = "{{ url('/tiket') }}";
+  const ticketUrl = `${ticketBaseUrl}/${refCode}`;
+  
+  new QRious({
+    element: document.getElementById('successQrCanvas'),
+    value: ticketUrl,
+    size: 140,
+    background: '#ffffff',
+    foreground: '#0f5132',
+    level: 'H'
+  });
+
+  // No backend or dynamic JS required for barcode anymore
 });
 
 // ── Copy reference code ──
@@ -222,13 +265,6 @@ function openWAChat(e) {
   const text = `Assalamu'alaikum Admin ${siteName}. Saya *${name}*, baru saja mendaftar perjalanan dengan Nomor Referensi: *${ref}*. Mohon informasi untuk langkah selanjutnya. Terima kasih.`;
   const url = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(text)}`;
   window.open(url, '_blank');
-}
-
-// ── Download E-Tiket via Print ──
-function downloadTicket() {
-  // Set data-site attribute untuk ditampilkan di footer cetak
-  document.querySelector('.card-body').setAttribute('data-site', {!! json_encode($settings['site_name'] ?? 'PT. Umi Muthmainah Berkah') !!});
-  window.print();
 }
 </script>
 </body>

@@ -17,40 +17,56 @@ class RegistrationAdminController extends Controller
 
     public function index(Request $request)
     {
+        // ==========================================
+        // AUTO CLEANUP: Hapus permanen data di sampah jika sudah > 1 bulan
+        // ==========================================
         $all = $this->firebase->getValue('registrations') ?? [];
+        $oneMonthAgo = now()->subMonth();
+        $cleanedAny = false;
+        foreach ($all as $id => $data) {
+            if ($data['is_trashed'] ?? false) {
+                $trashedAt = isset($data['trashed_at']) ? \Carbon\Carbon::parse($data['trashed_at']) : null;
+                if ($trashedAt && $trashedAt->lessThan($oneMonthAgo)) {
+                    $this->firebase->getReference("registrations/{$id}")->remove();
+                    $cleanedAny = true;
+                }
+            }
+        }
+        if ($cleanedAny) {
+            $all = $this->firebase->getValue('registrations') ?? []; // Refresh data
+        }
 
-        // Ubah jadi array dengan key sebagai id
         $registrations = [];
         foreach ($all as $id => $data) {
-            // Filter Arsip: Jika tidak meminta arsip, sembunyikan yang sudah diarsipkan
             $isArchived = $data['is_archived'] ?? false;
-            if ($request->query('archived') == '1') {
-                if (!$isArchived) continue;
+            $isTrashed = $data['is_trashed'] ?? false;
+
+            if ($request->query('trashed') == '1') {
+                if (!$isTrashed) continue;
+            } elseif ($request->query('archived') == '1') {
+                if (!$isArchived || $isTrashed) continue;
             } else {
-                if ($isArchived) continue;
+                if ($isArchived || $isTrashed) continue;
             }
             
             $registrations[] = array_merge(['id' => $id], $data);
         }
 
-        // Sort berdasarkan created_at (tanggal pendaftaran)
-        $sortOrder = $request->query('sort', 'desc'); // default desc (Terbaru)
+        $sortOrder = $request->query('sort', 'desc');
         usort($registrations, function($a, $b) use ($sortOrder) {
             $timeA = isset($a['created_at']) ? strtotime($a['created_at']) : 0;
             $timeB = isset($b['created_at']) ? strtotime($b['created_at']) : 0;
             
             if ($timeA == $timeB) {
-                // Jika tanggal sama persis, gunakan fallback ke ID
                 return $sortOrder === 'asc' ? strcmp($a['id'], $b['id']) : strcmp($b['id'], $a['id']);
             }
             
             if ($sortOrder === 'asc') {
-                return $timeA <=> $timeB; // Terlama dulu
+                return $timeA <=> $timeB;
             }
-            return $timeB <=> $timeA; // Terbaru dulu
+            return $timeB <=> $timeA;
         });
 
-        // Filter status
         if ($request->filled('status')) {
             $status = $request->status;
             $registrations = array_filter($registrations, function($r) use ($status) {
@@ -62,7 +78,6 @@ class RegistrationAdminController extends Controller
             });
         }
 
-        // Filter Tipe Paket (Haji/Umrah)
         if ($request->filled('type')) {
             $type = strtolower($request->type);
             $packages = collect($this->firebase->getValue('packages') ?? []);
@@ -75,12 +90,10 @@ class RegistrationAdminController extends Controller
                     return strtolower($package['type'] ?? 'umrah') === $type;
                 }
                 
-                // Fallback: cek keyword di nama paket jika data paket tidak ditemukan
                 return str_contains(strtolower($packageName), $type);
             });
         }
 
-        // Filter Waktu
         if ($request->filled('time')) {
             $time = $request->time;
             $now = \Carbon\Carbon::now();
@@ -101,7 +114,6 @@ class RegistrationAdminController extends Controller
             });
         }
 
-        // Search
         if ($request->filled('q')) {
             $q = strtolower($request->q);
             $registrations = array_filter($registrations, function($r) use ($q) {
@@ -128,16 +140,17 @@ class RegistrationAdminController extends Controller
     public function updateStatus(Request $request, $id)
     {
         $request->validate([
-            'status' => 'required|string|in:Menunggu Verifikasi,Diproses,Selesai,Ditolak,Baru'
+            'status' => 'required|string|in:Menunggu Verifikasi,Sedang Diproses,Sudah Dikonfirmasi,Selesai,Berangkat,Dibatalkan,Baru,Diproses,Ditolak'
         ]);
+        
         $this->firebase->setValue("registrations/{$id}/status", $request->status);
+        
+        if ($request->status === 'Dibatalkan') {
+            $this->firebase->setValue("registrations/{$id}/is_trashed", true);
+            return back()->with('success', 'Status diubah ke Dibatalkan dan data dipindahkan ke sampah.');
+        }
+        
         return back()->with('success', 'Status pendaftaran berhasil diperbarui.');
-    }
-
-    public function destroy($id)
-    {
-        $this->firebase->getReference("registrations/{$id}")->remove();
-        return redirect()->route('admin.registrations.index')->with('success', 'Data pendaftaran berhasil dihapus.');
     }
 
     public function archive($id)
@@ -150,6 +163,116 @@ class RegistrationAdminController extends Controller
     {
         $this->firebase->setValue("registrations/{$id}/is_archived", false);
         return back()->with('success', 'Data pendaftaran berhasil dikembalikan dari Arsip.');
+    }
+
+    public function moveToTrash($id)
+    {
+        $this->firebase->setValue("registrations/{$id}/is_trashed", true);
+        $this->firebase->setValue("registrations/{$id}/trashed_at", now()->toDateTimeString());
+        return back()->with('success', 'Data berhasil dipindahkan ke Sampah.');
+    }
+
+    public function trashIndex(Request $request)
+    {
+        // ==========================================
+        // AUTO CLEANUP: Hapus permanen data di sampah jika sudah > 1 bulan
+        // ==========================================
+        $all = $this->firebase->getValue('registrations') ?? [];
+        $oneMonthAgo = now()->subMonth();
+        $cleanedAny = false;
+        foreach ($all as $id => $data) {
+            if ($data['is_trashed'] ?? false) {
+                $trashedAt = isset($data['trashed_at']) ? \Carbon\Carbon::parse($data['trashed_at']) : null;
+                if ($trashedAt && $trashedAt->lessThan($oneMonthAgo)) {
+                    $this->firebase->getReference("registrations/{$id}")->remove();
+                    $cleanedAny = true;
+                }
+            }
+        }
+        if ($cleanedAny) {
+            $all = $this->firebase->getValue('registrations') ?? []; // Refresh data
+        }
+
+        $trashed = [];
+        foreach ($all as $id => $data) {
+            if (!($data['is_trashed'] ?? false)) continue;
+            $trashed[] = array_merge(['id' => $id], $data);
+        }
+
+        // Sort by trashed_at desc
+        usort($trashed, function($a, $b) {
+            $timeA = isset($a['trashed_at']) ? strtotime($a['trashed_at']) : 0;
+            $timeB = isset($b['trashed_at']) ? strtotime($b['trashed_at']) : 0;
+            return $timeB <=> $timeA;
+        });
+
+        // Search
+        if ($request->filled('q')) {
+            $q = strtolower($request->q);
+            $trashed = array_filter($trashed, function($r) use ($q) {
+                return str_contains(strtolower($r['nama_lengkap'] ?? ''), $q)
+                    || str_contains(strtolower($r['no_hp'] ?? ''), $q)
+                    || str_contains(strtolower($r['ref_id'] ?? ''), $q);
+            });
+        }
+
+        $settings = $this->firebase->getValue('settings') ?? [];
+        return view('admin.registrations.trash', compact('trashed', 'settings'));
+    }
+
+    public function restore($id)
+    {
+        $this->firebase->setValue("registrations/{$id}/is_trashed", false);
+        $this->firebase->setValue("registrations/{$id}/trashed_at", null);
+        $this->firebase->setValue("registrations/{$id}/status", 'Menunggu Verifikasi');
+        return back()->with('success', 'Data berhasil dipulihkan ke daftar pendaftaran.');
+    }
+
+    public function bulkRestore(Request $request)
+    {
+        $ids = $request->ids;
+        if (!$ids || !is_array($ids)) {
+            return back()->with('error', 'Tidak ada data yang dipilih.');
+        }
+        foreach ($ids as $id) {
+            $this->firebase->setValue("registrations/{$id}/is_trashed", false);
+            $this->firebase->setValue("registrations/{$id}/trashed_at", null);
+            $this->firebase->setValue("registrations/{$id}/status", 'Menunggu Verifikasi');
+        }
+        return back()->with('success', count($ids) . ' data berhasil dipulihkan ke daftar pendaftaran.');
+    }
+
+    public function forceDelete($id)
+    {
+        $data = $this->firebase->getValue("registrations/{$id}");
+        if (!$data) return back()->with('error', 'Data tidak ditemukan.');
+        $this->firebase->getReference("registrations/{$id}")->remove();
+        return back()->with('success', 'Data berhasil dihapus permanen.');
+    }
+
+    public function bulkDestroy(Request $request)
+    {
+        $ids = $request->ids;
+        if (!$ids || !is_array($ids)) {
+            return back()->with('error', 'Tidak ada data yang dipilih.');
+        }
+        foreach ($ids as $id) {
+            $this->firebase->getReference("registrations/{$id}")->remove();
+        }
+        return back()->with('success', count($ids) . ' data berhasil dihapus permanen dari Sampah.');
+    }
+
+    public function emptyTrash()
+    {
+        $all = $this->firebase->getValue('registrations') ?? [];
+        $count = 0;
+        foreach ($all as $id => $data) {
+            if ($data['is_trashed'] ?? false) {
+                $this->firebase->getReference("registrations/{$id}")->remove();
+                $count++;
+            }
+        }
+        return redirect()->route('admin.registrations.trash')->with('success', $count . ' data Sampah berhasil dikosongkan permanen.');
     }
 
     public function archiveAllFinished()
@@ -165,20 +288,6 @@ class RegistrationAdminController extends Controller
         return back()->with('success', $count . ' data jemaah yang sudah Selesai telah dipindahkan ke Arsip.');
     }
 
-    public function bulkDestroy(Request $request)
-    {
-        $ids = $request->ids;
-        if (!$ids || !is_array($ids)) {
-            return back()->with('error', 'Tidak ada data yang dipilih.');
-        }
-
-        foreach ($ids as $id) {
-            $this->firebase->getReference("registrations/{$id}")->remove();
-        }
-
-        return redirect()->route('admin.registrations.index')->with('success', count($ids) . ' data pendaftaran berhasil dihapus.');
-    }
-
     public function bulkUpdateStatus(Request $request)
     {
         $ids = $request->ids;
@@ -188,14 +297,16 @@ class RegistrationAdminController extends Controller
             return back()->with('error', 'Tidak ada data yang dipilih.');
         }
 
-        // Whitelist status yang diperbolehkan
-        $allowedStatus = ['Menunggu Verifikasi', 'Diproses', 'Selesai', 'Ditolak', 'Baru'];
+        $allowedStatus = ['Menunggu Verifikasi', 'Sedang Diproses', 'Sudah Dikonfirmasi', 'Selesai', 'Berangkat', 'Dibatalkan', 'Baru', 'Diproses', 'Ditolak'];
         if (!$status || !in_array($status, $allowedStatus)) {
             return back()->with('error', 'Status tidak valid.');
         }
 
         foreach ($ids as $id) {
             $this->firebase->setValue("registrations/{$id}/status", $status);
+            if ($status === 'Dibatalkan') {
+                $this->firebase->setValue("registrations/{$id}/is_trashed", true);
+            }
         }
 
         return redirect()->route('admin.registrations.index')->with('success', count($ids) . ' status pendaftaran berhasil diperbarui.');
@@ -208,7 +319,6 @@ class RegistrationAdminController extends Controller
         $newOnes = [];
 
         foreach ($all as $id => $data) {
-            // Jika lastId kosong, kita ambil yang statusnya 'Menunggu Verifikasi'
             if (!$lastId) {
                 if (($data['status'] ?? '') === 'Menunggu Verifikasi') {
                     $newOnes[] = array_merge(['id' => $id], $data);

@@ -28,9 +28,9 @@
                     <span>Sinkron Google Maps</span>
                 </button>
             @else
-                <a href="{{ route('admin.settings', ['tab' => 'integrasi']) }}" class="btn-setup-gmaps">
-                    <i class="fas fa-cog"></i> Atur API Google Maps
-                </a>
+                <button type="button" class="btn-setup-gmaps-disabled" title="API Google Maps belum dikonfigurasi" disabled style="opacity: 0.7; cursor: not-allowed; background: #f1f5f9; color: #64748b; border: 1px dashed #cbd5e1; padding: 10px 16px; border-radius: 8px; font-size: 14px; font-weight: 500; display: inline-flex; align-items: center; gap: 8px;">
+                    <i class="fas fa-exclamation-triangle"></i> Google Maps Belum Terkonfigurasi
+                </button>
             @endif
         </div>
     </div>

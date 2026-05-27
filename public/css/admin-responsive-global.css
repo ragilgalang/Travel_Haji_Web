@@ -4,6 +4,10 @@
 */
 
 @media (max-width: 768px) {
+/* ==========================================
+   [TANDA: RESET KONTAINER UTAMA DI MOBILE (DI BAWAH 768PX)]
+   Mengatur padding kontainer global & sidebar overlay agar responsif
+========================================== */
     /* 1. Reset Global Container */
     .container-fluid, .content-wrapper, .content {
         padding: 15px !important;
@@ -69,6 +73,10 @@
         display: none !important;
     }
 
+/* ==========================================
+   [TANDA: OPTIMASI TABEL RESPONSIF]
+   Memaksa scroll horizontal agar tabel lebar muat di layar HP tanpa rusak
+========================================== */
     /* 2. Global Table Optimization */
     .table-responsive, .table-wrapper {
         overflow-x: auto !important;
@@ -102,6 +110,10 @@
         margin-top: 5px;
     }
 
+/* ==========================================
+   [TANDA: PENATAAN FILTER & BAR AKSI DI MOBILE]
+   Menjadikan tombol tambah data, input pencarian, & filter menjadi lebar penuh (100%)
+========================================== */
     /* Search & Filter Boxes */
     .search-box, .filter-group, .input-group, .form-control {
         width: 100% !important;

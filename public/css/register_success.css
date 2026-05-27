@@ -293,3 +293,10 @@ body::after {
 .copy-success {
     background: #16a34a !important;
 }
+
+.barcode-lines svg {
+  display: block;
+  margin: 0 auto;
+  max-width: 100%;
+  height: auto !important;
+}

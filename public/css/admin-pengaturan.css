@@ -12,10 +12,18 @@ body, html {
     background: #0f172a;
 }
 
+/* ==========================================
+   [TANDA: EDITOR VISUAL - WADAH UTAMA EDITOR WEBSITE]
+   Area kerja editor visual untuk menyesuaikan konfigurasi website
+========================================== */
 .visual-editor-container {
     position: relative; width: 100vw; height: 100vh;
 }
 
+/* ==========================================
+   [TANDA: BAR ATAS EDITOR - TOMBOL AKSI CEPAT]
+   Berisi tombol keluar, switch device (desktop/tablet/mobile), dan tombol simpan melayang
+========================================== */
 /* ── TOP BAR (CLEAN & FLOATING) ── */
 .editor-top-bar {
     position: absolute; top: 15px; left: 50%; transform: translateX(-50%);
@@ -59,6 +67,10 @@ body, html {
 }
 .save-btn-floating:hover { transform: translateY(-2px); box-shadow: 0 15px 35px rgba(22, 163, 74, 0.45); }
 
+/* ==========================================
+   [TANDA: AREA KANVAS PRATINJAU - FRAME PREVIEW WEBSITE]
+   Wrapper iframe yang mensimulasikan layar desktop, tablet, atau smartphone
+========================================== */
 /* ── IFRAME CANVAS (FULLSCREEN) ── */
 .editor-canvas { flex: 1; display: flex; align-items: center; justify-content: center; background: #0f172a; height: 100vh; }
 .iframe-wrapper { background: white; box-shadow: 0 50px 150px rgba(0,0,0,0.7); transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1); position: relative; overflow: hidden; }
@@ -67,6 +79,10 @@ body, html {
 .iframe-wrapper.mobile { width: 375px; height: 85%; border-radius: 55px; border: 12px solid #1e293b; }
 .main-iframe { width: 100%; height: 100%; border: none; }
 
+/* ==========================================
+   [TANDA: MODAL PENGATURAN KONTEN - POPUP FORM EDITOR]
+   Modal minimalis berisi form pengaturan logo, teks, gallery, dan video
+========================================== */
 /* ── MINIMAL MODAL FOR EXTRA SETTINGS ── */
 .editor-modal-overlay {
     position: fixed; top: 0; left: 0; right: 0; bottom: 0;
@@ -97,6 +113,10 @@ body, html {
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 @keyframes scaleUp { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
 
+/* ==========================================
+   [TANDA: TAB KATEGORI MODAL - NAVIGASI PENGATURAN]
+   Tombol navigasi tab (Umum, Hero, Fitur, Kontak, Galeri, dll)
+========================================== */
 /* FORM FIXES FOR MODAL */
 .tab-pane { display: none; }
 .tab-pane.active { display: block; animation: fadeIn 0.3s; }
@@ -153,6 +173,10 @@ textarea.form-control { resize: vertical !important; min-height: 80px !important
     line-height: 1.5;
 }
 
+/* ==========================================
+   [TANDA: AREA PRATINJAU LOGO - KOTAK UPLOAD LOGO]
+   Tempat menampilkan logo terpilih & tombol hapus logo
+========================================== */
 /* Logo preview */
 .logo-preview-bg {
     width: 100% !important; height: 120px !important;
@@ -323,6 +347,10 @@ select.form-control {
 .dashed-hr { border: none !important; border-top: 2px dashed #e2e8f0 !important; margin: 20px 0 !important; }
 .stats-floating-title { font-size: 13px; font-weight: 800; color: #1e293b; margin: 0 0 14px 0; }
 
+/* ==========================================
+   [TANDA: UPLOAD VIDEO HERO - PENGATURAN VIDEO UTAMA]
+   Bagian upload video berlatar gelap dengan pratinjau pemutar video
+========================================== */
 /* Video upload section */
 .upload-section-video {
     background: #0f172a;
@@ -357,6 +385,10 @@ select.form-control {
 }
 .upload-section-video .help-block { color: #64748b; }
 
+/* ==========================================
+   [TANDA: GALERI FOTO & VIDEO - EDITOR MEDIA MARQUEE]
+   Bagian upload, hapus, dan pratinjau media galeri bergerak halaman depan
+========================================== */
 /* ── GALLERY TAB ── */
 .gallery-limit-info {
     display: flex;

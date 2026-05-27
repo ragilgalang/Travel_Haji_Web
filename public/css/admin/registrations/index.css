@@ -405,6 +405,25 @@
     gap: 6px;
 }
 
+.btn-bulk-restore {
+    background: #10b981;
+    color: white;
+    border: none;
+    padding: 6px 16px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: background-color 0.2s ease;
+}
+
+.btn-bulk-restore:hover {
+    background: #059669;
+}
+
 /* Detailed View Styles */
 .btn-back-modern {
     display: inline-flex;

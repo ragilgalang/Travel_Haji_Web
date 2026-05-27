@@ -1,0 +1,313 @@
+/* ==========================================
+   [TANDA: WADAH UTAMA PENGATURAN - CONTAINER GLOBAL]
+   Animasi masuk fadeInUp untuk seluruh halaman pengaturan
+========================================== */
+/* Styling Premium Pengaturan */
+    .settings-container {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+        animation: fadeInUp 0.5s ease-out;
+    }
+
+/* ==========================================
+   [TANDA: HEADER BANNER PENGATURAN - HIJAU GRADASI]
+   Banner sambutan dengan teks dekoratif em kuning
+========================================== */
+    .welcome-banner {
+        background: linear-gradient(135deg, #115e3b, #064e3b);
+        border-radius: 16px;
+        padding: 28px;
+        color: white;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: 0 10px 25px rgba(6, 78, 59, 0.15);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .welcome-text h2 {
+        font-family: 'Playfair Display', serif;
+        font-size: 1.8rem;
+        margin: 6px 0;
+        font-weight: 700;
+    }
+
+    .welcome-text h2 em {
+        color: #f1c40f;
+        font-style: normal;
+    }
+
+    .greeting-tag {
+        background: rgba(241, 196, 15, 0.15);
+        color: #f1c40f;
+        padding: 4px 12px;
+        border-radius: 50px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        display: inline-block;
+    }
+
+/* ==========================================
+   [TANDA: TATA LETAK GRID - SIDEBAR MENU & KONTEN]
+   Grid membagi navigasi menu tab (kiri) dan isi form (kanan)
+========================================== */
+    /* Layout Tab */
+    .settings-grid {
+        display: grid;
+        grid-template-columns: 280px 1fr;
+        gap: 28px;
+    }
+
+    @media (max-width: 991px) {
+        .settings-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+/* ==========================================
+   [TANDA: LIST MENU TAB STICKY]
+   Menu navigasi vertikal yang tetap melayang saat halaman di-scroll
+========================================== */
+    /* Tab Menu List */
+    .tab-menu-card {
+        background: white;
+        border-radius: 16px;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
+        padding: 16px;
+        height: fit-content;
+        position: sticky;
+        top: 24px;
+    }
+
+    .tab-btn {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 14px 16px;
+        background: transparent;
+        border: none;
+        border-radius: 12px;
+        color: #64748b;
+        font-size: 0.9rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-align: left;
+    }
+
+    .tab-btn:hover {
+        background: #f8fafc;
+        color: #1e293b;
+        transform: translateX(4px);
+    }
+
+    .tab-btn.active {
+        background: #ecfdf5;
+        color: #059669;
+    }
+
+    .tab-btn svg {
+        width: 20px;
+        height: 20px;
+        flex-shrink: 0;
+    }
+
+/* ==========================================
+   [TANDA: AREA KONTEN FORM TAB]
+   Card latar belakang putih yang memuat input form aktif
+========================================== */
+    /* Tab Content Card */
+    .tab-content-card {
+        background: white;
+        border-radius: 16px;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
+        padding: 28px;
+    }
+
+    .tab-pane {
+        display: none;
+        animation: fadeIn 0.4s ease;
+    }
+
+    .tab-pane.active {
+        display: block;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .section-title-premium {
+        font-family: 'Playfair Display', serif;
+        font-size: 1.4rem;
+        color: #0f291e;
+        margin-bottom: 8px;
+        font-weight: 700;
+    }
+
+    .section-desc-premium {
+        color: #64748b;
+        font-size: 0.85rem;
+        margin-bottom: 24px;
+    }
+
+    /* Form Fields */
+    .form-group-premium {
+        margin-bottom: 20px;
+    }
+
+    .admin-label {
+        font-weight: 600;
+        font-size: 0.85rem;
+        color: #334155;
+        margin-bottom: 8px;
+        display: block;
+    }
+
+    .form-control-premium {
+        width: 100%;
+        padding: 12px 16px;
+        border: 1.5px solid #cbd5e1;
+        border-radius: 10px;
+        font-size: 0.9rem;
+        color: #1e293b;
+        transition: all 0.3s ease;
+        background: #f8fafc;
+    }
+
+    .form-control-premium:focus {
+        border-color: #059669;
+        outline: none;
+        background: white;
+        box-shadow: 0 0 0 4px rgba(5, 150, 105, 0.1);
+    }
+
+    .help-block-premium {
+        font-size: 0.75rem;
+        color: #64748b;
+        margin-top: 6px;
+        display: block;
+    }
+
+    /* Grids & Cards */
+    .grid-2-col {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+    }
+
+    .grid-4-col {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 16px;
+    }
+
+    @media (max-width: 768px) {
+        .grid-2-col {
+            grid-template-columns: 1fr;
+        }
+    }
+
+/* ==========================================
+   [TANDA: PRATINJAU FILE GAMBAR]
+   Kotak pratinjau gambar upload, detail info, & pilihan hapus gambar
+========================================== */
+    /* Image Preview Styling */
+    .image-preview-wrapper {
+        border: 1px dashed #cbd5e1;
+        border-radius: 12px;
+        padding: 16px;
+        background: #f8fafc;
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+    }
+
+    .preview-thumbnail {
+        width: 60px;
+        height: 60px;
+        object-fit: contain;
+        border-radius: 8px;
+        border: 1px solid #e2e8f0;
+        background: white;
+    }
+
+    .preview-info {
+        flex: 1;
+    }
+
+    .delete-checkbox-label {
+        font-size: 0.8rem;
+        color: #ef4444;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        cursor: pointer;
+        font-weight: 600;
+        user-select: none;
+    }
+
+    .delete-checkbox-label input {
+        accent-color: #ef4444;
+        width: 16px;
+        height: 16px;
+    }
+
+    /* Inner Cards */
+    .advantage-inner-card {
+        background: #fdfdfd;
+        border: 1px solid #e2e8f0;
+        padding: 16px;
+        border-radius: 12px;
+        margin-bottom: 16px;
+    }
+
+/* ==========================================
+   [TANDA: TOMBOL SUBMIT BAWAH - SIMPAN PENGATURAN]
+   Bar bawah dengan tombol Simpan Pengaturan yang memiliki efek hover & shadow premium
+========================================== */
+    /* Sticky Footer Submit button */
+    .submit-bar {
+        margin-top: 24px;
+        display: flex;
+        justify-content: flex-end;
+        border-top: 1px solid #e2e8f0;
+        padding-top: 20px;
+    }
+
+    .btn-submit-premium {
+        background: linear-gradient(135deg, #059669, #047857);
+        color: white;
+        border: none;
+        padding: 14px 28px;
+        border-radius: 12px;
+        font-weight: 700;
+        font-size: 0.95rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(5, 150, 105, 0.2);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .btn-submit-premium:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(5, 150, 105, 0.3);
+        filter: brightness(1.05);
+    }
+
+    /* Specific Media Previews */
+    .video-preview-player {
+        max-width: 100%;
+        max-height: 120px;
+        border-radius: 8px;
+        border: 1px solid #cbd5e1;
+    }

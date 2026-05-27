@@ -3,23 +3,36 @@
 <div class="img-collage reveal-left">
   <div class="collage-img ci-1">
     @php
-      $baseHost = request()->getSchemeAndHttpHost();
-
       // VIDEO: prioritaskan about_video
       $isVideo = !empty($settings['about_video']);
 
       if ($isVideo) {
           $rawVideoUrl = $settings['about_video'];
-          $mediaUrl = str_starts_with($rawVideoUrl, '/') ? $baseHost . $rawVideoUrl : $rawVideoUrl;
+          // Bersihkan dari host duplikat, lalu gunakan asset() untuk URL bersih
+          $cleanVideoPath = preg_replace('/^https?:\/\/[^\/]+/', '', $rawVideoUrl);
+          $cleanVideoPath = ltrim($cleanVideoPath, '/');
+          $mediaUrl = asset($cleanVideoPath);
       } else {
           $rawImgUrl = $settings['about_image'] ?? 'https://images.unsplash.com/photo-1574120240282-60c4da46edaf';
-          $mediaUrl = str_starts_with($rawImgUrl, '/') ? $baseHost . $rawImgUrl : $rawImgUrl;
+          if (str_starts_with($rawImgUrl, 'http')) {
+              $mediaUrl = $rawImgUrl;
+          } else {
+              $cleanImgPath = ltrim($rawImgUrl, '/');
+              $mediaUrl = asset($cleanImgPath);
+          }
       }
 
       // Fallback gambar untuk onerror
-      $fallbackImg = !empty($settings['about_image'])
-          ? (str_starts_with($settings['about_image'], '/') ? $baseHost . $settings['about_image'] : $settings['about_image'])
-          : 'https://images.unsplash.com/photo-1574120240282-60c4da46edaf';
+      if (!empty($settings['about_image'])) {
+          $rawFallback = $settings['about_image'];
+          if (str_starts_with($rawFallback, 'http')) {
+              $fallbackImg = $rawFallback;
+          } else {
+              $fallbackImg = asset(ltrim($rawFallback, '/'));
+          }
+      } else {
+          $fallbackImg = 'https://images.unsplash.com/photo-1574120240282-60c4da46edaf';
+      }
     @endphp
 
     @if($isVideo)

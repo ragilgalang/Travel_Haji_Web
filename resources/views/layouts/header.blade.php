@@ -52,6 +52,9 @@
       <a href="#fasilitas">Fasilitas</a>
       <a href="#testimoni">Testimoni</a>
     </div>
+    <!-- ========================================== -->
+    <!-- [TANDA: TOMBOL AKSI NAVBAR - DESKTOP] -->
+    <!-- ========================================== -->
     <div class="nav-actions" style="display: flex; align-items: center; gap: 0.75rem;">
       <button type="button" class="btn"
         style="background:transparent; border:1.5px solid var(--green); color:var(--green); font-weight:700; padding:0.6rem 1.2rem; border-radius:100px; display:inline-flex; align-items:center; gap:0.5rem;"
@@ -108,7 +111,10 @@
       <a href="#fasilitas" onclick="closeMobileNav()">Fasilitas</a>
       <a href="#testimoni" onclick="closeMobileNav()">Testimoni</a>
     </nav>
-    <div class="mobile-nav-footer">
+      <!-- ========================================== -->
+      <!-- [TANDA: TOMBOL AKSI NAVBAR - MOBILE] -->
+      <!-- ========================================== -->
+      <div class="mobile-nav-footer">
       <button type="button" class="btn"
         style="width:100%; margin-bottom:0.75rem; background:transparent; border:1.5px solid var(--green); color:var(--green); font-weight:700; padding:0.85rem 1.5rem; border-radius:100px; display:flex; align-items:center; justify-content:center; gap:0.5rem;"
         onclick="closeMobileNav(); openStatusModal();">

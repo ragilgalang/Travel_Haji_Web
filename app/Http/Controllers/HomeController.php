@@ -150,16 +150,19 @@ class HomeController extends Controller
         $avatarUrl = '';
         if ($request->hasFile('image')) {
             $file = $request->file('image');
-            $folder = 'uploads/testimonials';
+            $folderName = 'uploads/testimonials';
             
-            // Buat folder jika belum ada
-            if (!file_exists(public_path($folder))) {
-                mkdir(public_path($folder), 0755, true);
+            // Gunakan path kustom yang tangguh untuk sistem operasi Windows/XAMPP
+            $absolutePath = public_path(str_replace('/', DIRECTORY_SEPARATOR, $folderName));
+            
+            // Buat folder jika belum ada secara rekursif
+            if (!file_exists($absolutePath)) {
+                mkdir($absolutePath, 0755, true);
             }
 
             $filename = time() . '_' . \Illuminate\Support\Str::random(5) . '.' . $file->getClientOriginalExtension();
-            $file->move(public_path($folder), $filename);
-            $avatarUrl = asset($folder . '/' . $filename);
+            $file->move($absolutePath, $filename);
+            $avatarUrl = asset($folderName . '/' . $filename);
         }
 
         // Simpan ulasan

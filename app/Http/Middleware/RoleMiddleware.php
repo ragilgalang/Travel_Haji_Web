@@ -1,5 +1,9 @@
 <?php
 
+// ==========================================
+// [TANDA: MIDDLEWARE ROLE KUSTOM]
+// ==========================================
+
 namespace App\Http\Middleware;
 
 use Closure;
@@ -24,7 +28,7 @@ class RoleMiddleware
         }
 
         if (!in_array($user->role, $roles)) {
-            abort(403, 'Akses ditolak');
+            abort(403, 'Akses diblokir');
         }
 
         return $next($request);

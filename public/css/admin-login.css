@@ -1,3 +1,7 @@
+/* ==========================================
+   [TANDA: VARIABEL WARNA & RESET DASAR HALAMAN LOGIN]
+   Variabel warna tema hijau-emas & reset box-sizing
+========================================== */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
@@ -26,6 +30,10 @@ body {
   position: relative;
 }
 
+/* ==========================================
+   [TANDA: LATAR BELAKANG ANIMASI - POLA ISLAMIK BERGERAK]
+   Gradien radial + pola segi enam Islami SVG di belakang card login
+========================================== */
 /* Animated background pattern */
 body::before {
   content: '';
@@ -38,6 +46,10 @@ body::before {
   z-index: 0;
 }
 
+/* ==========================================
+   [TANDA: OVERLAY POLA GEOMETRI ISLAMI]
+   Pola segi enam berulang berwarna emas transparan
+========================================== */
 /* Geometric Islamic pattern overlay */
 body::after {
   content: '';
@@ -66,6 +78,10 @@ body::after {
   to   { opacity: 1; transform: translateY(0) scale(1); }
 }
 
+/* ==========================================
+   [TANDA: PANEL KIRI - GAMBAR MASJID & STATISTIK]
+   Sisi kiri card login dengan ilustrasi masjid, judul, dan angka statistik
+========================================== */
 /* ── LEFT PANEL ── */
 .panel-left {
   position: relative;
@@ -184,6 +200,10 @@ body::after {
   font-weight: 400;
 }
 
+/* ==========================================
+   [TANDA: PANEL KANAN - FORM LOGIN ADMIN]
+   Sisi kanan: logo, sapaan, input email, password, dan tombol masuk
+========================================== */
 /* ── RIGHT PANEL ── */
 .panel-right {
   background: var(--cream);
@@ -428,6 +448,10 @@ body::after {
 
 .footer-note .dot { width: 4px; height: 4px; background: #d1d5db; border-radius: 50%; }
 
+/* ==========================================
+   [TANDA: DEKORASI BULAN SABIT MELAYANG]
+   Ikon bulan sabit pojok kanan atas, animasi mengambang naik-turun
+========================================== */
 /* Floating crescent deco */
 .deco-crescent {
   position: absolute;
@@ -443,6 +467,10 @@ body::after {
   50% { transform: translateY(-8px) rotate(5deg); }
 }
 
+/* ==========================================
+   [TANDA: STATUS LOADING TOMBOL MASUK]
+   Spinner berputar saat proses login sedang berjalan
+========================================== */
 /* Loading state */
 .btn-login.loading .btn-text { opacity: 0; }
 .btn-login.loading::after {
@@ -457,6 +485,10 @@ body::after {
 
 @keyframes spin { to { transform: rotate(360deg); } }
 
+/* ==========================================
+   [TANDA: RESPONSIF MOBILE - TAMPILAN LAYAR KECIL]
+   Sembunyikan panel kiri, tampilkan hanya form login
+========================================== */
 /* Responsive */
 @media (max-width: 680px) {
   .wrapper { grid-template-columns: 1fr; }
@@ -464,6 +496,10 @@ body::after {
   .panel-right { padding: 40px 28px; }
 }
 
+/* ==========================================
+   [TANDA: STATUS ERROR - PESAN KESALAHAN LOGIN]
+   Animasi guncang input & pesan merah saat login gagal
+========================================== */
 /* ── ERROR STATES ── */
 .error-text {
   display: flex;

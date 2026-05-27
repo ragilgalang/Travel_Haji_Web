@@ -1,3 +1,7 @@
+/* ==========================================
+   [TANDA: PANEL AKSI MASSAL (BULK ACTIONS BAR)]
+   Muncul ketika satu atau lebih checkbox testimoni dicentang
+========================================== */
 /* Bulk Actions Bar Styles */
 .bulk-actions {
     background: #f8fafc;
@@ -38,6 +42,10 @@
 .btn-bulk-delete { background: #ef4444; color: white; }
 .btn-bulk-delete:hover { background: #dc2626; }
 
+/* ==========================================
+   [TANDA: BADGE STATUS PUBLIKASI TESTIMONI]
+   yes = Tampil di Website (Hijau), no = Draft (Abu-abu)
+========================================== */
 /* Status Labels */
 .status-badge {
     padding: 4px 10px;
@@ -49,6 +57,9 @@
 .status-badge.yes { background: #dcfce7; color: #166534; }
 .status-badge.no { background: #f1f5f9; color: #475569; }
 
+/* ==========================================
+   [TANDA: GAYA TABEL TESTIMONI JEMAAH]
+========================================== */
 /* Table Styles */
 .testimonials-table-wrapper {
     overflow-x: auto;
@@ -116,6 +127,9 @@
     opacity: 0.5 !important;
 }
 
+/* ==========================================
+   [TANDA: KARTU FILTER & PENCARIAN TESTIMONI]
+========================================== */
 /* Filter Bar Styles */
 .filter-card {
     padding: 16px 20px !important;

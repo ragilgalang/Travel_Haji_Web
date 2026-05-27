@@ -52,6 +52,9 @@
     </div>
 
     {{-- ========== CHART SECTION ========== --}}
+    <!-- ========================================== -->
+    <!-- [TANDA: GRAFIK PENGUNJUNG - CANVAS HTML] -->
+    <!-- ========================================== -->
     <div class="chart-grid">
         {{-- Line Chart: Kunjungan Harian --}}
         <div class="chart-card chart-card-wide">
@@ -157,6 +160,9 @@
 document.addEventListener('DOMContentLoaded', function() {
     const chartFont = { family: "'Inter', 'Segoe UI', sans-serif" };
 
+    // ==========================================
+    // [TANDA: GRAFIK PENGUNJUNG - SKRIP CHART.JS]
+    // ==========================================
     // ===== 1. LINE CHART: Kunjungan Harian =====
     new Chart(document.getElementById('dailyChart'), {
         type: 'line',

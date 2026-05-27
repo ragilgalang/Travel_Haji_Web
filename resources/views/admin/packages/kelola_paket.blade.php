@@ -140,7 +140,7 @@
             </div>
 
             @if($errors->any() && old('paket_form_submission'))
-                <div class="error-alert-box">
+                <div class="error-alert-box-dark">
                     <div class="error-icon">⚠️</div>
                     <div class="error-text">
                         <strong>Gagal Menyimpan Paket</strong>
@@ -160,114 +160,220 @@
                 <input type="hidden" name="paket_form_submission" value="1">
 
                 <div class="form-body">
-                    <!-- SECTION 1: INFORMASI UTAMA -->
+                    <!-- SECTION 1: INFORMASI PAKET -->
                     <div class="form-section">
-                        <h3 class="section-title">Informasi Utama</h3>
-                        <div class="form-grid-3">
-                            <div class="form-group mb-4">
-                                <label class="form-label">Nama Paket</label>
-                                <input type="text" name="name" id="pkg_name" class="form-control" required
-                                    placeholder="Umrah VIP Ramadhan" value="{{ old('name') }}">
-                            </div>
-                            <div class="form-group mb-4">
-                                <label class="form-label">Kategori</label>
-                                <select name="category" id="pkg_category" class="form-control">
-                                    <option value="Umroh Ekonomis" {{ old('category') == 'Umroh Ekonomis' ? 'selected' : '' }}>Umroh Ekonomis</option>
-                                    <option value="Umroh Reguler" {{ old('category') == 'Umroh Reguler' ? 'selected' : '' }}>
-                                        Umroh Reguler</option>
-                                    <option value="Umroh Bisnis" {{ old('category') == 'Umroh Bisnis' ? 'selected' : '' }}>
-                                        Umroh Bisnis</option>
-                                    <option value="Umroh VIP" {{ old('category') == 'Umroh VIP' ? 'selected' : '' }}>Umroh VIP
-                                    </option>
-                                    <option value="Haji Furoda" {{ old('category') == 'Haji Furoda' ? 'selected' : '' }}>Haji
-                                        Furoda</option>
-                                </select>
-                            </div>
-                            <div class="form-group mb-4">
-                                <label class="form-label">Tipe Ibadah</label>
-                                <select name="type" id="pkg_type" class="form-control">
+                        <div class="form-section-header-badge">
+                            📄 INFORMASI PAKET
+                        </div>
+                        
+                        <div class="form-group mb-4">
+                            <label class="form-label-gold">NAMA PAKET</label>
+                            <input type="text" name="name" id="pkg_name" class="form-control-dark" required
+                                placeholder="cth. Umrah Premium Awal Musim 1447H" value="{{ old('name') }}">
+                        </div>
+
+                        <div class="form-grid-2-custom">
+                            <div class="form-group">
+                                <label class="form-label-gold">JENIS PERJALANAN</label>
+                                <select name="type" id="pkg_type" class="form-control-dark">
+                                    <option value="" disabled selected>Pilih jenis...</option>
                                     <option value="umrah" {{ old('type') == 'umrah' ? 'selected' : '' }}>Umrah</option>
                                     <option value="haji" {{ old('type') == 'haji' ? 'selected' : '' }}>Haji</option>
                                 </select>
                             </div>
+                            <div class="form-group">
+                                <label class="form-label-gold">DURASI (HARI)</label>
+                                <input type="text" name="duration" id="pkg_duration" class="form-control-dark" required
+                                    placeholder="cth. 12" value="{{ old('duration') }}">
+                            </div>
                         </div>
-                    </div>
 
-                    <!-- SECTION 2: AKOMODASI & HARGA -->
-                    <div class="form-section">
-                        <h3 class="section-title">Akomodasi & Harga</h3>
-                        <div class="form-grid-3">
-                            <div class="form-group mb-4">
-                                <label class="form-label">Durasi Perjalanan</label>
-                                <input type="text" name="duration" id="pkg_duration" class="form-control" required
-                                    placeholder="9 Hari" value="{{ old('duration') }}">
+                        <div class="form-grid-2-custom">
+                            <div class="form-group">
+                                <label class="form-label-gold">KAPASITAS JEMAAH</label>
+                                <input type="text" name="quota" id="pkg_quota" class="form-control-dark"
+                                    placeholder="cth. 50" value="{{ old('quota') }}">
                             </div>
-                            <div class="form-group mb-4">
-                                <label class="form-label">Nama Hotel</label>
-                                <input type="text" name="hotel" id="pkg_hotel" class="form-control"
-                                    placeholder="Hotel Hilton" value="{{ old('hotel') }}">
+                            <div class="form-group">
+                                <label class="form-label-gold">TIPE KAMAR</label>
+                                <select name="room_type" id="pkg_room_type" class="form-control-dark">
+                                    <option value="" disabled selected>Pilih tipe...</option>
+                                    <option value="Quad (4 Orang)" {{ old('room_type') == 'Quad (4 Orang)' ? 'selected' : '' }}>Quad (4 Orang)</option>
+                                    <option value="Triple (3 Orang)" {{ old('room_type') == 'Triple (3 Orang)' ? 'selected' : '' }}>Triple (3 Orang)</option>
+                                    <option value="Double (2 Orang)" {{ old('room_type') == 'Double (2 Orang)' ? 'selected' : '' }}>Double (2 Orang)</option>
+                                    <option value="Quad/Triple/Double" {{ old('room_type') == 'Quad/Triple/Double' ? 'selected' : '' }}>Quad/Triple/Double (Semua Tipe)</option>
+                                </select>
                             </div>
-                            <div class="form-group mb-4">
-                                <label class="form-label">Harga (Tampilan)</label>
-                                <input type="text" name="price" id="pkg_price" class="form-control highlight-input" required
+                        </div>
+
+                        <div class="form-grid-2-custom">
+                            <div class="form-group">
+                                <label class="form-label-gold">NAMA HOTEL</label>
+                                <input type="text" name="hotel" id="pkg_hotel" class="form-control-dark"
+                                    placeholder="cth. Hotel Hilton / Snood Ajyad" value="{{ old('hotel') }}">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label-gold">HARGA (TAMPILAN)</label>
+                                <input type="text" name="price" id="pkg_price" class="form-control-dark highlight-input-gold" required
                                     placeholder="Rp 35.000.000" value="{{ old('price') }}">
                             </div>
                         </div>
-                        <div class="form-group mb-4">
-                            <label class="form-label">Fasilitas Hotel (Pisahkan tiap baris)</label>
-                            <textarea name="hotel_facilities_text" id="pkg_hotel_facilities" class="form-control" rows="3" placeholder="Contoh:&#10;WiFi Gratis&#10;Dekat Masjidil Haram&#10;Sarapan Buffet"></textarea>
+                    </div>
+
+                    <!-- SECTION 2: RUTE PENERBANGAN -->
+                    <div class="form-section">
+                        <div class="form-section-header-badge">
+                            ✈ RUTE PENERBANGAN
+                        </div>
+
+                        <div class="form-grid-2-custom">
+                            <div class="form-group">
+                                <label class="form-label-gold">BANDARA ASAL</label>
+                                <select name="airport_origin" id="pkg_airport_origin" class="form-control-dark">
+                                    <option value="" disabled selected>Pilih bandara...</option>
+                                    <option value="Surabaya (SUB)" {{ old('airport_origin') == 'Surabaya (SUB)' ? 'selected' : '' }}>Surabaya (SUB)</option>
+                                    <option value="Jakarta (CGK)" {{ old('airport_origin') == 'Jakarta (CGK)' ? 'selected' : '' }}>Jakarta (CGK)</option>
+                                    <option value="Solo (SOC)" {{ old('airport_origin') == 'Solo (SOC)' ? 'selected' : '' }}>Solo (SOC)</option>
+                                    <option value="Medan (KNO)" {{ old('airport_origin') == 'Medan (KNO)' ? 'selected' : '' }}>Medan (KNO)</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label-gold">BANDARA TUJUAN</label>
+                                <select name="airport_destination" id="pkg_airport_destination" class="form-control-dark">
+                                    <option value="" disabled selected>Pilih bandara...</option>
+                                    <option value="Jeddah (JED)" {{ old('airport_destination') == 'Jeddah (JED)' ? 'selected' : '' }}>Jeddah (JED)</option>
+                                    <option value="Madinah (MED)" {{ old('airport_destination') == 'Madinah (MED)' ? 'selected' : '' }}>Madinah (MED)</option>
+                                    <option value="Riyadh (RUH)" {{ old('airport_destination') == 'Riyadh (RUH)' ? 'selected' : '' }}>Riyadh (RUH)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-grid-2-custom">
+                            <div class="form-group">
+                                <label class="form-label-gold">MASKAPAI</label>
+                                <select name="airline" id="pkg_airline" class="form-control-dark">
+                                    <option value="" disabled selected>Pilih maskapai...</option>
+                                    <option value="Saudia Airlines" {{ old('airline') == 'Saudia Airlines' ? 'selected' : '' }}>Saudia Airlines</option>
+                                    <option value="Garuda Indonesia" {{ old('airline') == 'Garuda Indonesia' ? 'selected' : '' }}>Garuda Indonesia</option>
+                                    <option value="Lion Air" {{ old('airline') == 'Lion Air' ? 'selected' : '' }}>Lion Air</option>
+                                    <option value="Batik Air" {{ old('airline') == 'Batik Air' ? 'selected' : '' }}>Batik Air</option>
+                                    <option value="Qatar Airways" {{ old('airline') == 'Qatar Airways' ? 'selected' : '' }}>Qatar Airways</option>
+                                    <option value="Emirates" {{ old('airline') == 'Emirates' ? 'selected' : '' }}>Emirates</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label-gold">NOMOR PENERBANGAN</label>
+                                <input type="text" name="flight_number" id="pkg_flight_number" class="form-control-dark"
+                                    placeholder="cth. GA-981" value="{{ old('flight_number') }}">
+                            </div>
                         </div>
                     </div>
 
-                    <!-- SECTION 3: MEDIA & PROMOSI -->
+                    <!-- SECTION 3: TANGGAL & WAKTU -->
                     <div class="form-section">
-                        <h3 class="section-title">Media & Promosi</h3>
+                        <div class="form-section-header-badge">
+                            ⏰ TANGGAL & WAKTU
+                        </div>
+
+                        <div class="form-grid-2-custom">
+                            <div class="form-group">
+                                <label class="form-label-gold">TANGGAL BERANGKAT</label>
+                                <input type="date" name="departure_date" id="pkg_departure_date" class="form-control-dark"
+                                    value="{{ old('departure_date') }}">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label-gold">JAM BERANGKAT (WIB)</label>
+                                <input type="time" name="departure_time" id="pkg_departure_time" class="form-control-dark"
+                                    value="{{ old('departure_time') }}">
+                            </div>
+                        </div>
+
+                        <div class="form-grid-2-custom">
+                            <div class="form-group">
+                                <label class="form-label-gold">TANGGAL PULANG</label>
+                                <input type="date" name="return_date" id="pkg_return_date" class="form-control-dark"
+                                    value="{{ old('return_date') }}">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label-gold">JAM PULANG (WIB)</label>
+                                <input type="time" name="return_time" id="pkg_return_time" class="form-control-dark"
+                                    value="{{ old('return_time') }}">
+                            </div>
+                        </div>
+
                         <div class="form-group mb-4">
-                            <label class="form-label">Gambar Cover</label>
-                            <div class="media-input-group">
-                                <div class="file-input-wrapper">
-                                    <input type="file" name="image" id="pkg_image_file" class="form-control"
+                            <label class="form-label-gold">STATUS JADWAL</label>
+                            <select name="status" id="pkg_status" class="form-control-dark">
+                                <option value="Aktif — Pendaftaran dibuka" {{ old('status') == 'Aktif — Pendaftaran dibuka' ? 'selected' : '' }}>Aktif — Pendaftaran dibuka</option>
+                                <option value="Tidak Aktif — Pendaftaran ditutup" {{ old('status') == 'Tidak Aktif — Pendaftaran ditutup' ? 'selected' : '' }}>Tidak Aktif — Pendaftaran ditutup</option>
+                                </select>
+                        </div>
+                    </div>
+
+                    <!-- SECTION 4: DETAIL TAMBAHAN (MEDIA & FASILITAS) -->
+                    <div class="form-section last">
+                        <div class="form-section-header-badge">
+                            ✨ DETAIL TAMBAHAN
+                        </div>
+
+                        <div class="form-group mb-4">
+                            <label class="form-label-gold">KATEGORI PAKET</label>
+                            <select name="category" id="pkg_category" class="form-control-dark">
+                                <option value="Umroh Ekonomis" {{ old('category') == 'Umroh Ekonomis' ? 'selected' : '' }}>Umroh Ekonomis</option>
+                                <option value="Umroh Reguler" {{ old('category') == 'Umroh Reguler' ? 'selected' : '' }}>Umroh Reguler</option>
+                                <option value="Umroh Bisnis" {{ old('category') == 'Umroh Bisnis' ? 'selected' : '' }}>Umroh Bisnis</option>
+                                <option value="Umroh VIP" {{ old('category') == 'Umroh VIP' ? 'selected' : '' }}>Umroh VIP</option>
+                                <option value="Haji Furoda" {{ old('category') == 'Haji Furoda' ? 'selected' : '' }}>Haji Furoda</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group mb-4">
+                            <label class="form-label-gold">Gambar Cover</label>
+                            <div class="media-input-group-dark">
+                                <div class="file-input-wrapper-dark">
+                                    <input type="file" name="image" id="pkg_image_file" class="form-control-dark"
                                         accept="image/*">
                                 </div>
                                 <div class="url-input-wrapper">
-                                    <input type="url" name="image_url" id="pkg_image_url" class="form-control"
+                                    <input type="url" name="image_url" id="pkg_image_url" class="form-control-dark"
                                         placeholder="Atau paste URL gambar (https://...)" value="{{ old('image_url') }}">
                                 </div>
                             </div>
                         </div>
 
-                        <div class="form-grid-2">
-                            <div class="form-group mb-4">
-                                <label class="form-label">Kontak Khusus (WhatsApp)</label>
-                                <input type="text" name="contact_phone" id="pkg_contact" class="form-control"
+                        <div class="form-grid-2-custom">
+                            <div class="form-group">
+                                <label class="form-label-gold">KONTAK KHUSUS (WHATSAPP)</label>
+                                <input type="text" name="contact_phone" id="pkg_contact" class="form-control-dark"
                                     placeholder="08123456789 (opsional)" value="{{ old('contact_phone') }}">
                             </div>
-                            <div class="form-group mb-4">
-                                <label class="form-label">Tenggat Promo / Label</label>
-                                <input type="text" name="promo_until" id="pkg_promo" class="form-control"
+                            <div class="form-group">
+                                <label class="form-label-gold">TENGGAT PROMO / LABEL</label>
+                                <input type="text" name="promo_until" id="pkg_promo" class="form-control-dark"
                                     placeholder="Contoh: Hemat 2 Juta" value="{{ old('promo_until') }}">
                             </div>
                         </div>
-                    </div>
 
-                    <!-- SECTION 4: DETAIL FITUR -->
-                    <div class="form-section last">
-                        <h3 class="section-title">Fasilitas</h3>
                         <div class="form-group mb-4">
-                            <textarea name="features_text" id="pkg_features" class="form-control features-textarea" rows="4"
+                            <label class="form-label-gold">FASILITAS HOTEL (PISAHKAN TIAP BARIS)</label>
+                            <textarea name="hotel_facilities_text" id="pkg_hotel_facilities" class="form-control-dark features-textarea-dark" rows="3" placeholder="Contoh:&#10;WiFi Gratis&#10;Dekat Masjidil Haram&#10;Sarapan Buffet"></textarea>
+                        </div>
+
+                        <div class="form-group mb-4">
+                            <label class="form-label-gold">FASILITAS UMUM / FITUR UTAMA (PISAHKAN TIAP BARIS)</label>
+                            <textarea name="features_text" id="pkg_features" class="form-control-dark features-textarea-dark" rows="4"
                                 placeholder="Tuliskan fitur paket, pisahkan dengan baris baru (Enter)...&#10;Contoh:&#10;Tiket Pesawat PP&#10;Visa Umroh&#10;Hotel Dekat Masjid"></textarea>
                         </div>
 
-                        <div class="featured-toggle-box">
+                        <div class="featured-toggle-box-dark">
                             <div class="toggle-control">
                                 <input type="checkbox" name="is_featured" id="pkg_is_featured" value="1"
                                     class="featured-checkbox">
                                 <label for="pkg_is_featured" class="toggle-label">
                                     <span class="toggle-icon">🌟</span>
                                     <div class="toggle-text">
-                                        <span class="label-main">Jadikan Paket Populer</span>
-                                        <span class="label-sub">Paket akan ditampilkan sebagai sorotan utama di halaman
-                                            depan</span>
+                                        <span class="label-main-gold">Jadikan Paket Populer</span>
+                                        <span class="label-sub-gold">Paket akan ditampilkan sebagai sorotan utama di halaman depan</span>
                                     </div>
                                 </label>
                             </div>
@@ -276,8 +382,8 @@
                 </div>
 
                 <div class="modal-footer pkg-modal-footer">
-                    <button type="button" onclick="closePackageForm()" class="btn-secondary">Batal</button>
-                    <button type="submit" class="btn-primary btn-save-pkg">Simpan Data Paket</button>
+                    <button type="button" onclick="closePackageForm()" class="btn-secondary-dark">Batal</button>
+                    <button type="submit" class="btn-primary btn-save-pkg-gold">Simpan Data Paket</button>
                 </div>
             </form>
         </div>
@@ -318,6 +424,17 @@
             @if($errors->any() && old('paket_form_submission'))
                 openPackageForm('create');
             @endif
+
+            // Auto open create modal if redirected from dashboard
+            @if(session('open_create_modal'))
+                openPackageForm('create');
+            @endif
+
+            // Auto open edit modal if redirected
+            @if(session('open_edit_modal') && session('edit_id') && session('edit_data'))
+                openPackageForm('edit', '{{ session('edit_id') }}', {!! json_encode(session('edit_data')) !!});
+            @endif
+
 
             // Select All Logic
             const selectAllCbs = document.querySelectorAll('.select-all-cb');
@@ -413,7 +530,20 @@
                 imageUrl: document.getElementById('pkg_image_url'),
                 features: document.getElementById('pkg_features'),
                 hotelFeatures: document.getElementById('pkg_hotel_facilities'),
-                isFeatured: document.getElementById('pkg_is_featured')
+                isFeatured: document.getElementById('pkg_is_featured'),
+                
+                // Screenshot fields
+                quota: document.getElementById('pkg_quota'),
+                roomType: document.getElementById('pkg_room_type'),
+                airportOrigin: document.getElementById('pkg_airport_origin'),
+                airportDestination: document.getElementById('pkg_airport_destination'),
+                airline: document.getElementById('pkg_airline'),
+                flightNumber: document.getElementById('pkg_flight_number'),
+                departureDate: document.getElementById('pkg_departure_date'),
+                departureTime: document.getElementById('pkg_departure_time'),
+                returnDate: document.getElementById('pkg_return_date'),
+                returnTime: document.getElementById('pkg_return_time'),
+                status: document.getElementById('pkg_status')
             };
 
             if (mode === 'create') {
@@ -428,7 +558,7 @@
 
                 inputs.name.value = data.name || '';
                 inputs.type.value = data.type || 'umrah';
-                inputs.category.value = data.category || '';
+                inputs.category.value = data.category || 'Umroh Reguler';
                 inputs.duration.value = data.duration || '';
                 inputs.hotel.value = data.hotel || '';
                 inputs.price.value = data.price || '';
@@ -436,6 +566,19 @@
                 inputs.promo.value = data.promo_until || '';
                 inputs.imageUrl.value = data.image_url || '';
                 inputs.isFeatured.checked = data.is_featured ? true : false;
+
+                // Screenshot fields
+                inputs.quota.value = data.quota || '';
+                inputs.roomType.value = data.room_type || '';
+                inputs.airportOrigin.value = data.airport_origin || '';
+                inputs.airportDestination.value = data.airport_destination || '';
+                inputs.airline.value = data.airline || '';
+                inputs.flightNumber.value = data.flight_number || '';
+                inputs.departureDate.value = data.departure_date || '';
+                inputs.departureTime.value = data.departure_time || '';
+                inputs.returnDate.value = data.return_date || '';
+                inputs.returnTime.value = data.return_time || '';
+                inputs.status.value = data.status || 'Aktif — Pendaftaran dibuka';
 
                 if (data.features && Array.isArray(data.features)) {
                     inputs.features.value = data.features.join('\n');

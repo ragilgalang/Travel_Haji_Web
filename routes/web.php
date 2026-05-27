@@ -36,6 +36,7 @@ Route::get('/clear-system-cache', function() {
 Route::get('/daftar', [RegistrationController::class, 'show'])->name('register.show');
 Route::post('/daftar', [RegistrationController::class, 'store'])->name('register.store');
 Route::get('/daftar/sukses', [RegistrationController::class, 'success'])->name('register.success');
+Route::get('/tiket/{ref_id}', [RegistrationController::class, 'showTicket'])->name('register.ticket');
 Route::post('/daftar/cek-status', [RegistrationController::class, 'checkStatus'])->name('register.checkStatus');
 
 // Ulasan & Kontak
@@ -47,24 +48,85 @@ Route::get('/sitemap.xml', [\App\Http\Controllers\SitemapController::class, 'ind
 
 // [KEAMANAN] Rute /buat-dummy-pendaftar dihapus karena tidak dilindungi autentikasi.
 
+// Log Pembaruan Sistem (Tanpa Login) - Mendukung '-' dan '_'
+Route::get('/log-pembaruan', function () {
+    $path = storage_path('app/changelog.txt');
+    $content = file_exists($path) ? file_get_contents($path) : '';
+    return view('changelog', compact('content'));
+});
+Route::get('/log_pembaruan', function () {
+    $path = storage_path('app/changelog.txt');
+    $content = file_exists($path) ? file_get_contents($path) : '';
+    return view('changelog', compact('content'));
+});
 
+Route::post('/log-pembaruan', function (\Illuminate\Http\Request $request) {
+    $path = storage_path('app/changelog.txt');
+    $action = $request->input('action', 'edit');
+
+    if ($action === 'add') {
+        $newEntry = trim($request->input('new_entry') ?? '');
+        if ($newEntry) {
+            \Carbon\Carbon::setLocale('id');
+            $dateHeader = now()->translatedFormat('d F Y');
+            $separator = '--------------------';
+            $block = $dateHeader . "\n" . $separator . "\n" . $newEntry . "\n";
+            $existing = file_exists($path) ? file_get_contents($path) : '';
+            file_put_contents($path, $block . ($existing ? "\n" . $existing : ''));
+        }
+        return redirect('/log-pembaruan')->with('success', 'Pembaruan baru berhasil ditambahkan!');
+    }
+
+    // Default: edit full history
+    file_put_contents($path, $request->input('content') ?? '');
+    return redirect('/log-pembaruan')->with('success', 'Catatan pembaruan berhasil disimpan!');
+});
+Route::post('/log_pembaruan', function (\Illuminate\Http\Request $request) {
+    $path = storage_path('app/changelog.txt');
+    $action = $request->input('action', 'edit');
+
+    if ($action === 'add') {
+        $newEntry = trim($request->input('new_entry') ?? '');
+        if ($newEntry) {
+            \Carbon\Carbon::setLocale('id');
+            $dateHeader = now()->translatedFormat('d F Y');
+            $separator = '--------------------';
+            $block = $dateHeader . "\n" . $separator . "\n" . $newEntry . "\n";
+            $existing = file_exists($path) ? file_get_contents($path) : '';
+            file_put_contents($path, $block . ($existing ? "\n" . $existing : ''));
+        }
+        return redirect('/log_pembaruan')->with('success', 'Pembaruan baru berhasil ditambahkan!');
+    }
+
+    // Default: edit full history
+    file_put_contents($path, $request->input('content') ?? '');
+    return redirect('/log_pembaruan')->with('success', 'Catatan pembaruan berhasil disimpan!');
+});
+
+// ==========================================
+// [TANDA: HALAMAN LOGIN / AUTH]
+// ==========================================
 // Auth
 Route::get('/ptumb', [AuthController::class, 'login'])->name('login');
 Route::post('/ptumb', [AuthController::class, 'authenticate'])->name('login.authenticate');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 // Admin
+// ==========================================
+// [TANDA: PENERAPAN MIDDLEWARE AUTH UNTUK AREA ADMIN]
+// ==========================================
 Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [AdminController::class, 'index'])->name('dashboard');
     Route::get('/dashboard/stats', [AdminController::class, 'getStatsApi'])->name('stats.api');
     Route::get('/guide', [AdminController::class, 'guide'])->name('guide');
-    
-    // Settings
-    Route::get('/settings', [AdminController::class, 'settings'])->name('settings');
-    Route::get('/settings/preview', [AdminController::class, 'preview'])->name('settings.preview');
-    Route::post('/settings', [AdminController::class, 'updateSettings'])->name('settings.update');
     Route::post('/clear-cache', [AdminController::class, 'clearCache'])->name('clearCache');
-
+    Route::post('/deploy', [\App\Http\Controllers\Admin\DeployController::class, 'deploy'])->name('deploy');
+    Route::post('/github-upload', [\App\Http\Controllers\Admin\DeployController::class, 'uploadToGithub'])->name('github.upload');
+    
+    // Pengaturan Web (Forms-Only)
+    Route::get('/settings', [AdminController::class, 'settingsForm'])->name('settings');
+    Route::post('/settings', [AdminController::class, 'updateSettingsForm'])->name('settings.update');
+    
     // Gallery Admin Page
     Route::get('/gallery', [AdminController::class, 'galleryIndex'])->name('gallery.index');
     Route::post('/gallery/upload', [AdminController::class, 'uploadGallery'])->name('gallery.upload');
@@ -72,12 +134,16 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::post('/gallery/bulk-visibility', [AdminController::class, 'bulkVisibilityGallery'])->name('gallery.bulkVisibility');
     Route::post('/gallery/delete-local', [AdminController::class, 'deleteLocalGallery'])->name('gallery.delete-local');
     Route::post('/gallery/bulk-delete', [AdminController::class, 'bulkDeleteGallery'])->name('gallery.bulk-delete');
+    Route::post('/gallery/delete-legacy', [AdminController::class, 'deleteLegacyGallery'])->name('gallery.delete-legacy');
 
     // Profile / Akun
     Route::get('/profile', [ProfileController::class, 'index'])->name('profile.index');
     Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
     
     // CRUDs (Hanya Admin dan Manager)
+    // ==========================================
+    // [TANDA: PENERAPAN MIDDLEWARE CRUD PADA GRUP ROUTE]
+    // ==========================================
     Route::middleware(['crud'])->group(function () {
         Route::post('/packages/bulk-action', [PackageController::class, 'bulkAction'])->name('packages.bulkAction');
         Route::resource('packages', PackageController::class);
@@ -101,16 +167,24 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
 
     // Registrations
     Route::get('/registrations/check-new', [RegistrationAdminController::class, 'checkNew'])->name('registrations.checkNew');
+    Route::get('/registrations/trash', [RegistrationAdminController::class, 'trashIndex'])->name('registrations.trash');
     Route::get('/registrations', [RegistrationAdminController::class, 'index'])->name('registrations.index');
     Route::get('/registrations/{id}', [RegistrationAdminController::class, 'show'])->name('registrations.show');
     Route::patch('/registrations/{id}/status', [RegistrationAdminController::class, 'updateStatus'])->name('registrations.status');
     Route::post('/registrations/archive-all-finished', [RegistrationAdminController::class, 'archiveAllFinished'])->name('registrations.archiveAllFinished');
     Route::post('/registrations/{id}/archive', [RegistrationAdminController::class, 'archive'])->name('registrations.archive');
     Route::post('/registrations/{id}/unarchive', [RegistrationAdminController::class, 'unarchive'])->name('registrations.unarchive');
+    Route::post('/registrations/{id}/move-to-trash', [RegistrationAdminController::class, 'moveToTrash'])->name('registrations.moveToTrash');
+    Route::post('/registrations/{id}/restore', [RegistrationAdminController::class, 'restore'])->name('registrations.restore');
+    Route::delete('/registrations/{id}/force-delete', [RegistrationAdminController::class, 'forceDelete'])->name('registrations.forceDelete');
+    Route::post('/registrations/empty-trash', [RegistrationAdminController::class, 'emptyTrash'])->name('registrations.emptyTrash');
     Route::post('/registrations/bulk-delete', [RegistrationAdminController::class, 'bulkDestroy'])->name('registrations.bulkDestroy');
+    Route::post('/registrations/bulk-restore', [RegistrationAdminController::class, 'bulkRestore'])->name('registrations.bulkRestore');
     Route::post('/registrations/bulk-status', [RegistrationAdminController::class, 'bulkUpdateStatus'])->name('registrations.bulkStatus');
-    Route::delete('/registrations/{id}', [RegistrationAdminController::class, 'destroy'])->name('registrations.destroy');
 
+    // ==========================================
+    // [TANDA: PENERAPAN MIDDLEWARE ROLE UNTUK MENENTUKAN OTORISASI]
+    // ==========================================
     Route::middleware(['auth', 'role:admin'])->get('/admin', function () {
         return "Halaman Admin - Akses Penuh";
     })->name('admin.page');

@@ -250,8 +250,8 @@ window.addEventListener('error', function(e) {
                     @endphp
                     <option value="{{ $pkgName }}" {{ $isSelected ? 'selected' : '' }}>
                       {{ $pkgName }} 
-                      @if(isset($pkg['price']) && $pkg['price']) — Rp {{ number_format((int)$pkg['price'], 0, ',', '.') }} @endif
-                      @if(isset($pkg['duration']) && $pkg['duration']) ({{ $pkg['duration'] }} hari) @endif
+                      @if(isset($pkg['price']) && $pkg['price']) — Rp {{ number_format((float) preg_replace('/[^0-9]/', '', $pkg['price']), 0, ',', '.') }} @endif
+                      @if(isset($pkg['duration']) && $pkg['duration']) ({{ trim(str_ireplace('hari', '', $pkg['duration'])) }} Hari) @endif
                     </option>
                   @endforeach
                 </select>

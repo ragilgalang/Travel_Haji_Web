@@ -11,10 +11,13 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        // ==========================================
+        // [TANDA: REGISTRASI ALIAS MIDDLEWARE KUSTOM]
+        // ==========================================
         $middleware->alias([
-        'role' => \App\Http\Middleware\RoleMiddleware::class,
-        'crud' => \App\Http\Middleware\CrudMiddleware::class,
-    ]);
+            'role' => \App\Http\Middleware\RoleMiddleware::class,
+            'crud' => \App\Http\Middleware\CrudMiddleware::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

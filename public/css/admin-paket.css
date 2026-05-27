@@ -1,3 +1,7 @@
+/* ==========================================
+   [TANDA: BAR AKSI MASSAL - HAPUS BANYAK PAKET]
+   Muncul saat beberapa paket dipilih untuk dihapus sekaligus
+========================================== */
 /* Bulk Actions Bar Styles */
 .bulk-actions {
     background: #f8fafc;
@@ -10,6 +14,10 @@
     gap: 12px;
 }
 
+/* ==========================================
+   [TANDA: AREA FILTER - PENCARIAN & KATEGORI PAKET]
+   Pencarian paket, filter tipe, tombol cari & reset
+========================================== */
 /* Filter Bar Styles */
 .filter-bar-packages {
     background: white;
@@ -98,6 +106,10 @@
 .btn-bulk-delete { background: #ef4444; color: white; }
 .btn-bulk-delete:hover { background: #dc2626; }
 
+/* ==========================================
+   [TANDA: MODAL OVERLAY - LATAR GELAP POPUP FORM]
+   Efek blur & hitam transparan di belakang modal form
+========================================== */
 /* Overlay Modal for Form */
 .modal-overlay {
     position: fixed;
@@ -129,6 +141,10 @@
     box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
 }
 
+/* ==========================================
+   [TANDA: TABEL DATA PAKET - DETAIL PAKET HAJI/UMROH]
+   Kolom nama paket, tipe, harga, durasi, status unggulan, tombol edit/hapus
+========================================== */
 /* Package Table Styles */
 .packages-header {
     padding: 0;
@@ -257,6 +273,10 @@
     color: var(--text-muted);
 }
 
+/* ==========================================
+   [TANDA: FORM DI DALAM MODAL - INPUT DATA PAKET]
+   Grid form input, dropzone file gambar, checkbox unggulan, tombol simpan/batal
+========================================== */
 /* Modal Form Styles */
 .modal-header {
     display: flex;

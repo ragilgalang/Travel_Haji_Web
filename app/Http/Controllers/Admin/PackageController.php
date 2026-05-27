@@ -63,8 +63,9 @@ class PackageController extends Controller
 
     public function create()
     {
-        return view('admin.packages.create');
+        return redirect()->route('admin.packages.index')->with('open_create_modal', true);
     }
+
 
     public function store(Request $request)
     {
@@ -80,6 +81,19 @@ class PackageController extends Controller
                 'contact_phone' => 'nullable|string',
                 'promo_until' => 'nullable|string',
                 'hotel_facilities_text' => 'nullable|string',
+                
+                // Screenshot fields
+                'quota' => 'nullable|string',
+                'room_type' => 'nullable|string',
+                'airport_origin' => 'nullable|string',
+                'airport_destination' => 'nullable|string',
+                'airline' => 'nullable|string',
+                'flight_number' => 'nullable|string',
+                'departure_date' => 'nullable|string',
+                'departure_time' => 'nullable|string',
+                'return_date' => 'nullable|string',
+                'return_time' => 'nullable|string',
+                'status' => 'nullable|string',
             ]);
 
             // Proses Fitur: Ambil dari textarea (string) dan pecah jadi array berdasarkan baris
@@ -122,12 +136,16 @@ class PackageController extends Controller
 
     public function edit(string $id)
     {
-        $package = (object) $this->firebase->getValue('packages/' . $id);
+        $package = $this->firebase->getValue('packages/' . $id);
         if (!$package) abort(404);
         
-        $package->id = $id; // Ensure ID is present for the form
-        return view('admin.packages.edit', compact('package'));
+        return redirect()->route('admin.packages.index')->with([
+            'open_edit_modal' => true,
+            'edit_id' => $id,
+            'edit_data' => $package
+        ]);
     }
+
 
     public function update(Request $request, string $id)
     {
@@ -143,6 +161,19 @@ class PackageController extends Controller
                 'contact_phone' => 'nullable|string',
                 'promo_until' => 'nullable|string',
                 'hotel_facilities_text' => 'nullable|string',
+                
+                // Screenshot fields
+                'quota' => 'nullable|string',
+                'room_type' => 'nullable|string',
+                'airport_origin' => 'nullable|string',
+                'airport_destination' => 'nullable|string',
+                'airline' => 'nullable|string',
+                'flight_number' => 'nullable|string',
+                'departure_date' => 'nullable|string',
+                'departure_time' => 'nullable|string',
+                'return_date' => 'nullable|string',
+                'return_time' => 'nullable|string',
+                'status' => 'nullable|string',
             ]);
 
             // Proses Fitur Umum

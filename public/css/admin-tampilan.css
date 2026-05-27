@@ -38,6 +38,10 @@ body {
   display: flex;
 }
 
+/* ==========================================
+   [TANDA: BAR SAMPING (SIDEBAR) NAVIGASI ADMIN]
+   Latar belakang pola geometri Islami, daftar menu, info user, & tombol logout
+========================================== */
 /* ── SIDEBAR ── */
 .sidebar {
   width: var(--sidebar-w);
@@ -200,6 +204,10 @@ body {
   min-height: 100vh;
 }
 
+/* ==========================================
+   [TANDA: BARIS MENU ATAS (TOPBAR)]
+   Breadcrumb halaman aktif, tombol notifikasi, dan tanggal server
+========================================== */
 /* Header */
 .topbar {
   height: var(--header-h);
@@ -271,6 +279,10 @@ body {
   flex: 1;
 }
 
+/* ==========================================
+   [TANDA: BANNER SAMBUTAN HALAMAN DASBOR]
+   Banner gradasi hijau gelap dengan ornamen bulan emas & tombol quick links
+========================================== */
 /* Welcome banner */
 .welcome-banner {
   background: linear-gradient(135deg, var(--green-800) 0%, var(--green-900) 60%, #040f08 100%);
@@ -374,6 +386,10 @@ body {
 
 .action-btn svg { width: 16px; height: 16px; }
 
+/* ==========================================
+   [TANDA: GRID KARTU STATISTIK DASBOR]
+   Grid menampilkan ringkasan angka statistik dengan bar chart mini
+========================================== */
 /* ── STATS GRID ── */
 .stats-grid {
   display: grid;
@@ -526,6 +542,10 @@ body {
 .mini-bar.gold  { background: #ca8a04; }
 .mini-bar.blue  { background: #2563eb; }
 
+/* ==========================================
+   [TANDA: LAYOUT GRID AREA BAWAH DASBOR]
+   Membagi area bawah dasbor (tabel paket di kiri, tombol aksi cepat di kanan)
+========================================== */
 /* ── BOTTOM GRID ── */
 .bottom-grid {
   display: grid;
@@ -620,6 +640,10 @@ body {
 .pkg-status.active { background: var(--green-100); color: var(--green-700); }
 .pkg-status.draft  { background: var(--gold-100); color: var(--gold-600); }
 
+/* ==========================================
+   [TANDA: KARTU AKSI CEPAT DASBOR]
+   Navigasi cepat ke pendaftaran baru, tambah paket, edit testimoni, dll
+========================================== */
 /* Quick Actions card */
 .quick-card { animation-delay: 0.42s; }
 
@@ -768,6 +792,23 @@ dy {
     align-items: center; 
     gap: 8px;
 }
+.alert-danger-modern {
+    background: #fee2e2; 
+    color: #991b1b; 
+    padding: 12px 20px; 
+    border-radius: 12px; 
+    margin-bottom: 24px; 
+    font-weight: 500; 
+    display: flex; 
+    align-items: center; 
+    gap: 8px;
+    border: 1px solid #fca5a5;
+}
+
+/* ==========================================
+   [TANDA: FOOTER HAK CIPTA HALAMAN ADMIN]
+   Informasi copyright dan link dukungan teknis admin
+========================================== */
 .admin-footer {
     padding: 20px 32px; 
     border-top: 1px solid var(--gray-100); 
@@ -1174,6 +1215,10 @@ a { text-decoration: none; color: inherit; }
   padding: 2px 4px;
 }
 
+/* ==========================================
+   [TANDA: ELEMENT TAMBAHAN DATA PENDAFTARAN]
+   Badge status pendaftaran baru dengan efek pulse animasi merah merona
+========================================== */
 /* Registration Page Enhancements */
 .badge-new {
   background: #f43f5e;

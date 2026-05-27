@@ -1,3 +1,7 @@
+/* ==========================================
+   [TANDA: HEADER PENDAFTARAN - JUDUL & LINK FORM]
+   Judul halaman dan tombol cepat untuk membuka form pendaftaran publik
+========================================== */
 .registrations-header {
     margin-bottom: 0;
 }
@@ -12,6 +16,10 @@
     font-weight: 600;
 }
 
+/* ==========================================
+   [TANDA: PANEL FILTER - PENCARIAN & FILTER STATUS]
+   Filter berdasarkan nama, nomor HP, status pembayaran, status verifikasi
+========================================== */
 .filter-card {
     margin-top: 20px;
     padding: 16px 20px;
@@ -63,6 +71,10 @@
     font-size: 0.85rem;
 }
 
+/* ==========================================
+   [TANDA: BAR AKSI MASSAL - UPDATE/HAPUS BANYAK JEMAAH]
+   Pilihan update status massal, tombol hapus jemaah terpilih
+========================================== */
 .bulk-card {
     overflow: hidden;
     padding: 0;
@@ -146,6 +158,10 @@
     margin-bottom: 12px;
 }
 
+/* ==========================================
+   [TANDA: TABEL DATA PENDAFTARAN - DAFTAR JEMAAH]
+   Tabel responsif berisi nama jemaah, nomor registrasi, no HP, status pembayaran, tanggal, aksi
+========================================== */
 .table-responsive {
     overflow-x: auto;
 }
@@ -405,7 +421,30 @@
     gap: 6px;
 }
 
+.btn-bulk-restore {
+    background: #059669;
+    color: white;
+    border: none;
+    padding: 6px 16px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: background 0.2s;
+}
+
+.btn-bulk-restore:hover {
+    background: #047857;
+}
+
 /* Detailed View Styles */
+/* ==========================================
+   [TANDA: DETAIL JEMAAH - HALAMAN TAMPILAN DETAIL]
+   Tata letak grid 2 kolom berisi data lengkap jemaah dan status pembayaran di sidebar
+========================================== */
 .btn-back-modern {
     display: inline-flex;
     align-items: center;

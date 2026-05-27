@@ -4,7 +4,10 @@
    modern, bersih, dan premium.
 ═══════════════════════════════════════════════════ */
 
-/* ─── CSS VARIABLES ─── */
+/* ==========================================
+   [TANDA: VARIABEL WARNA & UKURAN GLOBAL]
+   Ganti warna utama di sini (--green, --gold, dll)
+========================================== */
 /* ─── CSS VARIABLES ─── */
 :root {
   /* Colors are injected dynamically from Blade */
@@ -22,6 +25,9 @@
   --glass-border: rgba(255, 255, 255, 0.4);
 }
 
+/* ==========================================
+   [TANDA: SCROLLBAR - GAYA SCROLL BAR]
+========================================== */
 /* ─── CUSTOM SCROLLBAR ─── */
 ::-webkit-scrollbar {
   width: 8px;
@@ -44,6 +50,9 @@ body {
   font-family: 'Figtree', system-ui, sans-serif;
 }
 
+/* ==========================================
+   [TANDA: TOMBOL (BUTTONS) - .btn, .btn-solid, .btn-gold]
+========================================== */
 /* ─── BUTTONS ─── */
 .btn {
   border-radius: 100px;
@@ -75,6 +84,10 @@ body {
   box-shadow: 0 8px 24px rgba(201, 151, 42, 0.4);
 }
 
+/* ==========================================
+   [TANDA: STATS BAR - ANGKA STATISTIK JEMAAH]
+   Kotak angka: Jemaah, Tahun, Kepuasan, Kota
+========================================== */
 /* ─── STATS BAR (MODERNIZED) ─── */
 .stats-bar {
   background: rgba(255, 255, 255, 0.8);
@@ -115,6 +128,10 @@ body {
   letter-spacing: 0.02em;
 }
 
+/* ==========================================
+   [TANDA: SECTION BASE - GAYA DASAR SEMUA SEKSI]
+   Padding, judul (sec-title), subtitle (sec-sub)
+========================================== */
 /* ─── SECTION BASE (MODERNIZED) ─── */
 .section {
   padding: 6rem 5%;
@@ -150,6 +167,10 @@ body {
   color: var(--muted);
 }
 
+/* ==========================================
+   [TANDA: ABOUT - SEKSI TENTANG KAMI]
+   Kartu item about (.about-item, .about-item-icon)
+========================================== */
 /* ─── ABOUT SECTION ─── */
 .about-section {
   background: linear-gradient(180deg, #f0f7f3 0%, #ffffff 100%);
@@ -184,6 +205,10 @@ body {
   color: var(--dark);
 }
 
+/* ==========================================
+   [TANDA: PACKAGES - KARTU PAKET HAJI/UMRAH]
+   Kartu paket, tombol filter, slider
+========================================== */
 /* ─── PACKAGES SECTION ─── */
 .pkg-section {
   background: #f8f9fa;
@@ -308,6 +333,10 @@ body {
   gap: 0.75rem;
 }
 
+/* ==========================================
+   [TANDA: FACILITIES - KARTU FASILITAS]
+   Kartu fasilitas (.fac-card), slider, icon
+========================================== */
 /* ─── FACILITIES SECTION (PREMIUM CARDS - REFINED) ─── */
 .fac-section {
   background: radial-gradient(circle at top right, #fdfdfb, #f5f8f6);
@@ -457,6 +486,10 @@ body {
   cursor: pointer; /* Indikasi bisa diklik */
 }
 
+/* ==========================================
+   [TANDA: MODAL FASILITAS - POPUP DETAIL FASILITAS]
+   Overlay popup saat kartu fasilitas diklik
+========================================== */
 /* ─── FACILITY MODAL PREMIUM ─── */
 .fac-modal-overlay {
     position: fixed;
@@ -623,14 +656,63 @@ body {
 
 
 
+/* ==========================================
+   [TANDA: SCHEDULE - SEKSI JADWAL/ITINERARY]
+========================================== */
 /* ─── SCHEDULE SECTION ─── */
 .jadwal-section {
   background: var(--white);
 }
 
+/* ==========================================
+   [TANDA: TESTIMONIALS - KARTU ULASAN JEMAAH]
+   Kartu testimoni (.testi-card)
+========================================== */
 /* ─── TESTIMONIALS ─── */
 .testi-section {
   background: linear-gradient(180deg, #f0f7f3 0%, #f8f9fa 100%);
+}
+
+.btn-review-testi {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--white);
+  color: var(--green);
+  border: 2px solid var(--green);
+  padding: 10px 24px;
+  border-radius: 100px;
+  font-family: 'Figtree', system-ui, sans-serif;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 4px 15px rgba(26, 92, 58, 0.08);
+  margin-top: 1.2rem;
+}
+
+.btn-review-testi svg {
+  color: var(--gold);
+  fill: var(--gold);
+  transition: transform 0.3s ease, fill 0.3s ease, color 0.3s ease;
+}
+
+.btn-review-testi:hover {
+  background: var(--green);
+  color: var(--white);
+  border-color: var(--green);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(26, 92, 58, 0.2);
+}
+
+.btn-review-testi:hover svg {
+  transform: scale(1.2) rotate(15deg);
+  color: var(--white);
+  fill: var(--white);
+}
+
+.btn-review-testi:active {
+  transform: translateY(-1px);
 }
 
 .testi-card {
@@ -648,6 +730,10 @@ body {
   transform: translateY(-4px);
 }
 
+/* ==========================================
+   [TANDA: GALLERY - GALERI FOTO]
+   Latar gelap, foto marquee berjalan
+========================================== */
 /* ─── GALLERY / MARQUEE ─── */
 .gallery-section {
   background: var(--dark);
@@ -664,6 +750,10 @@ body {
   border-top: 1px solid #e8ecf0;
 }
 
+/* ==========================================
+   [TANDA: ANIMASI REVEAL - ELEMEN MUNCUL SAAT SCROLL]
+   .reveal, .reveal-left, .reveal-right
+========================================== */
 /* ─── REVEAL ANIMATIONS ─── */
 .reveal, .reveal-left, .reveal-right {
   opacity: 0;
@@ -679,6 +769,10 @@ body {
   transform: none;
 }
 
+/* ==========================================
+   [TANDA: RESPONSIVE - TAMPILAN HP/TABLET]
+   Ubah di sini untuk penyesuaian layar kecil
+========================================== */
 /* ─── RESPONSIVE ─── */
 @media (max-width: 768px) {
   .section { padding: 4rem 5%; }
@@ -686,6 +780,10 @@ body {
   .pkg-img { height: 160px; }
 }
 
+/* ==========================================
+   [TANDA: MODALS & OVERLAYS - POPUP/DIALOG]
+   Modal paket, video, status (.modal-overlay)
+========================================== */
 /* ─── MODALS & OVERLAYS (MIGRATED FROM INLINE) ─── */
 .modal-overlay, .review-modal { 
     position: fixed; inset: 0; z-index: 9999; 

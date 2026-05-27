@@ -1,0 +1,1672 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="csrf-token" content="FqFXkFKhOBWmk20MdPVJlFqTA6RGIeNYrPS3Piz9">
+  <title>Dashboard Admin — PT. UMI MUTHMAINAH BERKAH</title>
+  <link rel="icon" type="image/png" href="/uploads/images/1779173605_6a0c08e53ff18_site_logo.png">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=DM+Sans:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="http://:/css/admin-tampilan.css">
+  <style>
+    /* Animasi Global */
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .animate-fade-in-up {
+      animation: fadeInUp 0.6s ease-out forwards;
+    }
+
+    .nav-item {
+      transition: all 0.2s ease;
+      padding: 10px 16px !important;
+      margin-bottom: 2px !important;
+      font-size: 0.85rem !important;
+    }
+
+    .nav-item svg {
+      width: 18px !important;
+      height: 18px !important;
+    }
+
+    .sidebar {
+      height: 100vh !important;
+      display: flex !important;
+      flex-direction: column !important;
+      overflow: hidden !important;
+      z-index: 1001 !important;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    }
+
+    .nav-section {
+      flex: 1 !important;
+      overflow-y: auto !important;
+      padding-right: 4px !important;
+    }
+
+    /* --- RESPONSIVE OPTIMIZATIONS --- */
+    @media (max-width: 991px) {
+      .sidebar {
+        transform: translateX(-100%);
+        position: fixed !important;
+        width: 280px !important;
+      }
+
+      .sidebar.active {
+        transform: translateX(0);
+        box-shadow: 20px 0 50px rgba(0, 0, 0, 0.3);
+      }
+
+      .main {
+        margin-left: 0 !important;
+        width: 100% !important;
+      }
+
+      .topbar {
+        padding: 0 15px !important;
+      }
+
+      .topbar-left h1 {
+        font-size: 1.1rem !important;
+      }
+
+      .topbar-date {
+        display: none !important;
+      }
+
+      .breadcrumb {
+        display: none !important;
+      }
+    }
+
+    .sidebar-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(4px);
+      z-index: 1000;
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.3s ease;
+    }
+
+    .sidebar-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .mobile-toggle {
+      display: none;
+      background: #f1f5f9;
+      border: none;
+      padding: 8px;
+      border-radius: 8px;
+      margin-right: 12px;
+      cursor: pointer;
+      color: #1e293b;
+    }
+
+    @media (max-width: 991px) {
+      .mobile-toggle {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+    }
+
+    /* Scrollbar for Sidebar */
+    .nav-section::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    .nav-section::-webkit-scrollbar-track {
+      background: rgba(0, 0, 0, 0.05);
+    }
+
+    .nav-section::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+    }
+
+    .nav-item:hover {
+      transform: translateX(5px);
+    }
+
+    /* Efek Hover Kartu */
+    .stat-card,
+    .card {
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    }
+
+    .stat-card:hover,
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 12px 20px rgba(0, 0, 0, 0.1) !important;
+    }
+
+    .topbar-date {
+      padding: 6px 12px;
+      background: #f1f5f9;
+      border-radius: 8px;
+      color: #64748b;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+  </style>
+  <style>
+    /* Styling Premium Pengaturan */
+    .settings-container {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+        animation: fadeInUp 0.5s ease-out;
+    }
+
+    .welcome-banner {
+        background: linear-gradient(135deg, #115e3b, #064e3b);
+        border-radius: 16px;
+        padding: 28px;
+        color: white;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: 0 10px 25px rgba(6, 78, 59, 0.15);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .welcome-text h2 {
+        font-family: 'Playfair Display', serif;
+        font-size: 1.8rem;
+        margin: 6px 0;
+        font-weight: 700;
+    }
+
+    .welcome-text h2 em {
+        color: #f1c40f;
+        font-style: normal;
+    }
+
+    .greeting-tag {
+        background: rgba(241, 196, 15, 0.15);
+        color: #f1c40f;
+        padding: 4px 12px;
+        border-radius: 50px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        display: inline-block;
+    }
+
+    /* Layout Tab */
+    .settings-grid {
+        display: grid;
+        grid-template-columns: 280px 1fr;
+        gap: 28px;
+    }
+
+    @media (max-width: 991px) {
+        .settings-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    /* Tab Menu List */
+    .tab-menu-card {
+        background: white;
+        border-radius: 16px;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
+        padding: 16px;
+        height: fit-content;
+        position: sticky;
+        top: 24px;
+    }
+
+    .tab-btn {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 14px 16px;
+        background: transparent;
+        border: none;
+        border-radius: 12px;
+        color: #64748b;
+        font-size: 0.9rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-align: left;
+    }
+
+    .tab-btn:hover {
+        background: #f8fafc;
+        color: #1e293b;
+        transform: translateX(4px);
+    }
+
+    .tab-btn.active {
+        background: #ecfdf5;
+        color: #059669;
+    }
+
+    .tab-btn svg {
+        width: 20px;
+        height: 20px;
+        flex-shrink: 0;
+    }
+
+    /* Tab Content Card */
+    .tab-content-card {
+        background: white;
+        border-radius: 16px;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
+        padding: 28px;
+    }
+
+    .tab-content-card::after {
+        content: "";
+        display: block;
+        clear: both;
+    }
+
+    .tab-pane {
+        display: none;
+        animation: fadeIn 0.4s ease;
+    }
+
+    .tab-pane.active {
+        display: block;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .section-title-premium {
+        font-family: 'Playfair Display', serif;
+        font-size: 1.4rem;
+        color: #0f291e;
+        margin-bottom: 8px;
+        font-weight: 700;
+    }
+
+    .section-desc-premium {
+        color: #64748b;
+        font-size: 0.85rem;
+        margin-bottom: 24px;
+    }
+
+    /* Form Fields */
+    .form-group-premium {
+        margin-bottom: 20px;
+    }
+
+    .admin-label {
+        font-weight: 600;
+        font-size: 0.85rem;
+        color: #334155;
+        margin-bottom: 8px;
+        display: block;
+    }
+
+    .form-control-premium {
+        width: 100%;
+        padding: 12px 16px;
+        border: 1.5px solid #cbd5e1;
+        border-radius: 10px;
+        font-size: 0.9rem;
+        color: #1e293b;
+        transition: all 0.3s ease;
+        background: #f8fafc;
+    }
+
+    .form-control-premium:focus {
+        border-color: #059669;
+        outline: none;
+        background: white;
+        box-shadow: 0 0 0 4px rgba(5, 150, 105, 0.1);
+    }
+
+    .help-block-premium {
+        font-size: 0.75rem;
+        color: #64748b;
+        margin-top: 6px;
+        display: block;
+    }
+
+    /* Grids & Cards */
+    .grid-2-col {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+    }
+
+    .grid-4-col {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 16px;
+    }
+
+    @media (max-width: 768px) {
+        .grid-2-col {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    /* Image Preview Styling */
+    .image-preview-wrapper {
+        border: 1px dashed #cbd5e1;
+        border-radius: 12px;
+        padding: 16px;
+        background: #f8fafc;
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+    }
+
+    .preview-thumbnail {
+        width: 60px;
+        height: 60px;
+        object-fit: contain;
+        border-radius: 8px;
+        border: 1px solid #e2e8f0;
+        background: white;
+    }
+
+    .preview-info {
+        flex: 1;
+    }
+
+    .delete-checkbox-label {
+        font-size: 0.8rem;
+        color: #ef4444;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        cursor: pointer;
+        font-weight: 600;
+        user-select: none;
+    }
+
+    .delete-checkbox-label input {
+        accent-color: #ef4444;
+        width: 16px;
+        height: 16px;
+    }
+
+    /* Inner Cards */
+    .advantage-inner-card {
+        background: #fdfdfd;
+        border: 1px solid #e2e8f0;
+        padding: 16px;
+        border-radius: 12px;
+        margin-bottom: 16px;
+    }
+
+    /* Sticky Footer Submit button */
+    .submit-bar {
+        margin-top: 24px;
+        display: flex;
+        justify-content: flex-end;
+        border-top: 1px solid #e2e8f0;
+        padding-top: 20px;
+    }
+
+    .btn-submit-premium {
+        background: linear-gradient(135deg, #059669, #047857);
+        color: white;
+        border: none;
+        padding: 14px 28px;
+        border-radius: 12px;
+        font-weight: 700;
+        font-size: 0.95rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(5, 150, 105, 0.2);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .btn-submit-premium:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(5, 150, 105, 0.3);
+        filter: brightness(1.05);
+    }
+
+    /* Specific Media Previews */
+    .video-preview-player {
+        max-width: 100%;
+        max-height: 120px;
+        border-radius: 8px;
+        border: 1px solid #cbd5e1;
+    }
+</style>
+</head>
+
+<body class="admin-body">
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-icon">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 2L4 7v10l8 5 8-5V7L12 2Z" stroke="white" stroke-width="1.5" stroke-linejoin="round" />
+          <path d="M12 8v8M8 10l4-2 4 2" stroke="#eab308" stroke-width="1.5" stroke-linecap="round"
+            stroke-linejoin="round" />
+        </svg>
+      </div>
+      <div class="brand-text">
+        <div class="name">PT. UMI MUTHMAINAH<br>BERKAH</div>
+        <div class="sub">Portal Administrator</div>
+      </div>
+    </div>
+
+
+    <nav class="nav-section">
+      <div class="nav-label">Utama</div>
+
+      <a class="nav-item "
+        href="http://:/admin/dashboard#">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="3" width="7" height="7" rx="1" />
+          <rect x="14" y="3" width="7" height="7" rx="1" />
+          <rect x="3" y="14" width="7" height="7" rx="1" />
+          <rect x="14" y="14" width="7" height="7" rx="1" />
+        </svg>
+        Dashboard
+      </a>
+
+              <a class="nav-item "
+          href="http://:/admin/packages#">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M20 7H4a2 2 0 00-2 2v6a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2z" />
+            <path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16" />
+          </svg>
+          Kelola Paket
+                  </a>
+
+        <a class="nav-item "
+          href="http://:/admin/facilities#">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
+            <polyline points="9 22 9 12 15 12 15 22" />
+          </svg>
+          Kelola Fasilitas
+        </a>
+      
+              <a class="nav-item "
+          href="http://:/admin/registrations#">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" />
+            <circle cx="9" cy="7" r="4" />
+            <path d="M23 21v-2a4 4 0 00-3-3.87" />
+            <path d="M16 3.13a4 4 0 010 7.75" />
+          </svg>
+          Pendaftaran
+        </a>
+
+        <a class="nav-item "
+          href="http://:/admin/chat-assistant#">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 8V4H8" />
+            <rect x="4" y="8" width="16" height="12" rx="2" />
+            <path d="M2 14h2M20 14h2M15 13a3 3 0 10-6 0" />
+          </svg>
+          Asisten Chat
+        </a>
+      
+              <a class="nav-item "
+          href="http://:/admin/testimonials#">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" />
+          </svg>
+          Testimoni
+                  </a>
+      
+              <a class="nav-item "
+          href="http://:/admin/finance#">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="2" y="4" width="20" height="16" rx="2" />
+            <path d="M7 15h0M2 9.5h20M12 15h0M17 15h0" />
+          </svg>
+          Laporan Keuangan
+        </a>
+      
+              <a class="nav-item "
+          href="http://:/admin/visitors#">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+            <circle cx="12" cy="12" r="3" />
+          </svg>
+          Detail Pengunjung
+        </a>
+      
+
+
+      <!-- FITUR GALERI (RESTORED) -->
+      <a class="nav-item "
+        href="http://:/admin/gallery#">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="3" width="18" height="18" rx="2" />
+          <circle cx="8.5" cy="8.5" r="1.5" />
+          <path d="M21 15l-5-5L5 21" />
+        </svg>
+        Kelola Galeri
+      </a>
+
+      <a class="nav-item "
+        href="http://:/admin/profile#">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
+          <circle cx="12" cy="7" r="4" />
+        </svg>
+        Kelola Akun
+      </a>
+
+      <div class="nav-label mt-3">Pengaturan</div>
+
+      <a class="nav-item "
+        href="http://:/admin/settings#">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="3" />
+          <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z" />
+        </svg>
+        Pengaturan Web
+      </a>
+
+      <a class="nav-item "
+        href="http://:/admin/audit-logs#">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2" />
+          <rect x="9" y="3" width="6" height="4" rx="1" />
+          <path d="M9 12h6M9 16h4" />
+        </svg>
+        Monitoring Login
+      </a>
+
+      <a class="nav-item" href="/" target="_blank">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10" />
+          <line x1="2" y1="12" x2="22" y2="12" />
+          <path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z" />
+        </svg>
+        Lihat Website
+      </a>
+      <div class="sidebar-bottom"
+        style="padding: 1rem 1.5rem; margin-top: auto; border-top: 1px solid rgba(255,255,255,0.05); background: rgba(0,0,0,0.1);">
+        <form id="logout-form" action="http://:/logout#" method="POST" class="d-none"><input type="hidden" name="_token" value="FqFXkFKhOBWmk20MdPVJlFqTA6RGIeNYrPS3Piz9" autocomplete="off"></form>
+        <button class="logout-btn-premium" onclick="document.getElementById('logout-form').submit();" style="
+          width: 100%; 
+          padding: 10px; 
+          background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(239, 68, 68, 0.15)); 
+          color: #f87171; 
+          border: 1px solid rgba(239, 68, 68, 0.2); 
+          border-radius: 10px; 
+          display: flex; 
+          align-items: center; 
+          justify-content: center; 
+          gap: 10px; 
+          font-weight: 600; 
+          font-size: 0.8rem; 
+          cursor: pointer; 
+          transition: all 0.3s ease;
+      " onmouseover="this.style.background='rgba(239, 68, 68, 0.2)'; this.style.transform='translateY(-2px)';"
+          onmouseout="this.style.background='rgba(239, 68, 68, 0.1)'; this.style.transform='translateY(0)';">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" />
+            <polyline points="16 17 21 12 16 7" />
+            <line x1="21" y1="12" x2="9" y2="12" />
+          </svg>
+          Keluar
+        </button>
+      </div>
+
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="main">
+
+    <!-- Topbar -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="mobile-toggle" id="sidebarToggle">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="3" y1="12" x2="21" y2="12"></line>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <line x1="3" y1="18" x2="21" y2="18"></line>
+          </svg>
+        </button>
+        <h1>Pengaturan Web</h1>
+        <div class="breadcrumb">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
+          </svg>
+          Beranda &rsaquo; <span>Pengaturan Web</span>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <div class="topbar-date">21 May 2026</div>
+        <button class="topbar-btn" title="Notifikasi Baru" style="position: relative;" id="notifBell">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9" />
+            <path d="M13.73 21a2 2 0 01-3.46 0" />
+          </svg>
+          <span id="notifBadge" class="d-none"
+            style="position: absolute; top: -2px; right: -2px; background: #ef4444; color: white; border-radius: 50%; width: 18px; height: 18px; font-size: 0.65rem; font-weight: 800; display: flex; align-items: center; justify-content: center; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">0</span>
+        </button>
+        <div class="user-profile-wrapper" style="
+          display: flex; 
+          align-items: center; 
+          gap: 12px; 
+          padding: 6px 6px 6px 16px; 
+          background: rgba(255, 255, 255, 0.9); 
+          border: 1px solid #e2e8f0; 
+          border-radius: 50px; 
+          box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+          cursor: pointer;
+          transition: all 0.3s ease;
+      " onmouseover="this.style.boxShadow='0 6px 20px rgba(0,0,0,0.08)';"
+          onmouseout="this.style.boxShadow='0 4px 12px rgba(0,0,0,0.03)';">
+          <div class="text-right" style="text-align: right;">
+            <div style="color: #1e293b; font-weight: 700; font-size: 0.85rem; line-height: 1.1;">
+              Admin
+            </div>
+            <div
+              style="color: #eab308; font-size: 0.65rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; margin-top: 2px;">
+              admin
+            </div>
+          </div>
+          <div class="avatar-header" style="
+            width: 36px; 
+            height: 36px; 
+            background: linear-gradient(135deg, #eab308, #ca8a04); 
+            color: white; 
+            border-radius: 50%; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-weight: 700; 
+            font-size: 0.95rem;
+            box-shadow: 0 2px 6px rgba(234, 179, 8, 0.3);
+        ">
+            A
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Content -->
+    <div class="content">
+      
+      
+
+      <div class="settings-container">
+    <!-- BANNER ATAS -->
+    <div class="welcome-banner">
+        <div class="welcome-text">
+            <div class="greeting-tag">Manajemen Web</div>
+            <h2>Pengaturan <em>Website Portal</em></h2>
+            <p>Kelola identitas, kontak, layout halaman beranda, hingga integrasi Google Maps secara tersentralisasi.</p>
+        </div>
+    </div>
+
+    <!-- FORM UTAMA -->
+    <form action="http://:/admin/settings#" method="POST" enctype="multipart/form-data">
+        <input type="hidden" name="_token" value="FqFXkFKhOBWmk20MdPVJlFqTA6RGIeNYrPS3Piz9" autocomplete="off">        <div class="settings-grid">
+            <!-- MENU TAB KIRI -->
+            <div class="tab-menu-card">
+                <button type="button" class="tab-btn active" onclick="switchTab(event, 'tab-umum')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="3"/>
+                        <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/>
+                    </svg>
+                    ⚙️ Umum & Kontak
+                </button>
+                <button type="button" class="tab-btn" onclick="switchTab(event, 'tab-hero')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="3" width="18" height="18" rx="2"/>
+                        <circle cx="8.5" cy="8.5" r="1.5"/>
+                        <path d="M21 15l-5-5L5 21"/>
+                    </svg>
+                    📸 Banner Hero
+                </button>
+                <button type="button" class="tab-btn" onclick="switchTab(event, 'tab-about')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 22s8-4.5 8-11.8A8 8 0 0012 2a8 8 0 00-8 8.2c0 7.3 8 11.8 8 11.8z"/>
+                        <circle cx="12" cy="10" r="3"/>
+                    </svg>
+                    📖 Tentang & Stats
+                </button>
+                <button type="button" class="tab-btn" onclick="switchTab(event, 'tab-sections')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="3" width="18" height="18" rx="2" />
+                        <line x1="9" y1="3" x2="9" y2="21" />
+                    </svg>
+                    📣 Judul Bagian
+                </button>
+                <button type="button" class="tab-btn" onclick="switchTab(event, 'tab-jadwal')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    📅 Alur Perjalanan
+                </button>
+                <button type="button" class="tab-btn" onclick="switchTab(event, 'tab-footer')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M3 15h18M3 9h18M3 21h18M9 3v18"/>
+                    </svg>
+                    🖼️ Bagian Footer
+                </button>
+            </div>
+
+            <!-- CARD KONTEN TAB KANAN -->
+            <div class="tab-content-card">
+                
+                <!-- TAB 1: UMUM & KONTAK -->
+                <div id="tab-umum" class="tab-pane active">
+                    <h3 class="section-title-premium">⚙️ Pengaturan Dasar & Kontak</h3>
+                    <p class="section-desc-premium">Sesuaikan identitas website, meta tag SEO, dan tautan kontak resmi.</p>
+
+                    <div class="grid-2-col">
+                        <div class="form-group-premium">
+                            <label class="admin-label">Logo Utama Website (PNG)</label>
+                                                            <div class="image-preview-wrapper">
+                                    <img src="http://:/uploads/images/1779173605_6a0c08e53ff18_site_logo.png" class="preview-thumbnail" alt="Logo">
+                                    <div class="preview-info">
+                                        <label class="delete-checkbox-label">
+                                            <input type="checkbox" name="delete_site_logo" value="1"> 🗑️ Hapus Logo
+                                        </label>
+                                    </div>
+                                </div>
+                                                        <input type="file" name="site_logo" class="form-control-premium" accept="image/*">
+                            <span class="help-block-premium">Format disarankan PNG transparan, ukuran ideal max. 500kb.</span>
+                        </div>
+
+                        <div class="form-group-premium">
+                            <label class="admin-label">Logo OG (Open Graph) / Sosial Media</label>
+                                                        <input type="file" name="og_image" class="form-control-premium" accept="image/*">
+                            <span class="help-block-premium">Logo yang akan tampil ketika link website dibagikan ke medsos/WA.</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group-premium">
+                        <label class="admin-label">Nama Website / Perusahaan</label>
+                        <input type="text" name="site_name" class="form-control-premium" value="PT. UMI MUTHMAINAH BERKAH" required>
+                    </div>
+
+                    <div class="form-group-premium">
+                        <label class="admin-label">Deskripsi Website (Meta Deskripsi SEO)</label>
+                        <textarea name="site_description" class="form-control-premium" rows="3">Penyelenggara Perjalanan Ibadah Haji &amp; Umrah Resmi Kemenag RI. Amanah, Nyaman, dan Berpengalaman bersama PT. UMI MUTHMAINAH BERKAH</textarea>
+                    </div>
+
+                    <div class="form-group-premium">
+                        <label class="admin-label">Keywords Website (Meta Keywords SEO)</label>
+                        <input type="text" name="site_keywords" class="form-control-premium" value="haji, umrah, travel haji, umrah premium, travelhaji">
+                        <span class="help-block-premium">Pisahkan setiap kata kunci dengan tanda koma (,).</span>
+                    </div>
+
+                    <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 24px 0;">
+
+                    <div class="grid-2-col">
+                        <div class="form-group-premium">
+                            <label class="admin-label">Nomor WhatsApp CS (Gunakan format 62)</label>
+                            <input type="text" name="contact_wa" class="form-control-premium" value="0851-9869-8289">
+                            <span class="help-block-premium">Contoh pengisian: <b>6281299998888</b> (tanpa spasi / tanda +)</span>
+                        </div>
+                        <div class="form-group-premium">
+                            <label class="admin-label">Nomor Telepon CS (Kantor / Resmi)</label>
+                            <input type="text" name="contact_phone" class="form-control-premium" value="0851-9869-8289">
+                        </div>
+                    </div>
+
+                    <div class="form-group-premium">
+                        <label class="admin-label">Email Layanan Jemaah</label>
+                        <input type="email" name="contact_email" class="form-control-premium" value="umimuthmainahberkahsidoarjo@gmail.com">
+                    </div>
+
+                    <div class="form-group-premium">
+                        <label class="admin-label">Pesan WhatsApp Otomatis (Default)</label>
+                        <textarea name="wa_msg_default" class="form-control-premium" rows="2">Assalamu&#039;alaikum Admin, saya ingin bertanya mengenai layanan di PT. Umi Muthmainah.</textarea>
+                    </div>
+
+                    <div class="form-group-premium">
+                        <label class="admin-label">Pesan WhatsApp Tanya Paket (Selebihnya akan menyebut nama paket otomatis)</label>
+                        <textarea name="wa_msg_package" class="form-control-premium" rows="2">Assalamu&#039;alaikum Admin, saya tertarik dengan paket [NAMA_PAKET]. Mohon info detail pendaftarannya. Syukron.</textarea>
+                    </div>
+
+                    <div class="form-group-premium">
+                        <label class="admin-label">Pesan WhatsApp Tanya Haji Khusus (CTA Bawah)</label>
+                        <textarea name="wa_msg_haji" class="form-control-premium" rows="2">Bismillah, saya ingin berkonsultasi mengenai rencana pendaftaran Haji khusus di PT. Umi Muthmainah. Terima kasih.</textarea>
+                    </div>
+                </div>
+
+                <!-- TAB 2: BANNER HERO -->
+                <div id="tab-hero" class="tab-pane">
+                    <h3 class="section-title-premium">📸 Banner Hero & Media Utama</h3>
+                    <p class="section-desc-premium">Kelola teks intro utama, slideshow gambar latar belakang hero, dan video profil.</p>
+
+                    <div class="form-group-premium">
+                        <label class="admin-label">Badge Atas (Baris 1)</label>
+                        <input type="text" name="hero_badge" class="form-control-premium" value="TERDAFTAR RESMI KEMENAG RI · IZIN PPIU NO. U - 207/2021">
+                    </div>
+
+                    <div class="form-group-premium">
+                        <label class="admin-label">Badge Atas (Baris 2)</label>
+                        <input type="text" name="hero_badge_2" class="form-control-premium" value="PIHK 81200009510360001">
+                    </div>
+
+                    <div class="form-group-premium">
+                        <label class="admin-label">Judul Utama H1 (Hero)</label>
+                        <textarea name="hero_title" class="form-control-premium" rows="2">Bukan hanya perjalanan fisik, tapi juga perjalanan hati menuju dekat dengan sang pencipta</textarea>
+                        <span class="help-block-premium">Gunakan kode html <b>&lt;br&gt;</b> untuk baris baru.</span>
+                    </div>
+
+                    <div class="form-group-premium">
+                        <label class="admin-label">Deskripsi Intro Hero</label>
+                        <textarea name="hero_description" class="form-control-premium" rows="3">Lebih dari 12.000 jemaah telah kami antarkan ke Tanah Suci dengan aman, nyaman, dan penuh keberkahan. Percayakan ibadah Haji &amp; Umrah Anda bersama kami.</textarea>
+                    </div>
+
+                    <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 24px 0;">
+
+                    <h4 style="font-size: 0.95rem; font-weight: 700; color: #1e293b; margin-bottom: 12px;">🖼️ Slideshow Foto Background Hero (Maksimal 4 Foto)</h4>
+                    <div class="grid-2-col">
+                                                    <div class="form-group-premium advantage-inner-card">
+                                <label class="admin-label">Background Latar Belakang 1</label>
+                                                                    <div class="image-preview-wrapper" style="margin-bottom:8px; padding:8px;">
+                                        <img src="http://:/uploads/images/1779321824_hero_bg_1.jpg" class="preview-thumbnail" style="width: 50px; height: 50px; object-fit: cover;" alt="Hero BG">
+                                        <label class="delete-checkbox-label">
+                                            <input type="checkbox" name="delete_hero_bg_1" value="1"> 🗑️ Hapus
+                                        </label>
+                                    </div>
+                                                                <input type="file" name="hero_bg_1" class="form-control-premium" accept="image/*">
+                            </div>
+                                                    <div class="form-group-premium advantage-inner-card">
+                                <label class="admin-label">Background Latar Belakang 2</label>
+                                                                    <div class="image-preview-wrapper" style="margin-bottom:8px; padding:8px;">
+                                        <img src="http://:/uploads/images/1779321824_hero_bg_2.jpg" class="preview-thumbnail" style="width: 50px; height: 50px; object-fit: cover;" alt="Hero BG">
+                                        <label class="delete-checkbox-label">
+                                            <input type="checkbox" name="delete_hero_bg_2" value="1"> 🗑️ Hapus
+                                        </label>
+                                    </div>
+                                                                <input type="file" name="hero_bg_2" class="form-control-premium" accept="image/*">
+                            </div>
+                                                    <div class="form-group-premium advantage-inner-card">
+                                <label class="admin-label">Background Latar Belakang 3</label>
+                                                                    <div class="image-preview-wrapper" style="margin-bottom:8px; padding:8px;">
+                                        <img src="http://:/uploads/images/1779321824_hero_bg_3.jpg" class="preview-thumbnail" style="width: 50px; height: 50px; object-fit: cover;" alt="Hero BG">
+                                        <label class="delete-checkbox-label">
+                                            <input type="checkbox" name="delete_hero_bg_3" value="1"> 🗑️ Hapus
+                                        </label>
+                                    </div>
+                                                                <input type="file" name="hero_bg_3" class="form-control-premium" accept="image/*">
+                            </div>
+                                                    <div class="form-group-premium advantage-inner-card">
+                                <label class="admin-label">Background Latar Belakang 4</label>
+                                                                    <div class="image-preview-wrapper" style="margin-bottom:8px; padding:8px;">
+                                        <img src="http://:/uploads/images/1779321824_hero_bg_4.jpg" class="preview-thumbnail" style="width: 50px; height: 50px; object-fit: cover;" alt="Hero BG">
+                                        <label class="delete-checkbox-label">
+                                            <input type="checkbox" name="delete_hero_bg_4" value="1"> 🗑️ Hapus
+                                        </label>
+                                    </div>
+                                                                <input type="file" name="hero_bg_4" class="form-control-premium" accept="image/*">
+                            </div>
+                                            </div>
+
+                    <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 24px 0;">
+
+                    <div class="form-group-premium">
+                        <label class="admin-label">🎬 Video Profil (Pop-up "Tonton Video")</label>
+                                                    <div class="image-preview-wrapper">
+                                <video src="http://:/uploads/videos/1779151852_6a0bb3ecd9aa9_hero_video_url.mp4" controls class="video-preview-player"></video>
+                                <div class="preview-info">
+                                    <label class="delete-checkbox-label">
+                                        <input type="checkbox" name="delete_hero_video_url" value="1"> 🗑️ Hapus Video
+                                    </label>
+                                </div>
+                            </div>
+                                                <input type="file" name="hero_video_url" class="form-control-premium" accept="video/mp4,video/webm">
+                        <span class="help-block-premium">Format MP4/WebM. Disarankan kompres video di bawah 20MB demi kecepatan pemuatan.</span>
+                    </div>
+                </div>
+
+                <!-- TAB 3: TENTANG KAMI & STATS -->
+                <div id="tab-about" class="tab-pane">
+                    <h3 class="section-title-premium">📖 Tentang Kami & Statistik Kepercayaan</h3>
+                    <p class="section-desc-premium">Sesuaikan narasi profil singkat dan empat pilar statistik pencapaian di landing page.</p>
+
+                    <div class="form-group-premium">
+                        <label class="admin-label">Sub-Judul Atas (Eyebrow)</label>
+                        <input type="text" name="about_badge" class="form-control-premium" value="TENTANG PT. UMI MUTHMAINAH BERKAH">
+                    </div>
+
+                    <div class="form-group-premium">
+                        <label class="admin-label">Judul Utama H2 (Tentang Kami)</label>
+                        <input type="text" name="about_title" class="form-control-premium" value="Amanah Mengantarkan Anda ke Rumah Allah">
+                    </div>
+
+                    <div class="form-group-premium">
+                        <label class="admin-label">Deskripsi Panjang Tentang Kami</label>
+                        <textarea name="about_description" class="form-control-premium" rows="5">PT UMI MUTHMAINAH BERKAH hadir melayani jemaah Indonesia dengan penuh dedikasi. Kami bukan sekadar biro perjalanan — kami adalah mitra ibadah.</textarea>
+                    </div>
+
+                    <div class="grid-2-col">
+                        <div class="form-group-premium">
+                            <label class="admin-label">Foto Sisi Kiri Tentang Kami</label>
+                                                        <input type="file" name="about_image" class="form-control-premium" accept="image/*">
+                        </div>
+
+                        <div class="form-group-premium">
+                            <label class="admin-label">Video Samping Tentang (Opsional Pengganti Foto)</label>
+                                                            <div class="image-preview-wrapper">
+                                    <video src="http://:/uploads/videos/1779321764_about_video.mp4" controls class="video-preview-player"></video>
+                                    <label class="delete-checkbox-label">
+                                        <input type="checkbox" name="delete_about_video" value="1"> 🗑️ Hapus
+                                    </label>
+                                </div>
+                                                        <input type="file" name="about_video" class="form-control-premium" accept="video/mp4,video/webm">
+                        </div>
+                    </div>
+
+                    <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 24px 0;">
+
+                    <h4 style="font-size: 0.95rem; font-weight: 700; color: #1e293b; margin-bottom: 16px;">💎 3 Poin Keunggulan Utama</h4>
+                                            <div class="advantage-inner-card">
+                            <h5 style="font-size: 0.85rem; font-weight: 700; color: #0f291e; margin-bottom: 10px;">Poin Keunggulan #1</h5>
+                            <div class="grid-2-col" style="margin-bottom: 10px;">
+                                <div class="form-group-premium" style="margin-bottom: 0;">
+                                    <label class="admin-label">Ikon (Gunakan Emoji)</label>
+                                    <input type="text" name="about_item1_icon" class="form-control-premium" value="🏛️">
+                                </div>
+                                <div class="form-group-premium" style="margin-bottom: 0;">
+                                    <label class="admin-label">Judul Singkat</label>
+                                    <input type="text" name="about_item1_title" class="form-control-premium" value="Izin Resmi Pemerintah">
+                                </div>
+                            </div>
+                            <div class="form-group-premium" style="margin-bottom: 0; margin-top: 10px;">
+                                <label class="admin-label">Deskripsi Poin</label>
+                                <input type="text" name="about_item1_text" class="form-control-premium" value="Izin PPIU No. U - 207 / 2021 &amp; PIHK 81200009510360001.">
+                            </div>
+                        </div>
+                                            <div class="advantage-inner-card">
+                            <h5 style="font-size: 0.85rem; font-weight: 700; color: #0f291e; margin-bottom: 10px;">Poin Keunggulan #2</h5>
+                            <div class="grid-2-col" style="margin-bottom: 10px;">
+                                <div class="form-group-premium" style="margin-bottom: 0;">
+                                    <label class="admin-label">Ikon (Gunakan Emoji)</label>
+                                    <input type="text" name="about_item2_icon" class="form-control-premium" value="🤝">
+                                </div>
+                                <div class="form-group-premium" style="margin-bottom: 0;">
+                                    <label class="admin-label">Judul Singkat</label>
+                                    <input type="text" name="about_item2_title" class="form-control-premium" value="Pembimbing Bersertifikat">
+                                </div>
+                            </div>
+                            <div class="form-group-premium" style="margin-bottom: 0; margin-top: 10px;">
+                                <label class="admin-label">Deskripsi Poin</label>
+                                <input type="text" name="about_item2_text" class="form-control-premium" value="Didampingi Mutawwif &amp; Ustaz bersertifikasi selama proses ibadah.">
+                            </div>
+                        </div>
+                                            <div class="advantage-inner-card">
+                            <h5 style="font-size: 0.85rem; font-weight: 700; color: #0f291e; margin-bottom: 10px;">Poin Keunggulan #3</h5>
+                            <div class="grid-2-col" style="margin-bottom: 10px;">
+                                <div class="form-group-premium" style="margin-bottom: 0;">
+                                    <label class="admin-label">Ikon (Gunakan Emoji)</label>
+                                    <input type="text" name="about_item3_icon" class="form-control-premium" value="🌟">
+                                </div>
+                                <div class="form-group-premium" style="margin-bottom: 0;">
+                                    <label class="admin-label">Judul Singkat</label>
+                                    <input type="text" name="about_item3_title" class="form-control-premium" value="Layanan Terpercaya">
+                                </div>
+                            </div>
+                            <div class="form-group-premium" style="margin-bottom: 0; margin-top: 10px;">
+                                <label class="admin-label">Deskripsi Poin</label>
+                                <input type="text" name="about_item3_text" class="form-control-premium" value="Rating 4.9/5 dari ribuan jemaah yang telah diberangkatkan ke Tanah Suci.">
+                            </div>
+                        </div>
+                    
+                    <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 24px 0;">
+
+                    <h4 style="font-size: 0.95rem; font-weight: 700; color: #1e293b; margin-bottom: 16px;">📊 4 Kolom Statistik Kepercayaan</h4>
+                    <p class="section-desc-premium" style="margin-top: -8px; margin-bottom: 16px;">Angka untuk Kolom 1 (Total Jemaah) dan Kolom 3 (Tingkat Kepuasan) dihitung secara dinamis dari database pendaftaran dan ulasan, sedangkan Kolom 2 dan 4 diinput secara manual.</p>
+                    
+                    <div class="grid-2-col">
+                        <!-- Kolom 1 -->
+                        <div class="advantage-inner-card" style="margin-bottom:0;">
+                            <h5 style="font-size: 0.85rem; font-weight: 700; color: #0f291e; margin-bottom: 10px;">Statistik 1 (Total Jemaah - Angka Otomatis)</h5>
+                            <div class="form-group-premium" style="margin-bottom: 0;">
+                                <label class="admin-label">Label Teks</label>
+                                <input type="text" name="stat1_label" class="form-control-premium" value="Jemaah Diberangkatkan">
+                            </div>
+                        </div>
+
+                        <!-- Kolom 2 -->
+                        <div class="advantage-inner-card" style="margin-bottom:0;">
+                            <h5 style="font-size: 0.85rem; font-weight: 700; color: #0f291e; margin-bottom: 10px;">Statistik 2 (Tahun Pengalaman)</h5>
+                            <div class="grid-2-col" style="margin-bottom: 0; gap: 10px;">
+                                <div class="form-group-premium" style="margin-bottom: 0;">
+                                    <label class="admin-label">Angka / Nilai</label>
+                                    <input type="text" name="stat2_num" class="form-control-premium" value="20+">
+                                </div>
+                                <div class="form-group-premium" style="margin-bottom: 0;">
+                                    <label class="admin-label">Label Teks</label>
+                                    <input type="text" name="stat2_label" class="form-control-premium" value="Tahun Pengalaman">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Kolom 3 -->
+                        <div class="advantage-inner-card" style="margin-bottom:0;">
+                            <h5 style="font-size: 0.85rem; font-weight: 700; color: #0f291e; margin-bottom: 10px;">Statistik 3 (Kepuasan Jemaah - Angka Otomatis)</h5>
+                            <div class="form-group-premium" style="margin-bottom: 0;">
+                                <label class="admin-label">Label Teks</label>
+                                <input type="text" name="stat3_label" class="form-control-premium" value="Kepuasan Jemaah">
+                            </div>
+                        </div>
+
+                        <!-- Kolom 4 -->
+                        <div class="advantage-inner-card" style="margin-bottom:0;">
+                            <h5 style="font-size: 0.85rem; font-weight: 700; color: #0f291e; margin-bottom: 10px;">Statistik 4 (Kota Keberangkatan)</h5>
+                            <div class="grid-2-col" style="margin-bottom: 0; gap: 10px;">
+                                <div class="form-group-premium" style="margin-bottom: 0;">
+                                    <label class="admin-label">Angka / Nilai</label>
+                                    <input type="text" name="stat4_num" class="form-control-premium" value="15+">
+                                </div>
+                                <div class="form-group-premium" style="margin-bottom: 0;">
+                                    <label class="admin-label">Label Teks</label>
+                                    <input type="text" name="stat4_label" class="form-control-premium" value="Kota Keberangkatan">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- TAB 4: JUDUL BAGIAN -->
+                <div id="tab-sections" class="tab-pane">
+                    <h3 class="section-title-premium">📣 Judul Bagian (Section Titles)</h3>
+                    <p class="section-desc-premium">Kelola teks intro/judul untuk masing-masing bagian yang tampil di halaman utama.</p>
+
+                    <div class="advantage-inner-card">
+                        <h4 style="font-size: 0.85rem; font-weight: 700; color: #0f291e; margin-bottom: 12px;">🛍️ Bagian Paket Perjalanan</h4>
+                        <div class="grid-2-col">
+                            <div class="form-group-premium" style="margin-bottom:0;">
+                                <label class="admin-label">Eyebrow Teks</label>
+                                <input type="text" name="sec_pkg_eye" class="form-control-premium" value="PILIH PERJALANAN ANDA">
+                            </div>
+                            <div class="form-group-premium" style="margin-bottom:0;">
+                                <label class="admin-label">Judul Utama</label>
+                                <input type="text" name="sec_pkg_title" class="form-control-premium" value="Paket Haji &amp; Umrah">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="advantage-inner-card">
+                        <h4 style="font-size: 0.85rem; font-weight: 700; color: #0f291e; margin-bottom: 12px;">📅 Bagian Alur Itinerary / Jadwal</h4>
+                        <div class="grid-2-col">
+                            <div class="form-group-premium" style="margin-bottom:0;">
+                                <label class="admin-label">Eyebrow Teks</label>
+                                <input type="text" name="sec_itin_eye" class="form-control-premium" value="JADWAL PERJALANAN">
+                            </div>
+                            <div class="form-group-premium" style="margin-bottom:0;">
+                                <label class="admin-label">Judul Utama</label>
+                                <input type="text" name="sec_itin_title" class="form-control-premium" value="Alur Ibadah Haji">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="advantage-inner-card">
+                        <h4 style="font-size: 0.85rem; font-weight: 700; color: #0f291e; margin-bottom: 12px;">📸 Bagian Galeri Media</h4>
+                        <div class="grid-2-col">
+                            <div class="form-group-premium" style="margin-bottom:0;">
+                                <label class="admin-label">Eyebrow Teks</label>
+                                <input type="text" name="sec_gal_eye" class="form-control-premium" value="GALERI PERJALANAN">
+                            </div>
+                            <div class="form-group-premium" style="margin-bottom:0;">
+                                <label class="admin-label">Judul Utama</label>
+                                <input type="text" name="sec_gal_title" class="form-control-premium" value="Momen Berkesan Jemaah Kami">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid-2-col">
+                        <div class="advantage-inner-card" style="margin-bottom:0;">
+                            <label class="admin-label">🏠 Judul Bagian Fasilitas</label>
+                            <input type="text" name="sec_fac_title" class="form-control-premium" value="Yang Anda Dapatkan">
+                        </div>
+                        <div class="advantage-inner-card" style="margin-bottom:0;">
+                            <label class="admin-label">✍️ Judul Bagian Testimoni</label>
+                            <input type="text" name="sec_testi_title" class="form-control-premium" value="Kata Jemaah Kami">
+                        </div>
+                    </div>
+
+                    <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 24px 0;">
+
+                    <div class="advantage-inner-card">
+                        <h4 style="font-size: 0.85rem; font-weight: 700; color: #0f291e; margin-bottom: 12px;">📣 Kartu CTA Bawah (Hubungi Kami)</h4>
+                        <div class="grid-2-col">
+                            <div class="form-group-premium">
+                                <label class="admin-label">Teks Eyebrow</label>
+                                <input type="text" name="sec_cta_eye" class="form-control-premium" value="MULAI PERJALANAN SUCI">
+                            </div>
+                            <div class="form-group-premium">
+                                <label class="admin-label">Judul Utama CTA</label>
+                                <input type="text" name="sec_cta_title" class="form-control-premium" value="Siap Berangkat ke &lt;em&gt;Tanah Suci?&lt;/em&gt;">
+                            </div>
+                        </div>
+                        <div class="form-group-premium" style="margin-bottom:0;">
+                            <label class="admin-label">Teks Tombol Chat Admin</label>
+                            <input type="text" name="sec_cta_btn_text" class="form-control-premium" value="Hubungi Kami">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB: ALUR PERJALANAN (JADWAL) -->
+                <div id="tab-jadwal" class="tab-pane">
+                    <h3 class="section-title-premium">📅 Alur Perjalanan (Itinerary) & Info Tambahan</h3>
+                    <p class="section-desc-premium">Kelola informasi alur perjalanan hari-demi-hari (itinerary) serta kartu media informasi samping.</p>
+
+                    <h4 style="font-size: 0.95rem; font-weight: 700; color: #1e293b; margin-bottom: 16px;">⏱️ 5 Langkah Utama Jadwal Perjalanan</h4>
+                                            <div class="advantage-inner-card">
+                            <h5 style="font-size: 0.85rem; font-weight: 700; color: #0f291e; margin-bottom: 10px;">Langkah / Step #1</h5>
+                            <div class="grid-2-col" style="margin-bottom: 10px;">
+                                <div class="form-group-premium" style="margin-bottom: 0;">
+                                    <label class="admin-label">Hari / Waktu (Contoh: Hari 1-3)</label>
+                                    <input type="text" name="itin1_day" class="form-control-premium" value="HARI 1-3">
+                                </div>
+                                <div class="form-group-premium" style="margin-bottom: 0;">
+                                    <label class="admin-label">Judul Kegiatan</label>
+                                    <input type="text" name="itin1_title" class="form-control-premium" value="Keberangkatan &amp; Tiba di Madinah">
+                                </div>
+                            </div>
+                            <div class="form-group-premium" style="margin-bottom: 0; margin-top: 10px;">
+                                <label class="admin-label">Deskripsi Rinci Kegiatan</label>
+                                <textarea name="itin1_desc" class="form-control-premium" rows="2">Kumpul di embarkasi, penerbangan ke Madinah, sambutan, check-in hotel.</textarea>
+                            </div>
+                        </div>
+                                            <div class="advantage-inner-card">
+                            <h5 style="font-size: 0.85rem; font-weight: 700; color: #0f291e; margin-bottom: 10px;">Langkah / Step #2</h5>
+                            <div class="grid-2-col" style="margin-bottom: 10px;">
+                                <div class="form-group-premium" style="margin-bottom: 0;">
+                                    <label class="admin-label">Hari / Waktu (Contoh: Hari 1-3)</label>
+                                    <input type="text" name="itin2_day" class="form-control-premium" value="HARI 4-8">
+                                </div>
+                                <div class="form-group-premium" style="margin-bottom: 0;">
+                                    <label class="admin-label">Judul Kegiatan</label>
+                                    <input type="text" name="itin2_title" class="form-control-premium" value="Sholat Arbain di Madinah">
+                                </div>
+                            </div>
+                            <div class="form-group-premium" style="margin-bottom: 0; margin-top: 10px;">
+                                <label class="admin-label">Deskripsi Rinci Kegiatan</label>
+                                <textarea name="itin2_desc" class="form-control-premium" rows="2">40 waktu sholat berturut-turut di Masjid Nabawi. Ziarah Jabal Uhud, Masjid Quba.</textarea>
+                            </div>
+                        </div>
+                                            <div class="advantage-inner-card">
+                            <h5 style="font-size: 0.85rem; font-weight: 700; color: #0f291e; margin-bottom: 10px;">Langkah / Step #3</h5>
+                            <div class="grid-2-col" style="margin-bottom: 10px;">
+                                <div class="form-group-premium" style="margin-bottom: 0;">
+                                    <label class="admin-label">Hari / Waktu (Contoh: Hari 1-3)</label>
+                                    <input type="text" name="itin3_day" class="form-control-premium" value="HARI 9-12">
+                                </div>
+                                <div class="form-group-premium" style="margin-bottom: 0;">
+                                    <label class="admin-label">Judul Kegiatan</label>
+                                    <input type="text" name="itin3_title" class="form-control-premium" value="Makkah &amp; Umrah Wajib">
+                                </div>
+                            </div>
+                            <div class="form-group-premium" style="margin-bottom: 0; margin-top: 10px;">
+                                <label class="admin-label">Deskripsi Rinci Kegiatan</label>
+                                <textarea name="itin3_desc" class="form-control-premium" rows="2">Berihram dari Miqat, perjalanan ke Makkah. Tawaf Qudum, Sa&#039;i, Tahallul.</textarea>
+                            </div>
+                        </div>
+                                            <div class="advantage-inner-card">
+                            <h5 style="font-size: 0.85rem; font-weight: 700; color: #0f291e; margin-bottom: 10px;">Langkah / Step #4</h5>
+                            <div class="grid-2-col" style="margin-bottom: 10px;">
+                                <div class="form-group-premium" style="margin-bottom: 0;">
+                                    <label class="admin-label">Hari / Waktu (Contoh: Hari 1-3)</label>
+                                    <input type="text" name="itin4_day" class="form-control-premium" value="HARI 13-16">
+                                </div>
+                                <div class="form-group-premium" style="margin-bottom: 0;">
+                                    <label class="admin-label">Judul Kegiatan</label>
+                                    <input type="text" name="itin4_title" class="form-control-premium" value="Puncak Haji — Arafah, Muzdalifah, Mina">
+                                </div>
+                            </div>
+                            <div class="form-group-premium" style="margin-bottom: 0; margin-top: 10px;">
+                                <label class="admin-label">Deskripsi Rinci Kegiatan</label>
+                                <textarea name="itin4_desc" class="form-control-premium" rows="2">Wukuf di Arafah, mabit di Muzdalifah, lempar Jumroh.</textarea>
+                            </div>
+                        </div>
+                                            <div class="advantage-inner-card">
+                            <h5 style="font-size: 0.85rem; font-weight: 700; color: #0f291e; margin-bottom: 10px;">Langkah / Step #5</h5>
+                            <div class="grid-2-col" style="margin-bottom: 10px;">
+                                <div class="form-group-premium" style="margin-bottom: 0;">
+                                    <label class="admin-label">Hari / Waktu (Contoh: Hari 1-3)</label>
+                                    <input type="text" name="itin5_day" class="form-control-premium" value="HARI 17-21">
+                                </div>
+                                <div class="form-group-premium" style="margin-bottom: 0;">
+                                    <label class="admin-label">Judul Kegiatan</label>
+                                    <input type="text" name="itin5_title" class="form-control-premium" value="Tawaf Wada &amp; Kepulangan">
+                                </div>
+                            </div>
+                            <div class="form-group-premium" style="margin-bottom: 0; margin-top: 10px;">
+                                <label class="admin-label">Deskripsi Rinci Kegiatan</label>
+                                <textarea name="itin5_desc" class="form-control-premium" rows="2">Tawaf Wada&#039; sebagai perpisahan dengan Baitullah.</textarea>
+                            </div>
+                        </div>
+                    
+                    <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 24px 0;">
+
+                    <h4 style="font-size: 0.95rem; font-weight: 700; color: #1e293b; margin-bottom: 16px;">🖼️ Kartu Media Samping (Aside Card)</h4>
+                    <div class="advantage-inner-card">
+                        <div class="form-group-premium">
+                            <label class="admin-label">Judul Kartu Samping (Aside Title)</label>
+                            <input type="text" name="itin_aside_title" class="form-control-premium" value="Baitullah, Makkah Al-Mukarramah">
+                        </div>
+
+                        <div class="grid-2-col">
+                            <div class="form-group-premium" style="margin-bottom: 0;">
+                                <label class="admin-label">Upload Gambar Samping (itin_aside_img)</label>
+                                                                    <div class="image-preview-wrapper" style="margin-bottom:8px; padding:8px;">
+                                        <img src="http://:/uploads/images/1775530746_itin_aside_img_download41.jpg" class="preview-thumbnail" style="width: 60px; height: 60px; object-fit: cover;" alt="Itinerary Aside Image">
+                                        <label class="delete-checkbox-label">
+                                            <input type="checkbox" name="delete_itin_aside_img" value="1"> 🗑️ Hapus Gambar
+                                        </label>
+                                    </div>
+                                                                <input type="file" name="itin_aside_img" class="form-control-premium" accept="image/*">
+                                <span class="help-block-premium">Format JPG/PNG/WEBP. Menjadi latar belakang jika video kosong.</span>
+                            </div>
+
+                            <div class="form-group-premium" style="margin-bottom: 0;">
+                                <label class="admin-label">Upload Video Samping (itin_aside_video - Opsional)</label>
+                                                                <input type="file" name="itin_aside_video" class="form-control-premium" accept="video/mp4,video/webm">
+                                <span class="help-block-premium">Format MP4/WebM. Video otomatis diputar berulang-ulang.</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 24px 0;">
+
+                    <h4 style="font-size: 0.95rem; font-weight: 700; color: #1e293b; margin-bottom: 16px;">ℹ️ 3 Item Info Penting Kartu Samping</h4>
+                    <div class="grid-2-col">
+                                                    <div class="advantage-inner-card" style="margin-bottom: 0;">
+                                <h5 style="font-size: 0.85rem; font-weight: 700; color: #0f291e; margin-bottom: 10px;">Item Info #1</h5>
+                                <div class="grid-2-col" style="gap: 10px; margin-bottom: 10px;">
+                                    <div class="form-group-premium" style="margin-bottom: 0;">
+                                        <label class="admin-label">Ikon / Emoji</label>
+                                        <input type="text" name="itin_aside_i1_icon" class="form-control-premium" value="📋">
+                                    </div>
+                                    <div class="form-group-premium" style="margin-bottom: 0;">
+                                        <label class="admin-label">Judul Info</label>
+                                        <input type="text" name="itin_aside_i1_title" class="form-control-premium" value="Dokumen Wajib">
+                                    </div>
+                                </div>
+                                <div class="form-group-premium" style="margin-bottom: 0;">
+                                    <label class="admin-label">Keterangan Singkat</label>
+                                    <input type="text" name="itin_aside_i1_desc" class="form-control-premium" value="Paspor berlaku min. 18 bulan, KTP, KK.">
+                                </div>
+                            </div>
+                                                    <div class="advantage-inner-card" style="margin-bottom: 0;">
+                                <h5 style="font-size: 0.85rem; font-weight: 700; color: #0f291e; margin-bottom: 10px;">Item Info #2</h5>
+                                <div class="grid-2-col" style="gap: 10px; margin-bottom: 10px;">
+                                    <div class="form-group-premium" style="margin-bottom: 0;">
+                                        <label class="admin-label">Ikon / Emoji</label>
+                                        <input type="text" name="itin_aside_i2_icon" class="form-control-premium" value="💉">
+                                    </div>
+                                    <div class="form-group-premium" style="margin-bottom: 0;">
+                                        <label class="admin-label">Judul Info</label>
+                                        <input type="text" name="itin_aside_i2_title" class="form-control-premium" value="Pemeriksaan Kesehatan">
+                                    </div>
+                                </div>
+                                <div class="form-group-premium" style="margin-bottom: 0;">
+                                    <label class="admin-label">Keterangan Singkat</label>
+                                    <input type="text" name="itin_aside_i2_desc" class="form-control-premium" value="Dilakukan minimal 1 bulan sebelum keberangkatan.">
+                                </div>
+                            </div>
+                                                    <div class="advantage-inner-card" style="margin-bottom: 0;">
+                                <h5 style="font-size: 0.85rem; font-weight: 700; color: #0f291e; margin-bottom: 10px;">Item Info #3</h5>
+                                <div class="grid-2-col" style="gap: 10px; margin-bottom: 10px;">
+                                    <div class="form-group-premium" style="margin-bottom: 0;">
+                                        <label class="admin-label">Ikon / Emoji</label>
+                                        <input type="text" name="itin_aside_i3_icon" class="form-control-premium" value="📅">
+                                    </div>
+                                    <div class="form-group-premium" style="margin-bottom: 0;">
+                                        <label class="admin-label">Judul Info</label>
+                                        <input type="text" name="itin_aside_i3_title" class="form-control-premium" value="Pendaftaran Awal">
+                                    </div>
+                                </div>
+                                <div class="form-group-premium" style="margin-bottom: 0;">
+                                    <label class="admin-label">Keterangan Singkat</label>
+                                    <input type="text" name="itin_aside_i3_desc" class="form-control-premium" value="Daftar minimal 6 bulan sebelumnya.">
+                                </div>
+                            </div>
+                                            </div>
+                </div>
+
+                <!-- TAB 5: PENGATURAN FOOTER -->
+                <div id="tab-footer" class="tab-pane">
+                    <h3 class="section-title-premium">🖼️ Pengaturan Footer & Legalitas</h3>
+                    <p class="section-desc-premium">Kelola logo footer, alamat kantor, kolom tautan, ikon media sosial, dan badge legalitas resmi.</p>
+
+                    <div class="form-group-premium">
+                        <label class="admin-label">Logo Footer Khusus (PNG Transparan)</label>
+                                                <input type="file" name="footer_logo" class="form-control-premium" accept="image/*">
+                        <span class="help-block-premium">Logo khusus footer dengan latar gelap. Biarkan kosong untuk menggunakan logo utama.</span>
+                    </div>
+
+                    <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 24px 0;">
+
+                    <h4 style="font-size: 0.95rem; font-weight: 700; color: #1e293b; margin-bottom: 16px;">📍 Informasi Kantor & Alamat</h4>
+                    <div class="advantage-inner-card">
+                        <div class="form-group-premium">
+                            <label class="admin-label">Alamat Kantor (Tampil di Footer)</label>
+                            <textarea name="office_address" class="form-control-premium" rows="2" placeholder="Contoh: Pd. Sidokare Indah Blok UU No 8, Sidoarjo, Jawa Timur 61214">Pd. Sidokare Indah Blok UU No 8, Praban, Sidokare, Kec. Sidoarjo, Kabupaten Sidoarjo, Jawa Timur 61214</textarea>
+                            <span class="help-block-premium">Alamat lengkap yang ditampilkan di kolom kiri footer.</span>
+                        </div>
+                        <div class="form-group-premium" style="margin-bottom: 0;">
+                            <label class="admin-label">Link Google Maps (Opsional — Agar Alamat Bisa Diklik)</label>
+                            <input type="text" name="office_map_url" class="form-control-premium" value="https://maps.app.goo.gl/onp9tcHMpCBsF7gc7" placeholder="https://maps.google.com/?q=...">
+                            <span class="help-block-premium">Paste URL dari Google Maps. Jika diisi, alamat di footer menjadi tautan yang bisa diklik.</span>
+                        </div>
+                    </div>
+
+                    <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 24px 0;">
+
+                    <h4 style="font-size: 0.95rem; font-weight: 700; color: #1e293b; margin-bottom: 12px;">🏅 Teks Badge Legalitas Bawah</h4>
+                    <div class="form-group-premium">
+                        <label class="admin-label">Label Kiri (Contoh: LEGALITAS RESMI:)</label>
+                        <input type="text" name="footer_legalitas_label" class="form-control-premium" value="LEGALITAS RESMI:">
+                    </div>
+                    <div class="grid-2-col">
+                        <div class="form-group-premium">
+                            <label class="admin-label">Badge 1</label>
+                            <input type="text" name="footer_badge_1" class="form-control-premium" value="KEMENAG RI">
+                        </div>
+                        <div class="form-group-premium">
+                            <label class="admin-label">Badge 2</label>
+                            <input type="text" name="footer_badge_2" class="form-control-premium" value="IATA">
+                        </div>
+                        <div class="form-group-premium">
+                            <label class="admin-label">Badge 3</label>
+                            <input type="text" name="footer_badge_3" class="form-control-premium" value="ISO 9001">
+                        </div>
+                        <div class="form-group-premium">
+                            <label class="admin-label">Badge 4 (Opsional)</label>
+                            <input type="text" name="footer_badge_4" class="form-control-premium" value="">
+                        </div>
+                    </div>
+
+                    <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 24px 0;">
+
+                    <h4 style="font-size: 0.95rem; font-weight: 700; color: #1e293b; margin-bottom: 12px;">📋 3 Kolom Tautan Footer</h4>
+                    <p class="section-desc-premium" style="margin-top: -8px; margin-bottom: 16px;">Kelola judul dan isi tautan setiap kolom di footer. Tulis satu item per baris.</p>
+                    <div class="grid-2-col">
+                        <div class="advantage-inner-card" style="margin-bottom: 0;">
+                            <div class="form-group-premium">
+                                <label class="admin-label">Judul Kolom 1 (Contoh: Layanan)</label>
+                                <input type="text" name="footer_col1_title" class="form-control-premium" value="Layanan">
+                            </div>
+                            <div class="form-group-premium" style="margin-bottom: 0;">
+                                <label class="admin-label">Isi Tautan Kolom 1 (satu per baris)</label>
+                                <textarea name="footer_col1_links" class="form-control-premium" rows="5" placeholder="Haji Reguler&#10;Haji Plus&#10;Umrah Reguler">Haji Reguler
+Haji Plus
+Umrah Reguler
+Umrah Ramadhan
+Umrah Keluarga</textarea>
+                            </div>
+                        </div>
+                        <div class="advantage-inner-card" style="margin-bottom: 0;">
+                            <div class="form-group-premium">
+                                <label class="admin-label">Judul Kolom 2 (Contoh: Informasi)</label>
+                                <input type="text" name="footer_col2_title" class="form-control-premium" value="Informasi">
+                            </div>
+                            <div class="form-group-premium" style="margin-bottom: 0;">
+                                <label class="admin-label">Isi Tautan Kolom 2 (satu per baris)</label>
+                                <textarea name="footer_col2_links" class="form-control-premium" rows="5" placeholder="Tentang Kami&#10;Syarat & Ketentuan&#10;FAQ">Tentang Kami
+Syarat &amp; Ketentuan
+Kebijakan Privasi
+FAQ
+Blog Ibadah</textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="advantage-inner-card" style="margin-top: 16px;">
+                        <div class="form-group-premium">
+                            <label class="admin-label">Judul Kolom 3 (Contoh: Kantor Cabang)</label>
+                            <input type="text" name="footer_col3_title" class="form-control-premium" value="Kantor Cabang">
+                        </div>
+                        <div class="form-group-premium" style="margin-bottom: 0;">
+                            <label class="admin-label">Isi Kolom 3 (satu per baris)</label>
+                            <textarea name="footer_col3_links" class="form-control-premium" rows="4" placeholder="Sidoarjo&#10;Surabaya&#10;Jakarta">Sidoarjo,Sidokare
+Surabaya</textarea>
+                        </div>
+                    </div>
+
+                    <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 24px 0;">
+
+                    <h4 style="font-size: 0.95rem; font-weight: 700; color: #1e293b; margin-bottom: 12px;">🔗 Ikon Media Sosial Footer</h4>
+                    <p class="section-desc-premium" style="margin-top: -8px; margin-bottom: 16px;">Ikon media sosial yang tampil di kolom kiri footer. Biarkan kosong jika tidak ingin ditampilkan.</p>
+                    <div class="grid-2-col">
+                        <div class="form-group-premium">
+                            <label class="admin-label">📸 Instagram (Ikon Footer)</label>
+                            <input type="text" name="site_instagram" class="form-control-premium" value="https://www.instagram.com/travelumb.sidokare/" placeholder="https://instagram.com/...">
+                            <span class="help-block-premium">Ikon IG tampil di footer kiri. Disimpan juga sebagai <code>social_ig</code>.</span>
+                        </div>
+                        <div class="form-group-premium">
+                            <label class="admin-label">📘 Facebook (Ikon Footer)</label>
+                            <input type="text" name="site_facebook" class="form-control-premium" value="https://web.facebook.com/p/UMROH-Umi-Muthmainah-Berkah-Sidoarjo-100054863091190/?_rdc=1&amp;_rdr#" placeholder="https://facebook.com/...">
+                            <span class="help-block-premium">Ikon FB tampil di footer kiri. Disimpan juga sebagai <code>social_fb</code>.</span>
+                        </div>
+                        </div>
+                        <div class="form-group-premium">
+                            <label class="admin-label">▶️ YouTube Link</label>
+                            <input type="text" name="social_yt" class="form-control-premium" value="" placeholder="https://youtube.com/...">
+                        </div>
+                        <div class="form-group-premium">
+                            <label class="admin-label">🎵 TikTok Link</label>
+                            <input type="text" name="social_tiktok" class="form-control-premium" value="" placeholder="https://tiktok.com/@...">
+                        </div>
+                    </div>
+                </div>
+
+
+
+                <!-- STICKY SUBMIT FOOTER -->
+                <div class="submit-bar">
+                    <button type="submit" class="btn-submit-premium">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/>
+                            <polyline points="17 21 17 13 7 13 7 21"/>
+                            <polyline points="7 3 7 8 15 8"/>
+                        </svg>
+                        Simpan Seluruh Pengaturan
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </form>
+</div>
+
+    </div>
+
+    <footer class="admin-footer">
+      <div>© 2026 PT. UMI MUTHMAINAH BERKAH. Seluruh Hak Cipta Dilindungi.
+      </div>
+      <div class="footer-support">Support by : PT UMB</div>
+    </footer>
+
+  </main>
+
+  <script>
+    // --- REAL-TIME REGISTRATION NOTIFICATIONS ---
+    let lastKnownRegistrationId = localStorage.getItem('last_reg_id');
+
+    // Request permission on load
+    if (Notification.permission !== "granted" && Notification.permission !== "denied") {
+      Notification.requestPermission();
+    }
+
+    const notificationSound = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
+    const notifBadge = document.getElementById('notifBadge');
+
+    function checkNewRegistrations() {
+      fetch(`http://:/admin/registrations/check-new#?last_id=${lastKnownRegistrationId || ''}`)
+        .then(response => response.json())
+        .then(data => {
+          if (data.new_count > 0 && lastKnownRegistrationId) {
+            playNotification(data.new_count, data.latest_data);
+            if (notifBadge) {
+              notifBadge.textContent = data.new_count;
+              notifBadge.classList.remove('d-none');
+              notifBadge.style.display = 'flex'; // Paksa tampil
+            }
+          }
+
+          if (data.latest_id) {
+            lastKnownRegistrationId = data.latest_id;
+            localStorage.setItem('last_reg_id', data.latest_id);
+          }
+        })
+        .catch(err => console.error('Notification check failed:', err));
+    }
+
+    function playNotification(count, data) {
+      notificationSound.play().catch(e => console.warn('Sound play blocked'));
+      if (Notification.permission === "granted") {
+        const name = data ? (data.nama_lengkap || 'Customer') : 'Jemaah';
+        const n = new Notification("Pendaftaran Baru", {
+          body: `${name} baru saja mendaftar. Total ${count} pendaftaran baru menunggu.`,
+          icon: "/uploads/images/1779173605_6a0c08e53ff18_site_logo.png"
+        });
+        n.onclick = () => {
+          window.focus();
+          window.location.href = "http://:/admin/registrations#";
+        };
+      }
+    }
+
+    if (typeof lastKnownRegistrationId === 'undefined' || !lastKnownRegistrationId) {
+      checkNewRegistrations();
+    }
+    setInterval(checkNewRegistrations, 30000);
+
+    // Hide notif badge when clicking bell
+    document.getElementById('notifBell').addEventListener('click', function () {
+      if (notifBadge) {
+        notifBadge.classList.add('d-none');
+        notifBadge.style.display = 'none';
+      }
+      window.location.href = "http://:/admin/registrations#";
+    });
+
+    // --- SIDEBAR MOBILE TOGGLE ---
+    const sidebar = document.querySelector('.sidebar');
+    const overlay = document.getElementById('sidebarOverlay');
+    const toggle = document.getElementById('sidebarToggle');
+
+    function toggleSidebar() {
+      sidebar.classList.toggle('active');
+      overlay.classList.toggle('active');
+      document.body.style.overflow = sidebar.classList.contains('active') ? 'hidden' : '';
+    }
+
+    if (toggle) toggle.addEventListener('click', toggleSidebar);
+    if (overlay) overlay.addEventListener('click', toggleSidebar);
+
+    // Auto close sidebar on resize if large screen
+    window.addEventListener('resize', () => {
+      if (window.innerWidth > 991 && sidebar.classList.contains('active')) {
+        sidebar.classList.remove('active');
+        overlay.classList.remove('active');
+        document.body.style.overflow = '';
+      }
+    });
+  </script>
+  <!-- Instant Navigation & Loading Bar -->
+  <style>
+    #nprogress-bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 0%;
+      height: 3px;
+      background: linear-gradient(to right, #eab308, #ca8a04);
+      z-index: 99999;
+      transition: width 0.4s ease;
+      box-shadow: 0 0 10px rgba(234, 179, 8, 0.5);
+    }
+  </style>
+  <div id="nprogress-bar"></div>
+  <script src="//instant.page/5.2.0" type="module"
+    integrity="sha384-jnZyxPjiipS0KnLyWTP30STJ4XumNYuNqsXk1nadqh68E2YKe46p7yL" crossorigin="anonymous"></script>
+  <script>
+    // Simple top progress bar simulator
+    window.addEventListener('beforeunload', function () {
+      const bar = document.getElementById('nprogress-bar');
+      bar.style.width = '30%';
+      let width = 30;
+      const interval = setInterval(() => {
+        if (width >= 90) {
+          clearInterval(interval);
+        } else {
+          width += (95 - width) * 0.1;
+          bar.style.width = width + '%';
+        }
+      }, 100);
+    });
+  </script>
+  <script>
+    // Tab switching logic
+    function switchTab(evt, tabId) {
+        // Hide all tab panes
+        const tabPanes = document.querySelectorAll('.tab-pane');
+        tabPanes.forEach(pane => pane.classList.remove('active'));
+
+        // Remove active class from all buttons
+        const tabBtns = document.querySelectorAll('.tab-btn');
+        tabBtns.forEach(btn => btn.classList.remove('active'));
+
+        // Show active pane & mark button active
+        document.getElementById(tabId).classList.add('active');
+        evt.currentTarget.classList.add('active');
+        
+        // Auto scroll to content top on mobile
+        if(window.innerWidth < 991) {
+            document.querySelector('.tab-content-card').scrollIntoView({ behavior: 'smooth' });
+        }
+    }
+
+    // Auto-switch tab based on URL hash on load
+    window.addEventListener('DOMContentLoaded', () => {
+        const hash = window.location.hash;
+        if (hash) {
+            const tabId = hash.replace('#', '');
+            const targetPane = document.getElementById(tabId);
+            if (targetPane) {
+                const tabBtns = document.querySelectorAll('.tab-btn');
+                tabBtns.forEach(btn => {
+                    const onclickAttr = btn.getAttribute('onclick');
+                    if (onclickAttr && onclickAttr.includes(tabId)) {
+                        btn.click();
+                    }
+                });
+            }
+        }
+    });
+</script>
+</body>
+
+</html>

@@ -8,7 +8,7 @@
     <div class="card-header registrations-header"
         style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
         <h1 class="card-title" style="margin: 0;">📋 Data Pendaftaran</h1>
-        <div class="header-actions" style="display: flex; gap: 0.75rem;">
+        <div class="header-actions" style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
             @if(request('archived') != '1')
                 @php
                     $hasFinished = collect($registrations)->contains('status', 'Selesai');
@@ -28,6 +28,7 @@
                 style="background: #1a5c3a; padding: 10px 20px; border-radius: 10px;">
                 🔗 Lihat Form Pendaftaran
             </a>
+
             @if(request('archived') == '1')
                 <a href="{{ route('admin.registrations.index') }}" class="btn-primary"
                     style="background: #10b981; padding: 10px 20px; border-radius: 10px; border: none;">
@@ -39,6 +40,11 @@
                     📦 Lihat Arsip
                 </a>
             @endif
+
+            <a href="{{ route('admin.registrations.trash') }}" class="btn-primary"
+                style="background: #dc2626; padding: 10px 20px; border-radius: 10px; border: none; font-weight: 700;">
+                🗑 Sampah
+            </a>
         </div>
     </div>
 
@@ -61,15 +67,17 @@
                 <input type="text" name="q" value="{{ request('q') }}" class="form-control filter-input"
                     placeholder="Ketik untuk mencari...">
             </div>
+            @if(request('archived') != '1')
             <div>
                 <label class="filter-label">Filter Status</label>
                 <select name="status" class="form-control filter-select" onchange="this.form.submit()">
                     <option value="">— Semua Status —</option>
-                    @foreach(['Menunggu Verifikasi', 'Sedang Diproses', 'Sudah Dikonfirmasi', 'Selesai', 'Berangkat', 'Dibatalkan'] as $st)
+                    @foreach(['Menunggu Verifikasi', 'Sedang Diproses', 'Sudah Dikonfirmasi', 'Selesai', 'Berangkat', 'Dibatalkan', 'Baru', 'Diproses', 'Ditolak'] as $st)
                         <option value="{{ $st }}" {{ request('status') == $st ? 'selected' : '' }}>{{ $st }}</option>
                     @endforeach
                 </select>
             </div>
+            @endif
             <div>
                 <label class="filter-label">Filter Paket</label>
                 <select name="type" class="form-control filter-select" onchange="this.form.submit()">
@@ -120,16 +128,6 @@
                         </select>
                     </form>
                 @endif
-
-                <!-- Bulk Delete Form -->
-                <form id="bulk-delete-form" action="{{ route('admin.registrations.bulkDestroy') }}" method="POST"
-                    onsubmit="return confirm('Hapus semua data pendaftaran yang dipilih?')">
-                    @csrf
-                    <div class="selected-ids-container"></div>
-                    <button type="submit" class="btn-bulk-delete">
-                        🗑 Hapus
-                    </button>
-                </form>
             </div>
         </div>
         @if(count($registrations) === 0)
@@ -295,15 +293,7 @@
                                             </button>
                                         </form>
                                     @endif
-
-                                    <form action="{{ route('admin.registrations.destroy', $reg['id']) }}" method="POST"
-                                        class="d-inline" onsubmit="return confirm('Hapus data pendaftaran?')">
-                                        @csrf @method('DELETE')
-                                        <button type="submit" class="btn-delete">
-                                            🗑 Hapus
-                                        </button>
-                                    </form>
-                                </td>
+                                 </td>
                             </tr>
                         @endforeach
                     </tbody>

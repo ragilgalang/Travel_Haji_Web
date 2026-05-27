@@ -23,7 +23,12 @@ class FirebaseUserProvider implements UserProvider
             $user_data = $firebase->getValue('users/' . $identifier);
             
             if ($user_data) {
-                $dbUser = \Illuminate\Support\Facades\DB::table('users')->where('email', $user_data['email'] ?? null)->first();
+                $dbUser = null;
+                try {
+                    $dbUser = \Illuminate\Support\Facades\DB::table('users')->where('email', $user_data['email'] ?? null)->first();
+                } catch (\Exception $e) {
+                    \Log::warning('SQLite retrieveById error (ignored): ' . $e->getMessage());
+                }
                 return new User([
                     'uuid' => $identifier,
                     'email' => $user_data['email'] ?? null,
@@ -39,7 +44,12 @@ class FirebaseUserProvider implements UserProvider
 
         try {
             $firebaseUser = $this->auth->getUser($identifier);
-            $dbUser = \Illuminate\Support\Facades\DB::table('users')->where('email', $firebaseUser->email)->first();
+            $dbUser = null;
+            try {
+                $dbUser = \Illuminate\Support\Facades\DB::table('users')->where('email', $firebaseUser->email)->first();
+            } catch (\Exception $e) {
+                \Log::warning('SQLite retrieveById fallback error (ignored): ' . $e->getMessage());
+            }
             return new User([
                 'uuid' => $firebaseUser->uid,
                 'email' => $firebaseUser->email,
@@ -51,7 +61,12 @@ class FirebaseUserProvider implements UserProvider
         }
 
         // Fallback: Cari di database SQLite lokal
-        $dbUser = \Illuminate\Support\Facades\DB::table('users')->where('id', $identifier)->orWhere('email', $identifier)->first();
+        $dbUser = null;
+        try {
+            $dbUser = \Illuminate\Support\Facades\DB::table('users')->where('id', $identifier)->orWhere('email', $identifier)->first();
+        } catch (\Exception $e) {
+            \Log::warning('SQLite retrieveById ultimate fallback error (ignored): ' . $e->getMessage());
+        }
         if ($dbUser) {
             return new User([
                 'uuid' => $dbUser->id,
@@ -80,18 +95,48 @@ class FirebaseUserProvider implements UserProvider
             return null;
         }
 
+        // Generate toleransi email typos (e.g. .com <-> .con)
+        $alternatives = [strtolower($loginValue)];
+        if (str_ends_with(strtolower($loginValue), '@gmail.com')) {
+            $alternatives[] = str_replace('@gmail.com', '@gmail.con', strtolower($loginValue));
+        } elseif (str_ends_with(strtolower($loginValue), '@gmail.con')) {
+            $alternatives[] = str_replace('@gmail.con', '@gmail.com', strtolower($loginValue));
+        }
+
         try {
             $firebase = app(\App\Services\FirebaseService::class);
             $users = $firebase->getValue('users') ?? [];
 
             // Cari user berdasarkan email atau username di Firebase
             foreach ($users as $key => $data) {
-                $matchEmail = isset($data['email']) && strtolower($data['email']) === strtolower($loginValue);
-                $matchUser  = isset($data['username']) && strtolower($data['username']) === strtolower($loginValue);
+                $dbEmail = isset($data['email']) ? strtolower($data['email']) : null;
+                $dbUsername = isset($data['username']) ? strtolower($data['username']) : null;
+
+                $matchEmail = false;
+                foreach ($alternatives as $alt) {
+                    if ($dbEmail === $alt) {
+                        $matchEmail = true;
+                        break;
+                    }
+                }
+
+                $matchUser = false;
+                foreach ($alternatives as $alt) {
+                    if ($dbUsername === $alt) {
+                        $matchUser = true;
+                        break;
+                    }
+                }
 
                 if ($matchEmail || $matchUser) {
                     $email = $data['email'] ?? null;
-                    $dbUser = \Illuminate\Support\Facades\DB::table('users')->where('email', $email)->first();
+                    
+                    $dbUser = null;
+                    try {
+                        $dbUser = \Illuminate\Support\Facades\DB::table('users')->where('email', $email)->first();
+                    } catch (\Exception $e) {
+                        \Log::warning('SQLite retrieveByCredentials database check error (ignored): ' . $e->getMessage());
+                    }
                     
                     return new User([
                         'uuid' => $key,
@@ -105,13 +150,19 @@ class FirebaseUserProvider implements UserProvider
             }
         } catch (\Exception $e) {
             // Abaikan error Firebase dan lanjut cek ke SQLite
+            \Log::warning('Firebase retrieveByCredentials error (ignored): ' . $e->getMessage());
         }
 
         // Fallback: Cari di database SQLite lokal
-        $dbUser = \Illuminate\Support\Facades\DB::table('users')
-            ->where('email', $loginValue)
-            ->orWhere('username', $loginValue)
-            ->first();
+        $dbUser = null;
+        try {
+            $dbUser = \Illuminate\Support\Facades\DB::table('users')
+                ->where('email', $loginValue)
+                ->orWhere('username', $loginValue)
+                ->first();
+        } catch (\Exception $e) {
+            \Log::warning('SQLite retrieveByCredentials ultimate fallback error (ignored): ' . $e->getMessage());
+        }
 
         if ($dbUser) {
             return new User([
@@ -135,7 +186,7 @@ class FirebaseUserProvider implements UserProvider
 
         try {
             return \Illuminate\Support\Facades\Hash::check($credentials['password'], $user->getAuthPassword());
-        } catch (\RuntimeException $e) {
+        } catch (\Throwable $e) {
             // Password di database bukan format hash (mungkin plain text atau format lama)
             // Cek apakah password persis sama dengan ketikan (untuk backward compatibility)
             return $credentials['password'] === $user->getAuthPassword();

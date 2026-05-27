@@ -20,10 +20,18 @@
         $wa = preg_replace('/[^0-9]/', '', $wa);
     @endphp
     @if($wa)
-    <a href="https://wa.me/62{{ ltrim($wa,'0') }}" target="_blank" class="btn-whatsapp-modern">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12.031 6.172c-2.135 0-3.834 1.705-3.834 3.844 0 2.146 1.7 3.847 3.834 3.847 2.138 0 3.841-1.7 3.841-3.847 0-2.139-1.703-3.844-3.841-3.844zM12.031 12c-1.123 0-2.003-.88-2.003-2.003 0-1.123.88-2.003 2.003-2.003 1.126 0 2.003.88 2.003 2.003C14.034 11.12 13.157 12 12.031 12zM12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.411 0-8-3.589-8-8s3.589-8 8-8 8 3.589 8 8-3.589 8-8 8z"/></svg>
-        Hubungi WhatsApp
-    </a>
+    <div style="display: flex; gap: 1rem; align-items: center;">
+        @if(isset($data['ref_id']))
+        <a href="{{ route('register.ticket', $data['ref_id']) }}" target="_blank" class="btn-ticket-modern" style="background: #fdf6e2; color: #b45309; border: 1px solid #d4af37; padding: 10px 16px; border-radius: 8px; font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem; font-size: 0.9rem; transition: all 0.2s ease;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            Lihat E-Ticket
+        </a>
+        @endif
+        <a href="https://wa.me/62{{ ltrim($wa,'0') }}" target="_blank" class="btn-whatsapp-modern">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12.031 6.172c-2.135 0-3.834 1.705-3.834 3.844 0 2.146 1.7 3.847 3.834 3.847 2.138 0 3.841-1.7 3.841-3.847 0-2.139-1.703-3.844-3.841-3.844zM12.031 12c-1.123 0-2.003-.88-2.003-2.003 0-1.123.88-2.003 2.003-2.003 1.126 0 2.003.88 2.003 2.003C14.034 11.12 13.157 12 12.031 12zM12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.411 0-8-3.589-8-8s3.589-8 8-8 8 3.589 8 8-3.589 8-8 8z"/></svg>
+            Hubungi WhatsApp
+        </a>
+    </div>
     @endif
 </div>
 

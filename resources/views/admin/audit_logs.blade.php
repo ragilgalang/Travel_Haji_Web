@@ -50,6 +50,9 @@
     </div>
 
     {{-- GRAFIK REAL-TIME LOGIN HARI INI --}}
+    <!-- ========================================== -->
+    <!-- [TANDA: GRAFIK AUDIT KEAMANAN - CANVAS HTML] -->
+    <!-- ========================================== -->
     <div class="card-modern" style="margin-bottom: 2rem; padding: 1.5rem;">
         <h3 style="margin-top: 0; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 10px; font-family: 'Playfair Display', serif;">
             📈 Tren Aktivitas Login (Hari Ini)
@@ -110,8 +113,19 @@
                             <div style="font-size: 0.75rem; color: #1e293b;">{{ $log['device'] ?? 'Unknown' }}</div>
                         </td>
                         <td style="text-align: center;">
-                            @if(($log['status'] ?? '') == 'LOGIN_SUCCESS')
-                                <span style="background: #dcfce7; color: #166534; padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 700;">BERHASIL</span>
+                            @php
+                                $status = $log['status'] ?? '';
+                            @endphp
+                            @if($status == 'LOGIN_SUCCESS')
+                                <span style="background: #dcfce7; color: #166534; padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; border: 1px solid #bbf7d0;">BERHASIL</span>
+                            @elseif($status == 'ACCOUNT_DELETED_TOO_MANY_ATTEMPTS')
+                                <span style="background: #fef2f2; color: #b91c1c; border: 1px solid #fca5a5; padding: 5px 12px; border-radius: 20px; font-size: 0.72rem; font-weight: 800; box-shadow: 0 0 10px rgba(239, 68, 68, 0.15); letter-spacing: 0.5px; display: inline-flex; align-items: center; gap: 4px;">🗑️ TERHAPUS (3x GAGAL)</span>
+                            @elseif($status == 'LOGIN_BLOCKED_SPECIAL_RULE')
+                                <span style="background: #fff7ed; color: #c2410c; border: 1px solid #fdba74; padding: 5px 12px; border-radius: 20px; font-size: 0.72rem; font-weight: 800; display: inline-flex; align-items: center; gap: 4px;">🔒 TERBLOKIR (2x GAGAL)</span>
+                            @elseif($status == 'LOGIN_BANNED_PERMANENT')
+                                <span style="background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 700;">🚫 BANNED</span>
+                            @elseif($status == 'LOGIN_LOCKED_2_MINUTES')
+                                <span style="background: #fef9c3; color: #854d0e; border: 1px solid #fef08a; padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 700;">⏳ TERKUNCI (2 MENIT)</span>
                             @else
                                 <span style="background: #fee2e2; color: #991b1b; padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 700;">GAGAL</span>
                             @endif
@@ -162,7 +176,7 @@
                             <div style="font-size: 0.85rem; color: #64748b;">{{ $banned->email }}</div>
                         </td>
                         <td>
-                            <div style="font-size: 0.85rem; font-weight: 600;">{{ $banned->banned_reason ?? 'Salah password 10 kali' }}</div>
+                            <div style="font-size: 0.85rem; font-weight: 600;">{{ $banned->banned_reason ?? 'Salah password 0 kali' }}</div>
                             <div style="font-size: 0.75rem; color: #94a3b8;">{{ $banned->updated_at ? date('d M Y H:i', strtotime($banned->updated_at)) : '-' }}</div>
                         </td>
                         <td style="text-align: right;">
@@ -305,6 +319,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const ctx = document.getElementById('auditChart');
     if (!ctx) return;
 
+    // ==========================================
+    // [TANDA: GRAFIK AUDIT KEAMANAN - SKRIP CHART.JS]
+    // ==========================================
     const chartData = @json($chartData);
     
     new Chart(ctx, {

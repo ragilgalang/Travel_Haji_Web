@@ -29,7 +29,16 @@
 
     @for($i = 1; $i <= 4; $i++)
       @php
-        $src = optUrl($settings['hero_bg_'.$i] ?? $defaultBgs[$i - 1], 1200);
+        $rawBg = $settings['hero_bg_'.$i] ?? null;
+        if ($rawBg) {
+            // URL lokal dari upload — gunakan asset() bersih
+            $cleanBgPath = preg_replace('/^https?:\/\/[^\/]+/', '', $rawBg);
+            $cleanBgPath = ltrim($cleanBgPath, '/');
+            $src = asset($cleanBgPath);
+        } else {
+            // Fallback default Unsplash
+            $src = $defaultBgs[$i - 1];
+        }
       @endphp
       <div class="slide {{ $i === 1 ? 'active' : '' }}">
         <img src="{{ $src }}" alt="Hero Background {{ $i }}" width="1200" height="800"

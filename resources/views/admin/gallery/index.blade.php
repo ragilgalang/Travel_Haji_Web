@@ -481,7 +481,7 @@
 </div>
 
 <!-- FORM TERSEMBUNYI UNTUK HAPUS (SYNC KE SETTINGS) -->
-<form id="deleteForm" action="{{ route('admin.settings.update') }}" method="POST" style="display:none;">
+<form id="deleteForm" action="{{ route('admin.gallery.delete-legacy') }}" method="POST" style="display:none;">
     @csrf
     <input type="hidden" name="" id="deleteField" value="1">
 </form>

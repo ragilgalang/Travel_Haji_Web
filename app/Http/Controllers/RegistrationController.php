@@ -103,17 +103,44 @@ class RegistrationController extends Controller
         return view('register-success', compact('settings'));
     }
 
+    public function showTicket($refId)
+    {
+        $refId = strtoupper($refId);
+        $all = $this->firebase->getValue('registrations') ?? [];
+        $data = null;
+        
+        foreach ($all as $id => $reg) {
+            if (isset($reg['ref_id']) && strtoupper($reg['ref_id']) === $refId) {
+                $data = $reg;
+                $data['id'] = $id;
+                break;
+            }
+        }
+        
+        if (!$data) {
+            abort(404, 'E-Ticket tidak ditemukan atau referensi tidak valid.');
+        }
+        
+        $settings = $this->firebase->getValue('settings') ?? [];
+        return view('ticket', compact('data', 'settings'));
+    }
+
     public function checkStatus(Request $request)
     {
-        $refId = strtoupper($request->ref_id);
-        if (!$refId) {
-            return response()->json(['success' => false, 'message' => 'Masukkan nomor referensi.']);
+        $input = trim($request->ref_id);
+        if (!$input) {
+            return response()->json(['success' => false, 'message' => 'Masukkan nomor referensi atau NIK.']);
         }
 
         $all = $this->firebase->getValue('registrations') ?? [];
         $found = null;
+        $inputUpper = strtoupper($input);
+
         foreach ($all as $data) {
-            if (isset($data['ref_id']) && strtoupper($data['ref_id']) === $refId) {
+            $refId = isset($data['ref_id']) ? strtoupper($data['ref_id']) : '';
+            $nik = isset($data['nik']) ? trim($data['nik']) : '';
+
+            if ($refId === $inputUpper || $nik === $input) {
                 $found = $data;
                 break;
             }
@@ -124,10 +151,11 @@ class RegistrationController extends Controller
                 'success' => true,
                 'status' => $found['status'] ?? 'Menunggu Verifikasi',
                 'nama' => $found['nama_lengkap'] ?? 'Jemaah',
-                'tgl' => isset($found['created_at']) ? date('d M Y', strtotime($found['created_at'])) : '-'
+                'tgl' => isset($found['created_at']) ? date('d M Y', strtotime($found['created_at'])) : '-',
+                'ref_id' => $found['ref_id'] ?? $input
             ]);
         }
 
-        return response()->json(['success' => false, 'message' => 'Nomor referensi tidak ditemukan.']);
+        return response()->json(['success' => false, 'message' => 'Nomor referensi atau NIK tidak ditemukan.']);
     }
 }
