@@ -6,16 +6,26 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 
+use App\Services\FirebaseService;
+
 class DeployController extends Controller
 {
+    protected $firebase;
+
+    public function __construct(FirebaseService $firebase)
+    {
+        $this->firebase = $firebase;
+    }
+
     /**
      * Trigger deployment to the remote hosting server.
      */
     public function deploy(Request $request)
     {
-        // 1. Ambil URL target dan Token dari file .env
-        $targetUrl = env('DEPLOY_TARGET_URL');
-        $secretToken = env('DEPLOY_SECRET');
+        // 1. Ambil URL target dan Token dari Firebase settings (dengan fallback .env)
+        $settings = $this->firebase->getValue('settings') ?? [];
+        $targetUrl = $settings['deploy_target_url'] ?? env('DEPLOY_TARGET_URL');
+        $secretToken = $settings['deploy_secret'] ?? env('DEPLOY_SECRET');
 
         if (!$targetUrl || !$secretToken) {
             return response()->json([
