@@ -64,12 +64,19 @@
                     </svg>
                     🖼️ Bagian Footer
                 </button>
+                @php
+                    $appHost = parse_url(config('app.url'), PHP_URL_HOST);
+                    $currentHost = request()->getHost();
+                    $isProduction = ($currentHost === $appHost) || str_contains($currentHost, 'umrohceriaabadi.com');
+                @endphp
+                @if(!$isProduction)
                 <button type="button" class="tab-btn" onclick="switchTab(event, 'tab-deploy')">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M21.2 15c.6-1 .8-2.2.8-3.5C22 7.4 17.6 3 12 3 7.8 3 4.3 5.5 3.2 9.2 1.4 10.4 0 12.5 0 15c0 3.3 2.7 6 6 6h13c2.8 0 5-2.2 5-5 0-1-.3-2-.8-2.9z"/>
                     </svg>
                     🚀 Pengaturan Deploy
                 </button>
+                @endif
             </div>
 
             <!-- CARD KONTEN TAB KANAN -->
@@ -536,6 +543,7 @@
                     </div>
                 </div>
 
+                @if(!$isProduction)
                 <!-- TAB 7: PENGATURAN DEPLOY & HOSTING -->
                 <div id="tab-deploy" class="tab-pane">
                     <h3 class="section-title-premium">🚀 Pengaturan Deploy & Sinkronisasi Hosting</h3>
@@ -572,6 +580,7 @@
                         <span class="help-block-premium">Token keamanan rahasia yang dikirimkan dalam header <code>X-Deploy-Token</code> untuk memverifikasi keabsahan request deploy.</span>
                     </div>
                 </div>
+                @endif
 
 
 

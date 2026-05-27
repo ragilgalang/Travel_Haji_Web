@@ -22,6 +22,16 @@ class DeployController extends Controller
      */
     public function deploy(Request $request)
     {
+        // Keamanan: Blokir aksi jika dijalankan di server production
+        $appHost = parse_url(config('app.url'), PHP_URL_HOST);
+        $currentHost = request()->getHost();
+        if ($currentHost === $appHost || str_contains($currentHost, 'umrohceriaabadi.com')) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Fitur deployment hanya diizinkan dijalankan dari server lokal.'
+            ], 403);
+        }
+
         // 1. Ambil URL target dan Token dari Firebase settings (dengan fallback .env)
         $settings = $this->firebase->getValue('settings') ?? [];
         $targetUrl = $settings['deploy_target_url'] ?? env('DEPLOY_TARGET_URL');
@@ -71,6 +81,16 @@ class DeployController extends Controller
      */
     public function uploadToGithub(Request $request)
     {
+        // Keamanan: Blokir aksi jika dijalankan di server production
+        $appHost = parse_url(config('app.url'), PHP_URL_HOST);
+        $currentHost = request()->getHost();
+        if ($currentHost === $appHost || str_contains($currentHost, 'umrohceriaabadi.com')) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Fitur pengunggahan kode ke GitHub hanya diizinkan dijalankan dari server lokal.'
+            ], 403);
+        }
+
         $request->validate([
             'repo_url' => 'required|string'
         ]);

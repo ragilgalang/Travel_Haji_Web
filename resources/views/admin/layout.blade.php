@@ -401,6 +401,13 @@
         </div>
       </div>
       <div class="topbar-right">
+        @php
+          $appHost = parse_url(config('app.url'), PHP_URL_HOST);
+          $currentHost = request()->getHost();
+          $isProduction = ($currentHost === $appHost) || str_contains($currentHost, 'umrohceriaabadi.com');
+        @endphp
+
+        @if(!$isProduction)
         <!-- Upload ke GitHub -->
         <a href="javascript:void(0)" onclick="document.getElementById('githubUploadModal').style.display='flex'" style="display: flex; align-items: center; gap: 6px; background: #faf5ff; color: #7c3aed; padding: 6px 12px; border-radius: 8px; font-size: 0.75rem; font-weight: 700; text-decoration: none; border: 1px solid #e9d5ff; transition: all 0.2s; cursor: pointer; margin-right: 4px;" onmouseover="this.style.background='#f3e8ff'" onmouseout="this.style.background='#faf5ff'">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -415,6 +422,7 @@
           </svg>
           Deploy ke Hosting
         </a>
+        @endif
         <a href="javascript:void(0)" onclick="document.getElementById('changelogModal').style.display='flex'" style="display: flex; align-items: center; gap: 6px; background: #f0fdf4; color: #16a34a; padding: 6px 12px; border-radius: 8px; font-size: 0.75rem; font-weight: 700; text-decoration: none; border: 1px solid #bbf7d0; transition: all 0.2s; cursor: pointer;" onmouseover="this.style.background='#dcfce7'" onmouseout="this.style.background='#f0fdf4'">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
             <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
