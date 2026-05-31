@@ -18,13 +18,16 @@ $branch = 'main';
 // --- Validasi Keamanan Token ---
 header('Content-Type: application/json');
 
-$incomingToken = $_SERVER['HTTP_X_DEPLOY_TOKEN'] ?? $_GET['token'] ?? '';
+$incomingToken = $_SERVER['HTTP_X_DEPLOY_TOKEN'] ?? '';
+if (empty($incomingToken)) {
+    $incomingToken = $_GET['token'] ?? '';
+}
 
 if ($incomingToken !== $secretToken) {
     http_response_code(403);
     echo json_encode([
         'status'  => 'error',
-        'message' => 'Akses ditolak. Token tidak valid.'
+        'message' => 'Akses ditolak. Token tidak valid atau kosong.'
     ]);
     exit;
 }
