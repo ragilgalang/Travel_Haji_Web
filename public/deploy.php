@@ -24,8 +24,28 @@ $githubPat = '';
 // JANGAN EDIT DI BAWAH INI
 // ============================================================
 
+// --- Tangkap Error Fatal agar tidak blank 500 ---
+register_shutdown_function(function() {
+    $error = error_get_last();
+    if ($error !== null && in_array($error['type'], [E_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR])) {
+        http_response_code(500);
+        header('Content-Type: application/json');
+        echo json_encode([
+            'status' => 'error',
+            'message' => 'PHP Fatal Error: ' . $error['message'],
+            'file' => $error['file'],
+            'line' => $error['line'],
+            'log' => []
+        ]);
+    }
+});
+
 header('Content-Type: application/json');
-set_time_limit(300); // Beri waktu 5 menit untuk proses
+
+// Coba atur time limit, abaikan jika diblokir server
+if (function_exists('set_time_limit')) {
+    @set_time_limit(300);
+}
 
 // --- Validasi Keamanan Token ---
 $incomingToken = $_SERVER['HTTP_X_DEPLOY_TOKEN'] ?? '';
@@ -222,15 +242,36 @@ $zip->close();
 
 $log[] = '[INFO] Berhasil mengekstrak ' . $successCount . ' file.';
 
-// --- Artisan cache clear jika artisan tersedia ---
-if (file_exists($targetDir . '/artisan')) {
-    $log[] = '[INFO] Menjalankan artisan...';
-    $phpBin = PHP_BINARY ?: 'php';
-    exec($phpBin . ' ' . escapeshellarg($targetDir . '/artisan') . ' config:clear 2>&1', $out1);
-    exec($phpBin . ' ' . escapeshellarg($targetDir . '/artisan') . ' cache:clear 2>&1', $out2);
-    exec($phpBin . ' ' . escapeshellarg($targetDir . '/artisan') . ' view:clear 2>&1', $out3);
-    $log = array_merge($log, $out1, $out2, $out3);
+// --- Clear Laravel Cache Manual (karena exec() diblokir Hostinger) ---
+$log[] = '[INFO] Membersihkan cache Laravel secara manual...';
+$cachePaths = [
+    $targetDir . '/bootstrap/cache/config.php',
+    $targetDir . '/bootstrap/cache/events.php',
+    $targetDir . '/bootstrap/cache/packages.php',
+    $targetDir . '/bootstrap/cache/routes.php',
+    $targetDir . '/bootstrap/cache/services.php',
+];
+
+$cleared = 0;
+foreach ($cachePaths as $cPath) {
+    if (file_exists($cPath)) {
+        @unlink($cPath);
+        $cleared++;
+    }
 }
+
+// Hapus isi folder storage/framework/views
+$viewsDir = $targetDir . '/storage/framework/views';
+if (is_dir($viewsDir)) {
+    $files = glob($viewsDir . '/*');
+    foreach ($files as $file) {
+        if (is_file($file) && basename($file) !== '.gitignore') {
+            @unlink($file);
+            $cleared++;
+        }
+    }
+}
+$log[] = "[INFO] Berhasil membersihkan $cleared file cache Laravel.";
 
 echo json_encode([
     'status'  => 'success',
