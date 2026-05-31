@@ -20,7 +20,9 @@ class ProfileController extends Controller
     public function index()
     {
         // Ambil riwayat login (5 terakhir)
-        $historyData = $this->firebase->getValue('login_history') ?? [];
+        $historyData = $this->getFirebaseData('admin_login_history', 60, function() {
+            return $this->firebase->getValue('login_history') ?? [];
+        });
 
         // Urutkan berdasarkan waktu (terbaru di atas)
         usort($historyData, function ($a, $b) {
@@ -70,7 +72,8 @@ class ProfileController extends Controller
 
         // Simpan ke Firebase
         $this->firebase->setValue('users/' . $userKey, $adminData);
-
+        \Illuminate\Support\Facades\Cache::forget('admin_users_list');
+ 
         // Sync ke SQLite lokal juga agar login lancar
         \Illuminate\Support\Facades\DB::table('users')->updateOrInsert(
             ['email' => $request->admin_email],

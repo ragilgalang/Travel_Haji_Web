@@ -20,7 +20,9 @@ class RegistrationAdminController extends Controller
         // ==========================================
         // AUTO CLEANUP: Hapus permanen data di sampah jika sudah > 1 bulan
         // ==========================================
-        $all = $this->firebase->getValue('registrations') ?? [];
+        $all = $this->getFirebaseData('admin_registrations_list', 10, function() {
+            return $this->firebase->getValue('registrations') ?? [];
+        });
         $oneMonthAgo = now()->subMonth();
         $cleanedAny = false;
         foreach ($all as $id => $data) {
@@ -33,7 +35,10 @@ class RegistrationAdminController extends Controller
             }
         }
         if ($cleanedAny) {
-            $all = $this->firebase->getValue('registrations') ?? []; // Refresh data
+            \Illuminate\Support\Facades\Cache::forget('admin_registrations_list');
+            $all = $this->getFirebaseData('admin_registrations_list', 10, function() {
+                return $this->firebase->getValue('registrations') ?? [];
+            });
         }
 
         $registrations = [];
@@ -80,7 +85,9 @@ class RegistrationAdminController extends Controller
 
         if ($request->filled('type')) {
             $type = strtolower($request->type);
-            $packages = collect($this->firebase->getValue('packages') ?? []);
+            $packages = collect($this->getFirebaseData('firebase_packages', 30, function() {
+                return $this->firebase->getValue('packages') ?? [];
+            }));
             
             $registrations = array_filter($registrations, function($r) use ($type, $packages) {
                 $packageName = $r['paket'] ?? ($r['dynamic_fields'][5]['value'] ?? '');
@@ -124,16 +131,26 @@ class RegistrationAdminController extends Controller
             });
         }
 
-        $settings = $this->firebase->getValue('settings') ?? [];
+        $settings = $this->getFirebaseData('site_settings', 300, function() {
+            return $this->firebase->getValue('settings') ?? [];
+        });
         return view('admin.registrations.index', compact('registrations', 'settings'));
     }
 
     public function show($id)
     {
-        $data = $this->firebase->getValue("registrations/{$id}");
-        if (!$data) abort(404);
+        $registrations = $this->getFirebaseData('admin_registrations_list', 10, function() {
+            return $this->firebase->getValue('registrations') ?? [];
+        });
+        $data = $registrations[$id] ?? null;
+        if (!$data) {
+            $data = $this->firebase->getValue("registrations/{$id}");
+            if (!$data) abort(404);
+        }
         $data['id'] = $id;
-        $settings = $this->firebase->getValue('settings') ?? [];
+        $settings = $this->getFirebaseData('site_settings', 300, function() {
+            return $this->firebase->getValue('settings') ?? [];
+        });
         return view('admin.registrations.show', compact('data', 'settings'));
     }
 
@@ -144,6 +161,7 @@ class RegistrationAdminController extends Controller
         ]);
         
         $this->firebase->setValue("registrations/{$id}/status", $request->status);
+        \Illuminate\Support\Facades\Cache::forget('admin_registrations_list');
         
         if ($request->status === 'Dibatalkan') {
             $this->firebase->setValue("registrations/{$id}/is_trashed", true);
@@ -156,12 +174,14 @@ class RegistrationAdminController extends Controller
     public function archive($id)
     {
         $this->firebase->setValue("registrations/{$id}/is_archived", true);
+        \Illuminate\Support\Facades\Cache::forget('admin_registrations_list');
         return back()->with('success', 'Data pendaftaran berhasil dipindahkan ke Arsip.');
     }
 
     public function unarchive($id)
     {
         $this->firebase->setValue("registrations/{$id}/is_archived", false);
+        \Illuminate\Support\Facades\Cache::forget('admin_registrations_list');
         return back()->with('success', 'Data pendaftaran berhasil dikembalikan dari Arsip.');
     }
 
@@ -169,6 +189,7 @@ class RegistrationAdminController extends Controller
     {
         $this->firebase->setValue("registrations/{$id}/is_trashed", true);
         $this->firebase->setValue("registrations/{$id}/trashed_at", now()->toDateTimeString());
+        \Illuminate\Support\Facades\Cache::forget('admin_registrations_list');
         return back()->with('success', 'Data berhasil dipindahkan ke Sampah.');
     }
 
@@ -177,7 +198,9 @@ class RegistrationAdminController extends Controller
         // ==========================================
         // AUTO CLEANUP: Hapus permanen data di sampah jika sudah > 1 bulan
         // ==========================================
-        $all = $this->firebase->getValue('registrations') ?? [];
+        $all = $this->getFirebaseData('admin_registrations_list', 10, function() {
+            return $this->firebase->getValue('registrations') ?? [];
+        });
         $oneMonthAgo = now()->subMonth();
         $cleanedAny = false;
         foreach ($all as $id => $data) {
@@ -190,7 +213,10 @@ class RegistrationAdminController extends Controller
             }
         }
         if ($cleanedAny) {
-            $all = $this->firebase->getValue('registrations') ?? []; // Refresh data
+            \Illuminate\Support\Facades\Cache::forget('admin_registrations_list');
+            $all = $this->getFirebaseData('admin_registrations_list', 10, function() {
+                return $this->firebase->getValue('registrations') ?? [];
+            });
         }
 
         $trashed = [];
@@ -216,7 +242,9 @@ class RegistrationAdminController extends Controller
             });
         }
 
-        $settings = $this->firebase->getValue('settings') ?? [];
+        $settings = $this->getFirebaseData('site_settings', 300, function() {
+            return $this->firebase->getValue('settings') ?? [];
+        });
         return view('admin.registrations.trash', compact('trashed', 'settings'));
     }
 
@@ -225,6 +253,7 @@ class RegistrationAdminController extends Controller
         $this->firebase->setValue("registrations/{$id}/is_trashed", false);
         $this->firebase->setValue("registrations/{$id}/trashed_at", null);
         $this->firebase->setValue("registrations/{$id}/status", 'Menunggu Verifikasi');
+        \Illuminate\Support\Facades\Cache::forget('admin_registrations_list');
         return back()->with('success', 'Data berhasil dipulihkan ke daftar pendaftaran.');
     }
 
@@ -239,6 +268,7 @@ class RegistrationAdminController extends Controller
             $this->firebase->setValue("registrations/{$id}/trashed_at", null);
             $this->firebase->setValue("registrations/{$id}/status", 'Menunggu Verifikasi');
         }
+        \Illuminate\Support\Facades\Cache::forget('admin_registrations_list');
         return back()->with('success', count($ids) . ' data berhasil dipulihkan ke daftar pendaftaran.');
     }
 
@@ -247,6 +277,7 @@ class RegistrationAdminController extends Controller
         $data = $this->firebase->getValue("registrations/{$id}");
         if (!$data) return back()->with('error', 'Data tidak ditemukan.');
         $this->firebase->getReference("registrations/{$id}")->remove();
+        \Illuminate\Support\Facades\Cache::forget('admin_registrations_list');
         return back()->with('success', 'Data berhasil dihapus permanen.');
     }
 
@@ -259,12 +290,15 @@ class RegistrationAdminController extends Controller
         foreach ($ids as $id) {
             $this->firebase->getReference("registrations/{$id}")->remove();
         }
+        \Illuminate\Support\Facades\Cache::forget('admin_registrations_list');
         return back()->with('success', count($ids) . ' data berhasil dihapus permanen dari Sampah.');
     }
 
     public function emptyTrash()
     {
-        $all = $this->firebase->getValue('registrations') ?? [];
+        $all = $this->getFirebaseData('admin_registrations_list', 10, function() {
+            return $this->firebase->getValue('registrations') ?? [];
+        });
         $count = 0;
         foreach ($all as $id => $data) {
             if ($data['is_trashed'] ?? false) {
@@ -272,12 +306,15 @@ class RegistrationAdminController extends Controller
                 $count++;
             }
         }
+        \Illuminate\Support\Facades\Cache::forget('admin_registrations_list');
         return redirect()->route('admin.registrations.trash')->with('success', $count . ' data Sampah berhasil dikosongkan permanen.');
     }
 
     public function archiveAllFinished()
     {
-        $all = $this->firebase->getValue('registrations') ?? [];
+        $all = $this->getFirebaseData('admin_registrations_list', 10, function() {
+            return $this->firebase->getValue('registrations') ?? [];
+        });
         $count = 0;
         foreach ($all as $id => $data) {
             if (($data['status'] ?? '') === 'Selesai' && !($data['is_archived'] ?? false)) {
@@ -285,6 +322,7 @@ class RegistrationAdminController extends Controller
                 $count++;
             }
         }
+        \Illuminate\Support\Facades\Cache::forget('admin_registrations_list');
         return back()->with('success', $count . ' data jemaah yang sudah Selesai telah dipindahkan ke Arsip.');
     }
 
@@ -309,12 +347,15 @@ class RegistrationAdminController extends Controller
             }
         }
 
+        \Illuminate\Support\Facades\Cache::forget('admin_registrations_list');
         return redirect()->route('admin.registrations.index')->with('success', count($ids) . ' status pendaftaran berhasil diperbarui.');
     }
 
     public function checkNew(Request $request)
     {
-        $all = $this->firebase->getValue('registrations') ?? [];
+        $all = $this->getFirebaseData('admin_registrations_list', 10, function() {
+            return $this->firebase->getValue('registrations') ?? [];
+        });
         $lastId = $request->query('last_id');
         $newOnes = [];
 

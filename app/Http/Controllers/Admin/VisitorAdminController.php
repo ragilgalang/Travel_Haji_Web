@@ -18,7 +18,9 @@ class VisitorAdminController extends Controller
     public function index(Request $request)
     {
         // Ambil data log pengunjung
-        $allLogData = $this->firebase->getValue('visitor_log') ?? [];
+        $allLogData = $this->getFirebaseData('admin_visitor_log', 30, function() {
+            return $this->firebase->getValue('visitor_log') ?? [];
+        });
         
         // Urutkan berdasarkan waktu (terbaru di atas)
         usort($allLogData, function($a, $b) {
@@ -26,7 +28,8 @@ class VisitorAdminController extends Controller
         });
 
         $now = \Carbon\Carbon::now();
-        $timeFilter = $request->input('time', '');
+        $timeFilter = $request->input('time', 'today'); // Default ke hari ini
+        if ($timeFilter === 'all') $timeFilter = ''; // Kosongkan filter jika pilih semua
 
         // ========== FILTER WAKTU ==========
         if ($timeFilter) {
@@ -173,8 +176,9 @@ class VisitorAdminController extends Controller
         $this->firebase->setValue('metrics/page_views', 0);
         
         // Bersihkan cache dashboard agar angka 0 langsung muncul
+        \Illuminate\Support\Facades\Cache::forget('admin_visitor_log');
         \Illuminate\Support\Facades\Cache::flush();
-
+ 
         return redirect()->route('admin.visitors.index')->with('success', 'Seluruh riwayat pengunjung telah dihapus.');
     }
     /**
@@ -182,6 +186,7 @@ class VisitorAdminController extends Controller
      */
     public function syncCounter()
     {
+        \Illuminate\Support\Facades\Cache::forget('admin_visitor_log');
         $logData = $this->firebase->getValue('visitor_log') ?? [];
         $actualCount = count($logData);
         
@@ -190,7 +195,8 @@ class VisitorAdminController extends Controller
         
         // Hapus cache dashboard agar langsung terupdate
         \Illuminate\Support\Facades\Cache::forget('dashboard_stats');
-
+        \Illuminate\Support\Facades\Cache::forget('dashboard_main_stats_v3');
+ 
         return back()->with('success', "Angka pengunjung berhasil disinkronkan menjadi $actualCount.");
     }
 }

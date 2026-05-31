@@ -19,7 +19,7 @@ class AdminController extends Controller
     {
         $stats = $this->getDashboardStats();
 
-        $packagesList = \Illuminate\Support\Facades\Cache::remember('dashboard_packages', 60, function () {
+        $packagesList = $this->getFirebaseData('dashboard_packages', 60, function () {
             try {
                 return collect($this->firebase->getValue('packages') ?? [])->take(4);
             } catch (\Exception $e) {
@@ -28,7 +28,7 @@ class AdminController extends Controller
             }
         });
 
-        $recentRegistrations = \Illuminate\Support\Facades\Cache::remember('dashboard_recent_registrations', 30, function () {
+        $recentRegistrations = $this->getFirebaseData('dashboard_recent_registrations', 30, function () {
             try {
                 $regs = $this->firebase->getValue('registrations') ?? [];
                 return collect($regs)->map(function ($item, $key) {
@@ -42,7 +42,7 @@ class AdminController extends Controller
             }
         });
 
-        $recentVisitors = \Illuminate\Support\Facades\Cache::remember('dashboard_recent_visitors', 30, function () {
+        $recentVisitors = $this->getFirebaseData('dashboard_recent_visitors', 30, function () {
             try {
                 $log = $this->firebase->getValue('visitor_log') ?? [];
                 return collect($log)->sortByDesc('timestamp')->take(5);
@@ -116,7 +116,7 @@ class AdminController extends Controller
         }
 
         // Cache dikurangi menjadi 5 detik saja untuk efek "realtime" pada page load biasa
-        return \Illuminate\Support\Facades\Cache::remember('dashboard_main_stats_v3', 5, $fetchStats);
+        return $this->getFirebaseData('dashboard_main_stats_v3', 5, $fetchStats);
     }
 
 
@@ -124,9 +124,15 @@ class AdminController extends Controller
 
     public function galleryIndex()
     {
-        $settings = $this->firebase->getValue('settings') ?? [];
-        $galleryNode = $this->firebase->getValue('gallery') ?? [];
-        $galleryVisibility = $this->firebase->getValue('gallery_visibility') ?? [];
+        $settings = $this->getFirebaseData('site_settings', 300, function() {
+            return $this->firebase->getValue('settings') ?? [];
+        });
+        $galleryNode = $this->getFirebaseData('site_gallery', 300, function() {
+            return $this->firebase->getValue('gallery') ?? [];
+        });
+        $galleryVisibility = $this->getFirebaseData('site_gallery_visibility', 300, function() {
+            return $this->firebase->getValue('gallery_visibility') ?? [];
+        });
         
         $localPath = public_path('Gambar perjalanan/Gambar-video');
         $allMedia = [];
@@ -416,12 +422,16 @@ class AdminController extends Controller
     public function auditLogs()
     {
         // Ambil data audit logs dari Firebase
-        $logs = $this->firebase->getValue('account_audit_logs') ?? [];
+        $logs = $this->getFirebaseData('admin_audit_logs', 30, function() {
+            return $this->firebase->getValue('account_audit_logs') ?? [];
+        });
 
         // ============================================================
         // [AUTO-CLEANUP LOGS] Hapus otomatis log jika akunnya sudah tidak ada di RTDB (users)
         // ============================================================
-        $firebaseUsers = $this->firebase->getValue('users') ?? [];
+        $firebaseUsers = $this->getFirebaseData('admin_users_list', 30, function() {
+            return $this->firebase->getValue('users') ?? [];
+        });
         $activeEmails = [];
         foreach ($firebaseUsers as $u) {
             if (!empty($u['email'])) {
@@ -461,6 +471,7 @@ class AdminController extends Controller
                 }
             }
             $logs = $filteredLogs;
+            \Illuminate\Support\Facades\Cache::forget('admin_audit_logs');
         }
 
         // Balikkan urutan agar data terbaru muncul di atas
@@ -521,6 +532,7 @@ class AdminController extends Controller
     {
         // Hapus seluruh node audit logs di Firebase
         $this->firebase->setValue('account_audit_logs', null);
+        \Illuminate\Support\Facades\Cache::forget('admin_audit_logs');
         return back()->with('success', 'Seluruh histori monitoring login berhasil dihapus!');
     }
 
@@ -569,6 +581,8 @@ class AdminController extends Controller
             \Illuminate\Support\Facades\Log::error('Gagal total sync unlock ke Firebase: ' . $e->getMessage());
         }
 
+        \Illuminate\Support\Facades\Cache::forget('admin_users_list');
+        \Illuminate\Support\Facades\Cache::forget('admin_audit_logs');
         return back()->with('success', "🔓 Akses Pulih! Seluruh hitungan pinalti untuk {$email} telah di-reset ke Nol.");
     }
 
@@ -603,6 +617,7 @@ class AdminController extends Controller
             \Illuminate\Support\Facades\Log::error('Gagal sync reset password ke Firebase: ' . $e->getMessage());
         }
 
+        \Illuminate\Support\Facades\Cache::forget('admin_users_list');
         return back()->with('success', "🔑 Password baru untuk {$request->email} telah berhasil disimpan!");
     }
 
@@ -611,7 +626,9 @@ class AdminController extends Controller
      */
     public function settingsForm()
     {
-        $settings = $this->firebase->getValue('settings') ?? [];
+        $settings = $this->getFirebaseData('site_settings', 300, function() {
+            return $this->firebase->getValue('settings') ?? [];
+        });
         return view('admin.settings', compact('settings'));
     }
 

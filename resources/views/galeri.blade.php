@@ -9,7 +9,6 @@
             $currentHost = rtrim(request()->getSchemeAndHttpHost(), '/');
 
             // Jika URL mengandung /uploads/, ekstrak path saja & rebuild URL bersih
-            // Mencegah double/triple port seperti :8000:8000:8000
             if (str_contains($url, '/uploads/')) {
                 $pathStart = strpos($url, '/uploads/');
                 $path = substr($url, $pathStart);
@@ -34,53 +33,6 @@
             if (is_string($value))
                 $value = fixUrl($value);
         });
-    }
-
-    $allMedia = [];
-    $photoCount = 0;
-    $videoCount = 0;
-    $vis = $galleryVisibility ?? [];
-
-    /* 1. DYNAMIC GALLERY (Firebase) - Cek is_published per item */
-    $dynamicGallery = $gallery ?? [];
-    foreach ($dynamicGallery as $id => $item) {
-        if (empty($item['url'])) continue;
-        $isPublished = $item['is_published'] ?? true;
-        if (!$isPublished) continue; // Skip jika disembunyikan
-        $url = fixUrl($item['url']);
-        $type = $item['type'] ?? (preg_match('/\.(mp4|webm|ogg)$/i', $url) ? 'video' : 'foto');
-        $allMedia[] = ['id' => $id, 'url' => $url, 'type' => $type];
-    }
-
-    /* 2. LEGACY GALLERY - FOTO (dari settings/gallery_img_X) */
-    for ($i = 1; $i <= 20; $i++) {
-        $key = 'gallery_img_' . $i;
-        $p = $settings[$key] ?? '';
-        if (empty($p)) continue;
-        $isPublished = $vis[$key] ?? true;
-        if (!$isPublished) continue;
-        $url = fixUrl($p);
-        $allMedia[] = ['id' => $key, 'url' => $url, 'type' => 'foto'];
-    }
-
-    /* 3. LEGACY GALLERY - VIDEO (dari settings/gallery_video_X) */
-    for ($i = 1; $i <= 10; $i++) {
-        $key = 'gallery_video_' . $i;
-        $p = $settings[$key] ?? '';
-        if (empty($p)) continue;
-        $isPublished = $vis[$key] ?? true;
-        if (!$isPublished) continue;
-        $url = fixUrl($p);
-        $allMedia[] = ['id' => $key, 'url' => $url, 'type' => 'video'];
-    }
-
-    /* FILTER AKHIR: HAPUS DUPLIKAT URL */
-    $allMedia = collect($allMedia)->unique('url')->values()->all();
-
-    /* HITUNG TOTAL */
-    foreach ($allMedia as $m) {
-        if (($m['type'] ?? 'foto') == 'foto') $photoCount++;
-        else $videoCount++;
     }
 @endphp
 

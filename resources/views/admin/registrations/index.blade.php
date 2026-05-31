@@ -292,6 +292,16 @@
                                                 📦 Arsipkan
                                             </button>
                                         </form>
+
+                                        <form action="{{ route('admin.registrations.moveToTrash', $reg['id']) }}" method="POST"
+                                            class="d-inline"
+                                            onsubmit="return confirm('Hapus data ini dan pindahkan ke Sampah?')">
+                                            @csrf
+                                            <button type="submit" class="btn-detail"
+                                                style="background: #fee2e2; color: #dc2626; border: 1px solid #fecaca; margin-left: 5px;">
+                                                🗑 Hapus
+                                            </button>
+                                        </form>
                                     @endif
                                  </td>
                             </tr>

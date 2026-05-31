@@ -18,13 +18,12 @@ class PackageController extends Controller
 
     public function index(Request $request)
     {
-        // Paksa hapus cache
-        \Illuminate\Support\Facades\Cache::forget('firebase_packages');
-        
         $search = $request->input('search');
         $type = $request->input('type');
         
-        $allData = $this->firebase->getValue('packages') ?? [];
+        $allData = $this->getFirebaseData('firebase_packages', 30, function() {
+            return $this->firebase->getValue('packages') ?? [];
+        });
         
         // Ubah ke collection dan pastikan kita bekerja dengan array data murni
         $packages = collect($allData)->map(function($item, $key) {
@@ -277,5 +276,6 @@ class PackageController extends Controller
         \Illuminate\Support\Facades\Cache::forget('site_packages');
         \Illuminate\Support\Facades\Cache::forget('site_settings');
         \Illuminate\Support\Facades\Cache::forget('site_testimonials');
+        \Illuminate\Support\Facades\Cache::forget('admin_testimonials_list');
     }
 }

@@ -18,8 +18,12 @@ class FinanceController extends Controller
 
     public function index(Request $request)
     {
-        $registrations = collect($this->firebase->getValue('registrations') ?? []);
-        $packages = collect($this->firebase->getValue('packages') ?? []);
+        $registrations = collect($this->getFirebaseData('admin_registrations_list', 10, function() {
+            return $this->firebase->getValue('registrations') ?? [];
+        }));
+        $packages = collect($this->getFirebaseData('firebase_packages', 30, function() {
+            return $this->firebase->getValue('packages') ?? [];
+        }));
 
         // Filter pendaftaran yang sudah dikonfirmasi/lunas
         $confirmedRegs = $registrations->filter(function($reg) {

@@ -334,7 +334,7 @@ window.addEventListener('error', function(e) {
                       <div class="pkg-price">Rp {{ number_format((float) preg_replace('/[^0-9]/', '', $package['price'] ?? 0), 0, ',', '.') }} <small>/orang</small></div>
                       <div class="pkg-divider"></div>
                       <div class="pkg-actions">
-                        <a href="{{ route('register.show', ['package' => $package['id']]) }}" class="pkg-btn btn-daftar">Daftar</a>
+                        <a href="{{ route('register.show', ['package' => $package['id'] ?? '']) }}" class="pkg-btn btn-daftar">Daftar</a>
                         <button type="button" class="pkg-btn btn-detail-outline" onclick='openPkgModal({!! json_encode([
             "name" => $package["name"],
             "duration" => $package["duration"] ?? "9 Hari",
@@ -476,8 +476,12 @@ function filterPaket(cat, btn) {
         $row1Items = array_values($allMedia);
         $row2Items = array_values(array_reverse($allMedia)); // arah kebalikan untuk variasi
         /* Minimal 3 item per baris agar loop mulus */
-        while (count($row1Items) < 4) $row1Items = array_merge($row1Items, $row1Items);
-        while (count($row2Items) < 4) $row2Items = array_merge($row2Items, $row2Items);
+        if (count($row1Items) > 0) {
+            while (count($row1Items) < 4) $row1Items = array_merge($row1Items, $row1Items);
+        }
+        if (count($row2Items) > 0) {
+            while (count($row2Items) < 4) $row2Items = array_merge($row2Items, $row2Items);
+        }
         /* Tripel untuk seamless translateX(-33.333%) */
         $row1Loop = array_merge($row1Items, $row1Items, $row1Items);
         $row2Loop = array_merge($row2Items, $row2Items, $row2Items);

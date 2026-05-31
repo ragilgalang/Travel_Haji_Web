@@ -33,7 +33,9 @@ class DeployController extends Controller
         }
 
         // 1. Ambil URL target dan Token dari Firebase settings (dengan fallback .env)
-        $settings = $this->firebase->getValue('settings') ?? [];
+        $settings = $this->getFirebaseData('site_settings', 300, function() {
+            return $this->firebase->getValue('settings') ?? [];
+        });
         $targetUrl = $settings['deploy_target_url'] ?? env('DEPLOY_TARGET_URL');
         $secretToken = $settings['deploy_secret'] ?? env('DEPLOY_SECRET');
 
@@ -96,26 +98,32 @@ class DeployController extends Controller
         ]);
 
         $repoUrl = trim($request->input('repo_url'));
+        $parsedUrl = parse_url($repoUrl);
 
-        // Ambil PAT dari Firebase Settings (jika ada) atau dari .env
-        $pat = null;
-        try {
-            $settings = $this->firebase->getValue('settings') ?? [];
-            $pat = $settings['deploy_github_pat'] ?? ($settings['github_pat'] ?? env('DEPLOY_GITHUB_PAT'));
-        } catch (\Exception $e) {
-            // Jika Firebase gagal/eror, fallback ke .env
-            $pat = env('DEPLOY_GITHUB_PAT');
+        // Ambil PAT dari URL (jika user memasukkan https://PAT@github.com/...)
+        $pat = $parsedUrl['user'] ?? null;
+
+        if (empty($pat)) {
+            // Ambil PAT dari Firebase Settings (jika ada) atau dari .env
+            try {
+                $settings = $this->getFirebaseData('site_settings', 300, function() {
+                    return $this->firebase->getValue('settings') ?? [];
+                });
+                $pat = $settings['deploy_github_pat'] ?? ($settings['github_pat'] ?? env('DEPLOY_GITHUB_PAT'));
+            } catch (\Exception $e) {
+                // Jika Firebase gagal/eror, fallback ke .env
+                $pat = env('DEPLOY_GITHUB_PAT');
+            }
         }
 
         if (empty($pat)) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'GitHub Personal Access Token (PAT) belum diset di .env (DEPLOY_GITHUB_PAT).'
+                'message' => 'GitHub Personal Access Token (PAT) tidak ditemukan di URL, Settings, maupun di .env (DEPLOY_GITHUB_PAT).'
             ], 400);
         }
 
         // Inject PAT into URL: https://PAT@github.com/user/repo.git
-        $parsedUrl = parse_url($repoUrl);
         if (isset($parsedUrl['scheme'], $parsedUrl['host'], $parsedUrl['path'])) {
             $authenticatedUrl = $parsedUrl['scheme'] . '://' . $pat . '@' . $parsedUrl['host'] . $parsedUrl['path'];
         } else {

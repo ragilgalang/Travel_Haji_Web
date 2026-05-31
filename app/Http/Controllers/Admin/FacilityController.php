@@ -17,7 +17,7 @@ class FacilityController extends Controller
 
     public function index()
     {
-        $facilities = \Illuminate\Support\Facades\Cache::remember('firebase_facilities', 60*24, function() {
+        $facilities = $this->getFirebaseData('firebase_facilities', 60*24, function() {
             return collect($this->firebase->getValue('facilities') ?? []);
         });
         return view('admin.facilities.kelola_fasilitas', compact('facilities'));

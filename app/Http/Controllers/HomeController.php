@@ -12,18 +12,18 @@ class HomeController extends Controller
         
         // Tracking Pengunjung Unik per Sesi
         if (!session()->has('has_viewed_home')) {
-            $currentViews = $firebase->getValue('metrics/page_views') ?? 0;
-            $firebase->setValue('metrics/page_views', $currentViews + 1);
-            
-            // CATAT LOG PENGUNJUNG DETAIL
             try {
+                $currentViews = $firebase->getValue('metrics/page_views') ?? 0;
+                $firebase->setValue('metrics/page_views', $currentViews + 1);
+                
+                // CATAT LOG PENGUNJUNG DETAIL
                 $firebase->push('visitor_log', [
                     'ip'         => request()->ip(),
                     'user_agent' => request()->userAgent(),
                     'timestamp'  => now()->toDateTimeString(),
                 ]);
             } catch (\Exception $e) {
-                \Log::error('Visitor Logging Failed: ' . $e->getMessage());
+                \Log::error('Visitor Tracking Failed: ' . $e->getMessage());
             }
 
             session()->put('has_viewed_home', true);
@@ -32,15 +32,25 @@ class HomeController extends Controller
         // --- CACHE IMPLEMENTATION (24 HOURS) ---
         $cacheDuration = 60 * 24;
 
-        $settings = \Illuminate\Support\Facades\Cache::remember('site_settings', $cacheDuration, function() use ($firebase) {
+        $settings = $this->getFirebaseData('site_settings', $cacheDuration, function() use ($firebase) {
             return $firebase->getValue('settings') ?? [];
-        });
+        }, []);
 
-        $packages = \Illuminate\Support\Facades\Cache::remember('site_packages', $cacheDuration, function() use ($firebase) {
-            return collect($firebase->getValue('packages') ?? []);
-        });
+        $packages = $this->getFirebaseData('site_packages', $cacheDuration, function() use ($firebase) {
+            $allData = $firebase->getValue('packages') ?? [];
+            return collect($allData)->map(function($item, $key) {
+                if (is_array($item)) {
+                    $item['id'] = $key;
+                    return $item;
+                }
+                return null;
+            })->filter(function($item) {
+                // Pastikan hanya package valid (punya id & name) yang masuk ke cache
+                return !empty($item['id']) && !empty($item['name']);
+            })->values()->all();
+        }, []);
 
-        $testimonials = \Illuminate\Support\Facades\Cache::remember('site_testimonials', $cacheDuration, function() use ($firebase) {
+        $testimonials = $this->getFirebaseData('site_testimonials', $cacheDuration, function() use ($firebase) {
             $data = collect($firebase->getValue('testimonials') ?? [])->filter(function($testi) {
                 return isset($testi['is_published']) && $testi['is_published'] == true;
             });
@@ -49,24 +59,24 @@ class HomeController extends Controller
             return $data->sortByDesc(function($item) {
                 return $item['created_at'] ?? '0000-00-00 00:00:00';
             });
-        });
+        }, collect([]));
 
-        $facilities = \Illuminate\Support\Facades\Cache::remember('site_facilities', $cacheDuration, function() use ($firebase) {
+        $facilities = $this->getFirebaseData('site_facilities', $cacheDuration, function() use ($firebase) {
             return collect($firebase->getValue('facilities') ?? []);
-        });
+        }, collect([]));
 
         // HITUNG JEMAAH DIBERANGKATKAN (REALTIME DARI ARSIP)
-        $registrationsCount = \Illuminate\Support\Facades\Cache::remember('departed_count', 60, function() use ($firebase) {
+        $registrationsCount = $this->getFirebaseData('departed_count', 60, function() use ($firebase) {
             $allReg = collect($firebase->getValue('registrations') ?? []);
             return $allReg->filter(function($reg) {
                 $status = $reg['status'] ?? '';
                 $isArchived = $reg['is_archived'] ?? false;
                 return ($status === 'Selesai' || $status === 'Berangkat') && $isArchived == true;
             })->count();
-        });
+        }, 0);
 
         // HITUNG KEPUASAN JEMAAH (REALTIME DARI TESTIMONI)
-        $satisfactionRate = \Illuminate\Support\Facades\Cache::remember('satisfaction_rate', 60, function() use ($firebase) {
+        $satisfactionRate = $this->getFirebaseData('satisfaction_rate', 60, function() use ($firebase) {
             $allTesti = collect($firebase->getValue('testimonials') ?? []);
             if ($allTesti->isEmpty()) return 100; // Default jika belum ada testimoni
             
@@ -76,20 +86,24 @@ class HomeController extends Controller
             })->count();
             
             return round(($goodReviews / $allTesti->count()) * 100);
-        });
+        }, 100);
         // ---------------------------------------
         
-        $gallery = \Illuminate\Support\Facades\Cache::remember('site_gallery', 5, function() use ($firebase) {
+        $gallery = $this->getFirebaseData('site_gallery', 5, function() use ($firebase) {
             return $firebase->getValue('gallery') ?? [];
-        });
+        }, []);
 
-        $galleryVisibility = \Illuminate\Support\Facades\Cache::remember('site_gallery_visibility', 5, function() use ($firebase) {
+        $galleryVisibility = $this->getFirebaseData('site_gallery_visibility', 5, function() use ($firebase) {
             return $firebase->getValue('gallery_visibility') ?? [];
-        });
+        }, []);
 
         // Load gallery_img_X langsung dari Firebase tanpa cache (realtime)
         $gallerySettings = [];
-        $allSettings = $firebase->getValue('settings') ?? [];
+        try {
+            $allSettings = $firebase->getValue('settings') ?? [];
+        } catch (\Exception $e) {
+            $allSettings = $settings;
+        }
         for ($i = 1; $i <= 50; $i++) {
             $key = 'gallery_img_' . $i;
             if (!empty($allSettings[$key])) $gallerySettings[$key] = $allSettings[$key];
@@ -178,6 +192,7 @@ class HomeController extends Controller
         ]);
 
         \Illuminate\Support\Facades\Cache::forget('site_testimonials');
+        \Illuminate\Support\Facades\Cache::forget('admin_testimonials_list');
         \Illuminate\Support\Facades\Cache::forget('dashboard_stats');
 
         return response()->json([
@@ -219,32 +234,130 @@ class HomeController extends Controller
         $firebase = new FirebaseService();
         $cacheDuration = 60 * 24;
 
-        $settings = \Illuminate\Support\Facades\Cache::remember('site_settings', $cacheDuration, function() use ($firebase) {
+        $settings = $this->getFirebaseData('site_settings', $cacheDuration, function() use ($firebase) {
             return $firebase->getValue('settings') ?? [];
-        });
+        }, []);
 
-        $gallery = \Illuminate\Support\Facades\Cache::remember('site_gallery', 5, function() use ($firebase) {
+        $galleryNode = $this->getFirebaseData('site_gallery', 5, function() use ($firebase) {
             return $firebase->getValue('gallery') ?? [];
-        });
+        }, []);
 
-        $galleryVisibility = \Illuminate\Support\Facades\Cache::remember('site_gallery_visibility', 5, function() use ($firebase) {
+        $galleryVisibility = $this->getFirebaseData('site_gallery_visibility', 5, function() use ($firebase) {
             return $firebase->getValue('gallery_visibility') ?? [];
-        });
+        }, []);
 
-        // Load gallery_img_X langsung dari Firebase tanpa cache (realtime)
-        $gallerySettings = [];
-        $allSettings = $firebase->getValue('settings') ?? [];
-        for ($i = 1; $i <= 50; $i++) {
-            $key = 'gallery_img_' . $i;
-            if (!empty($allSettings[$key])) $gallerySettings[$key] = $allSettings[$key];
-            $vkey = 'gallery_video_' . $i;
-            if (!empty($allSettings[$vkey])) $gallerySettings[$vkey] = $allSettings[$vkey];
-        }
-        if (!empty($gallerySettings)) {
-            $settings = array_merge($settings, $gallerySettings);
+        $localPath = public_path('Gambar perjalanan/Gambar-video');
+        $allMedia = [];
+        $photoCount = 0;
+        $videoCount = 0;
+
+        // 1. Ambil dari Koleksi Dinamis (UNLIMITED)
+        foreach($galleryNode as $id => $item) {
+            $p = $item['url'] ?? '';
+            if(!empty($p)) {
+                if(str_starts_with($p, 'http')) {
+                    $url = $p;
+                } else {
+                    $url = asset(str_starts_with($p, '/') ? $p : '/' . $p);
+                }
+                
+                $type = preg_match('/\.(mp4|webm|ogg)$/i', $url) ? 'video' : 'foto';
+                $isPublished = $item['is_published'] ?? true;
+
+                if ($isPublished) {
+                    $allMedia[] = [
+                        'id' => $id, // ID Unik dari Firebase
+                        'url' => $url, 
+                        'type' => $type, 
+                        'source' => 'dynamic',
+                        'is_published' => true
+                    ];
+                    $type == 'foto' ? $photoCount++ : $videoCount++;
+                }
+            }
         }
 
-        return view('galeri', compact('settings', 'gallery', 'galleryVisibility'));
+        // 2. Fallback: Cari di settings lama
+        for($i = 1; $i <= 50; $i++) {
+            $p = $settings['gallery_img_' . $i] ?? '';
+            if(!empty($p)) {
+                $url = asset(str_starts_with($p, '/') ? $p : '/' . $p);
+                $type = preg_match('/\.(mp4|webm|ogg)$/i', $url) ? 'video' : 'foto';
+                $legacyId = 'gallery_img_' . $i;
+                $isPublished = $galleryVisibility[$legacyId] ?? true;
+                
+                if($isPublished) {
+                    $allMedia[] = [
+                        'id' => $legacyId, 
+                        'url' => $url, 
+                        'type' => $type, 
+                        'source' => 'legacy',
+                        'is_published' => true
+                    ];
+                    $type == 'foto' ? $photoCount++ : $videoCount++;
+                }
+            }
+        }
+
+        // 3. Dari Folder Lokal
+        if (file_exists($localPath)) {
+            $files = scandir($localPath);
+            foreach ($files as $file) {
+                if (preg_match('/\.(jpg|jpeg|png|webp|mp4|webm)$/i', $file)) {
+                    $url = asset('Gambar%20perjalanan/Gambar-video/' . rawurlencode($file));
+                    $type = preg_match('/\.(mp4|webm)$/i', $file) ? 'video' : 'foto';
+                    $allMedia[] = [
+                        'id' => $file,
+                        'url' => $url, 
+                        'type' => $type, 
+                        'is_local' => true, 
+                        'filename' => $file,
+                        'is_published' => true
+                    ];
+                    $type == 'foto' ? $photoCount++ : $videoCount++;
+                }
+            }
+        }
+
+        // Filter duplikat URL
+        $allMedia = collect($allMedia)->unique('url')->values()->all();
+
+        // Hitung ulang setelah filter duplikat
+        $photoCount = 0;
+        $videoCount = 0;
+        foreach ($allMedia as $m) {
+            if ($m['type'] == 'foto') $photoCount++;
+            else $videoCount++;
+        }
+
+        // Urutkan: Yang baru (dynamic) di atas
+        $allMedia = collect($allMedia)->sortBy(function($item) {
+            return isset($item['source']) && $item['source'] == 'dynamic' ? 0 : 1;
+        })->values()->all();
+
+        return view('galeri', compact('settings', 'allMedia', 'photoCount', 'videoCount'));
+    }
+
+    /**
+     * Helper caching yang tahan banting (resilient).
+     * Jika Firebase gagal (misal SSL error / timeout), akan me-return fallback 
+     * TANPA menyimpan state gagal/kosong tersebut ke dalam cache.
+     */
+    protected function getFirebaseData($cacheKey, $ttl, $callback, $fallback = [])
+    {
+        $data = \Illuminate\Support\Facades\Cache::get($cacheKey);
+        if ($data !== null) {
+            return $data;
+        }
+
+        try {
+            $data = $callback();
+            \Illuminate\Support\Facades\Cache::put($cacheKey, $data, $ttl);
+            return $data;
+        } catch (\Exception $e) {
+            \Log::error("Firebase Error for {$cacheKey}: " . $e->getMessage());
+            return is_callable($fallback) ? $fallback() : $fallback;
+        }
     }
 }
 

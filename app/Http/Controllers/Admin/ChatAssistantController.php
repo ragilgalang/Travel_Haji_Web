@@ -17,7 +17,9 @@ class ChatAssistantController extends Controller
 
     public function index(Request $request)
     {
-        $all = $this->firebase->getValue('registrations') ?? [];
+        $all = $this->getFirebaseData('admin_registrations_list', 10, function() {
+            return $this->firebase->getValue('registrations') ?? [];
+        });
         
         $registrations = [];
         foreach ($all as $id => $data) {

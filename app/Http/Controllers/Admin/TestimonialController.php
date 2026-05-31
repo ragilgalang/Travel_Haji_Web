@@ -17,7 +17,9 @@ class TestimonialController extends Controller
 
     public function index(Request $request)
     {
-        $all = $this->firebase->getValue('testimonials') ?? [];
+        $all = $this->getFirebaseData('admin_testimonials_list', 30, function() {
+            return $this->firebase->getValue('testimonials') ?? [];
+        });
         
         $testimonials = collect($all)->map(function($item, $key) {
             return array_merge(['id' => $key], $item);
@@ -64,6 +66,7 @@ class TestimonialController extends Controller
 
         $this->firebase->push('testimonials', $data);
         \Illuminate\Support\Facades\Cache::forget('site_testimonials');
+        \Illuminate\Support\Facades\Cache::forget('admin_testimonials_list');
         \Illuminate\Support\Facades\Cache::forget('dashboard_stats');
         return redirect()->route('admin.testimonials.index')->with('success', 'Testimoni berhasil ditambahkan ke Firebase!');
     }
@@ -72,6 +75,7 @@ class TestimonialController extends Controller
     {
         $this->firebase->deleteValue('testimonials/' . $id);
         \Illuminate\Support\Facades\Cache::forget('site_testimonials');
+        \Illuminate\Support\Facades\Cache::forget('admin_testimonials_list');
         \Illuminate\Support\Facades\Cache::forget('dashboard_stats');
         return back()->with('success', 'Testimoni berhasil dihapus dari Firebase!');
     }
@@ -91,6 +95,7 @@ class TestimonialController extends Controller
         ]);
 
         \Illuminate\Support\Facades\Cache::forget('site_testimonials');
+        \Illuminate\Support\Facades\Cache::forget('admin_testimonials_list');
 
         return response()->json([
             'success' => true, 
@@ -119,6 +124,7 @@ class TestimonialController extends Controller
         }
 
         \Illuminate\Support\Facades\Cache::forget('site_testimonials');
+        \Illuminate\Support\Facades\Cache::forget('admin_testimonials_list');
         if ($action === 'delete') {
             \Illuminate\Support\Facades\Cache::forget('dashboard_stats');
         }
@@ -178,6 +184,7 @@ class TestimonialController extends Controller
             }
 
             \Illuminate\Support\Facades\Cache::forget('site_testimonials');
+            \Illuminate\Support\Facades\Cache::forget('admin_testimonials_list');
             \Illuminate\Support\Facades\Cache::forget('dashboard_stats');
 
             return response()->json([
