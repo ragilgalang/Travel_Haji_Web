@@ -133,6 +133,9 @@ class DeployController extends Controller
             ], 400);
         }
 
+        // Pastikan semua perintah git dijalankan dari root project (bukan folder public)
+        chdir(base_path());
+
         $log = [];
         $hasLocalChanges = false;
         $log[] = "[0/4] Memperbarui remote URL...";
