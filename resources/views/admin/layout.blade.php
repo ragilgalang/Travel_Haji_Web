@@ -614,9 +614,11 @@
 
   @php
     $currentRemoteUrl = '';
-    exec('git remote get-url origin 2>&1', $outputRemote, $returnRemote);
-    if ($returnRemote === 0 && !empty($outputRemote)) {
-        $currentRemoteUrl = trim($outputRemote[0]);
+    if (function_exists('exec')) {
+        @exec('git remote get-url origin 2>&1', $outputRemote, $returnRemote);
+        if (isset($returnRemote) && $returnRemote === 0 && !empty($outputRemote)) {
+            $currentRemoteUrl = trim($outputRemote[0]);
+        }
     }
   @endphp
 
