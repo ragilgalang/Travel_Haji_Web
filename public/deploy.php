@@ -2,22 +2,32 @@
 /**
  * ========================================
  * SCRIPT DEPLOY OTOMATIS - TRAVEL HAJI
+ * Metode: Download ZIP dari GitHub (Tanpa Git)
  * ========================================
- * Upload file ini ke ROOT hosting Anda: /public_html/deploy.php
+ * Upload file ini ke: public_html/deploy.php
  */
 
 // ⚠️ WAJIB SAMA dengan nilai DEPLOY_SECRET di file .env lokal
 $secretToken = 'BebasKetikKatakunciRahasiaDisini123';
 
-// ⚠️ URL Repository GitHub (format HTTPS)
-$repoUrl = 'https://github.com/ragilgalang/Travel_Haji_Web.git';
+// ⚠️ Format: username/nama-repo
+$githubRepo = 'ragilgalang/Travel_Haji_Web';
 
 // ⚠️ Branch yang digunakan
 $branch = 'main';
 
-// --- Validasi Keamanan Token ---
-header('Content-Type: application/json');
+// ⚠️ PAT GitHub (Personal Access Token) - diperlukan jika repo private
+// Isi dengan token Anda, atau kosongkan jika repo public
+$githubPat = '';
 
+// ============================================================
+// JANGAN EDIT DI BAWAH INI
+// ============================================================
+
+header('Content-Type: application/json');
+set_time_limit(300); // Beri waktu 5 menit untuk proses
+
+// --- Validasi Keamanan Token ---
 $incomingToken = $_SERVER['HTTP_X_DEPLOY_TOKEN'] ?? '';
 if (empty($incomingToken)) {
     $incomingToken = $_GET['token'] ?? '';
@@ -32,87 +42,198 @@ if ($incomingToken !== $secretToken) {
     exit;
 }
 
-// --- Tentukan Direktori ---
 $log = [];
-$publicDir = __DIR__; // /public_html
-$repoDir   = dirname($publicDir); // Parent dari public_html (root hosting)
 
-// Cek apakah .git ada di parent (root hosting) atau di public_html
-if (is_dir($repoDir . '/.git')) {
-    $gitDir = $repoDir;
-} elseif (is_dir($publicDir . '/.git')) {
-    $gitDir = $publicDir;
-} else {
-    $gitDir = null;
+// --- Tentukan Direktori Target ---
+$publicDir  = __DIR__; // Lokasi deploy.php berada (public_html)
+$targetDir  = dirname($publicDir); // Root hosting (1 level di atas public_html)
+
+// Fallback: jika tidak ada akses ke parent, deploy ke public_html
+if (!is_writable($targetDir)) {
+    $targetDir = $publicDir;
 }
 
-// --- Jika Belum Ada .git: Setup git ---
-if ($gitDir === null) {
-    $log[] = '[INFO] Repository belum di-setup. Memulai inisialisasi Git...';
-    $repoUrl = 'https://github.com/ragilgalang/Travel_Haji_Web.git';
-    
-    $cmdInit = "cd " . escapeshellarg($repoDir) . " && git init 2>&1";
-    exec($cmdInit, $outInit, $codeInit);
-    $log = array_merge($log, $outInit);
-    
-    $cmdRemote = "cd " . escapeshellarg($repoDir) . " && git remote add origin " . escapeshellarg($repoUrl) . " 2>&1";
-    exec($cmdRemote, $outRemote, $codeRemote);
-    $log = array_merge($log, $outRemote);
-    
-    $cmdFetch = "cd " . escapeshellarg($repoDir) . " && git fetch origin 2>&1";
-    exec($cmdFetch, $outFetch, $codeFetch);
-    $log = array_merge($log, $outFetch);
-    
-    $cmdReset = "cd " . escapeshellarg($repoDir) . " && git reset --hard origin/" . escapeshellarg($branch) . " 2>&1";
-    exec($cmdReset, $outReset, $codeReset);
-    $log = array_merge($log, $outReset);
+$log[] = '[INFO] Target direktori: ' . $targetDir;
 
-    if ($codeReset !== 0) {
+// --- Download ZIP dari GitHub ---
+$zipUrl = "https://api.github.com/repos/{$githubRepo}/zipball/{$branch}";
+$tempZip = sys_get_temp_dir() . '/deploy_' . time() . '.zip';
+
+$log[] = '[INFO] Mengunduh kode terbaru dari GitHub...';
+
+$headers = [
+    'User-Agent: TravelHajiDeploy/1.0',
+    'Accept: application/vnd.github+json',
+];
+
+if (!empty($githubPat)) {
+    $headers[] = 'Authorization: Bearer ' . $githubPat;
+}
+
+$context = stream_context_create([
+    'http' => [
+        'method'          => 'GET',
+        'header'          => implode("\r\n", $headers),
+        'follow_location' => 1,
+        'timeout'         => 120,
+    ],
+    'ssl' => [
+        'verify_peer'      => false,
+        'verify_peer_name' => false,
+    ]
+]);
+
+$zipContent = @file_get_contents($zipUrl, false, $context);
+
+if ($zipContent === false) {
+    // Coba dengan curl sebagai fallback
+    if (function_exists('curl_init')) {
+        $log[] = '[INFO] Mencoba via cURL...';
+        $ch = curl_init($zipUrl);
+        curl_setopt_array($ch, [
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_TIMEOUT        => 120,
+            CURLOPT_SSL_VERIFYPEER => false,
+            CURLOPT_HTTPHEADER     => $headers,
+        ]);
+        $zipContent = curl_exec($ch);
+        $curlError  = curl_error($ch);
+        curl_close($ch);
+
+        if (!$zipContent) {
+            http_response_code(500);
+            echo json_encode([
+                'status'  => 'error',
+                'message' => 'Gagal mengunduh dari GitHub. cURL error: ' . $curlError,
+                'log'     => $log
+            ]);
+            exit;
+        }
+    } else {
         http_response_code(500);
         echo json_encode([
             'status'  => 'error',
-            'message' => 'Gagal melakukan setup git awal di server.',
+            'message' => 'Gagal mengunduh file ZIP dari GitHub. Pastikan server dapat mengakses internet.',
             'log'     => $log
         ]);
         exit;
     }
-    $gitDir = $repoDir;
-    $log[] = '[INFO] Setup awal Git berhasil! Melanjutkan ke tahap pembaruan...';
 }
 
-// --- Jalankan git pull ---
-$log[] = '[INFO] Menjalankan git pull...';
-$pullCmd = "cd " . escapeshellarg($gitDir) . " && git pull origin " . escapeshellarg($branch) . " 2>&1";
-exec($pullCmd, $pullOutput, $pullCode);
-$log = array_merge($log, $pullOutput);
+$log[] = '[INFO] Unduhan selesai. Ukuran: ' . round(strlen($zipContent) / 1024, 1) . ' KB';
 
-if ($pullCode !== 0) {
+// --- Simpan ZIP ke file sementara ---
+if (file_put_contents($tempZip, $zipContent) === false) {
     http_response_code(500);
     echo json_encode([
         'status'  => 'error',
-        'message' => 'Gagal melakukan git pull di server hosting.',
+        'message' => 'Gagal menyimpan file ZIP sementara.',
         'log'     => $log
     ]);
     exit;
 }
 
-// --- Composer install (jika tersedia) ---
-if (file_exists($gitDir . '/composer.json')) {
-    $log[] = '[INFO] Menjalankan composer install...';
-    exec("cd " . escapeshellarg($gitDir) . " && composer install --no-dev --optimize-autoloader 2>&1", $composerOut);
-    $log = array_merge($log, $composerOut);
+$log[] = '[INFO] File ZIP disimpan ke: ' . $tempZip;
+
+// --- Ekstrak ZIP ---
+if (!class_exists('ZipArchive')) {
+    http_response_code(500);
+    echo json_encode([
+        'status'  => 'error',
+        'message' => 'Ekstensi ZipArchive tidak tersedia di server ini.',
+        'log'     => $log
+    ]);
+    exit;
 }
 
-// --- Laravel artisan cache clear (jika tersedia) ---
-if (file_exists($gitDir . '/artisan')) {
-    $log[] = '[INFO] Membersihkan cache Laravel...';
-    exec("cd " . escapeshellarg($gitDir) . " && php artisan config:clear 2>&1", $clearOut);
-    exec("cd " . escapeshellarg($gitDir) . " && php artisan cache:clear 2>&1", $cacheOut);
-    $log = array_merge($log, $clearOut, $cacheOut);
+$zip = new ZipArchive();
+if ($zip->open($tempZip) !== true) {
+    http_response_code(500);
+    echo json_encode([
+        'status'  => 'error',
+        'message' => 'Gagal membuka file ZIP.',
+        'log'     => $log
+    ]);
+    exit;
+}
+
+$log[] = '[INFO] Mengekstrak ' . $zip->numFiles . ' file...';
+
+// GitHub ZIP memiliki satu folder root di dalamnya, kita perlu mengetahuinya
+$rootFolder = '';
+$firstEntry = $zip->getNameIndex(0);
+if ($firstEntry && strpos($firstEntry, '/') !== false) {
+    $rootFolder = substr($firstEntry, 0, strpos($firstEntry, '/') + 1);
+}
+
+$log[] = '[INFO] Folder root di ZIP: ' . ($rootFolder ?: '(tidak ada)');
+
+// Ekstrak satu per satu, skip folder root GitHub
+$successCount = 0;
+$skipFiles    = ['deploy.php', 'clone.php']; // File yang tidak boleh ditimpa
+
+for ($i = 0; $i < $zip->numFiles; $i++) {
+    $entryName = $zip->getNameIndex($i);
+
+    // Hapus prefix folder root GitHub
+    $relativePath = $rootFolder ? substr($entryName, strlen($rootFolder)) : $entryName;
+
+    if (empty($relativePath)) continue;
+
+    // Tentukan path tujuan
+    // File di dalam folder "public" di repo -> masuk ke public_html
+    // File lainnya -> masuk ke root hosting (di atas public_html)
+    if (strpos($relativePath, 'public/') === 0) {
+        $destPath = $publicDir . '/' . substr($relativePath, strlen('public/'));
+    } else {
+        $destPath = $targetDir . '/' . $relativePath;
+    }
+
+    // Jangan timpa file deploy penting
+    $fileName = basename($destPath);
+    if (in_array($fileName, $skipFiles) && file_exists($destPath)) {
+        continue;
+    }
+
+    // Buat folder jika belum ada
+    if (substr($entryName, -1) === '/') {
+        if (!is_dir($destPath)) {
+            @mkdir($destPath, 0755, true);
+        }
+        continue;
+    }
+
+    // Pastikan folder parent ada
+    $parentDir = dirname($destPath);
+    if (!is_dir($parentDir)) {
+        @mkdir($parentDir, 0755, true);
+    }
+
+    // Tulis file
+    $content = $zip->getFromIndex($i);
+    if (file_put_contents($destPath, $content) !== false) {
+        $successCount++;
+    }
+}
+
+$zip->close();
+@unlink($tempZip);
+
+$log[] = '[INFO] Berhasil mengekstrak ' . $successCount . ' file.';
+
+// --- Artisan cache clear jika artisan tersedia ---
+if (file_exists($targetDir . '/artisan')) {
+    $log[] = '[INFO] Menjalankan artisan...';
+    $phpBin = PHP_BINARY ?: 'php';
+    exec($phpBin . ' ' . escapeshellarg($targetDir . '/artisan') . ' config:clear 2>&1', $out1);
+    exec($phpBin . ' ' . escapeshellarg($targetDir . '/artisan') . ' cache:clear 2>&1', $out2);
+    exec($phpBin . ' ' . escapeshellarg($targetDir . '/artisan') . ' view:clear 2>&1', $out3);
+    $log = array_merge($log, $out1, $out2, $out3);
 }
 
 echo json_encode([
     'status'  => 'success',
-    'message' => 'Deploy berhasil! Website sudah diperbarui dari GitHub.',
+    'message' => "Deploy berhasil! {$successCount} file diperbarui dari GitHub.",
     'log'     => $log
 ]);
