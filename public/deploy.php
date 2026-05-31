@@ -46,33 +46,38 @@ if (is_dir($repoDir . '/.git')) {
     $gitDir = null;
 }
 
-// --- Jika Belum Ada .git: Lakukan git clone ---
+// --- Jika Belum Ada .git: Setup git ---
 if ($gitDir === null) {
-    $log[] = '[INFO] Repository belum di-clone. Mencoba git clone...';
-    $cloneCmd = "git clone --branch " . escapeshellarg($branch) . " " . escapeshellarg($repoUrl) . " " . escapeshellarg($repoDir) . " 2>&1";
-    exec($cloneCmd, $cloneOutput, $cloneCode);
-    $log = array_merge($log, $cloneOutput);
+    $log[] = '[INFO] Repository belum di-setup. Memulai inisialisasi Git...';
+    $repoUrl = 'https://github.com/ragilgalang/Travel_Haji_Web.git';
+    
+    $cmdInit = "cd " . escapeshellarg($repoDir) . " && git init 2>&1";
+    exec($cmdInit, $outInit, $codeInit);
+    $log = array_merge($log, $outInit);
+    
+    $cmdRemote = "cd " . escapeshellarg($repoDir) . " && git remote add origin " . escapeshellarg($repoUrl) . " 2>&1";
+    exec($cmdRemote, $outRemote, $codeRemote);
+    $log = array_merge($log, $outRemote);
+    
+    $cmdFetch = "cd " . escapeshellarg($repoDir) . " && git fetch origin 2>&1";
+    exec($cmdFetch, $outFetch, $codeFetch);
+    $log = array_merge($log, $outFetch);
+    
+    $cmdReset = "cd " . escapeshellarg($repoDir) . " && git reset --hard origin/" . escapeshellarg($branch) . " 2>&1";
+    exec($cmdReset, $outReset, $codeReset);
+    $log = array_merge($log, $outReset);
 
-    if ($cloneCode !== 0) {
-        // Coba clone ke public_html jika root gagal
-        $cloneCmd2 = "git clone --branch " . escapeshellarg($branch) . " " . escapeshellarg($repoUrl) . " " . escapeshellarg($publicDir . '/app_repo') . " 2>&1";
-        exec($cloneCmd2, $cloneOutput2, $cloneCode2);
-        $log = array_merge($log, $cloneOutput2);
-
-        if ($cloneCode2 !== 0) {
-            http_response_code(500);
-            echo json_encode([
-                'status'  => 'error',
-                'message' => 'Gagal melakukan git clone. Coba lakukan clone manual via cPanel > Git Version Control.',
-                'log'     => $log
-            ]);
-            exit;
-        }
-        $gitDir = $publicDir . '/app_repo';
-    } else {
-        $gitDir = $repoDir;
+    if ($codeReset !== 0) {
+        http_response_code(500);
+        echo json_encode([
+            'status'  => 'error',
+            'message' => 'Gagal melakukan setup git awal di server.',
+            'log'     => $log
+        ]);
+        exit;
     }
-    $log[] = '[INFO] Clone berhasil! Melanjutkan ke tahap berikutnya...';
+    $gitDir = $repoDir;
+    $log[] = '[INFO] Setup awal Git berhasil! Melanjutkan ke tahap pembaruan...';
 }
 
 // --- Jalankan git pull ---
