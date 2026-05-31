@@ -18,6 +18,38 @@
     animation: slideInDown 0.3s ease;
 }
 
+.btn-bulk {
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.btn-bulk-delete {
+    background: #fee2e2;
+    color: #dc2626;
+    border: 1px solid #fecaca;
+}
+
+.btn-bulk-delete:hover {
+    background: #ef4444;
+    color: #ffffff;
+    border-color: #ef4444;
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+}
+
+#selectedCountPackages {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #475569;
+}
+
 @keyframes slideInDown {
     from { transform: translateY(-10px); opacity: 0; }
     to { transform: translateY(0); opacity: 1; }
