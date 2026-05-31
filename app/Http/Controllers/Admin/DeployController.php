@@ -182,6 +182,25 @@ class DeployController extends Controller
             $log[] = "\n[1/4] Menemukan perubahan lokal:";
             $log = array_merge($log, $statusOutput);
 
+            // --- AUTO GENERATE CHANGELOG ---
+            $changelogPath = storage_path('app/changelog.txt');
+            $existingChangelog = file_exists($changelogPath) ? file_get_contents($changelogPath) : "";
+            
+            $bulan = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+            $tanggalIndo = date('j') . ' ' . $bulan[date('n') - 1] . ' ' . date('Y');
+            
+            $newChangelogEntry = $tanggalIndo . "\n";
+            $newChangelogEntry .= "--------------------------------------------------\n";
+            $newChangelogEntry .= "Pembaruan otomatis sistem (Auto-Deploy)\n\n";
+            $newChangelogEntry .= "File yang diperbarui:\n";
+            foreach ($statusOutput as $statusLine) {
+                $newChangelogEntry .= "- " . trim($statusLine) . "\n";
+            }
+            $newChangelogEntry .= "\n";
+            
+            file_put_contents($changelogPath, $newChangelogEntry . $existingChangelog);
+            // --------------------------------
+
             $log[] = "\n[2/4] Menambahkan file yang diubah (git add .)...";
             exec('git add . 2>&1', $outAdd, $retAdd);
             $log = array_merge($log, $outAdd);
@@ -191,8 +210,8 @@ class DeployController extends Controller
             }
 
             $log[] = "\nMelakukan commit perubahan...";
-            $date = date('d-m-Y H:i:s');
-            $commitMsg = "Auto-update from Admin Dashboard: " . $date;
+            $dateStr = date('d-m-Y H:i:s');
+            $commitMsg = "Auto-update from Admin Dashboard: " . $dateStr;
             exec('git commit -m "' . $commitMsg . '" 2>&1', $outCommit, $retCommit);
             $log = array_merge($log, $outCommit);
         }
