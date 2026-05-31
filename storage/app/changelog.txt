@@ -1,0 +1,35 @@
+31 Mei 2026
+--------------------
+- perbaikan bug pada bagian admin.
+
+31 Mei 2026
+--------------------
+- perbaikan bug pada bagian admin.
+
+27 Mei 2026
+--------------------
+- Menghapus Fitur Delete Pada Halaman Pendaftaran Jemaah. 
+- Menghapus Fitur DElete pada Arsip. 
+- Penambahan Fitur Kotak History Hapus saat pendaftaran Jemaah dihapus atau ditolak,dibatalkan tidak akan langsung terhapus permanen dan akan masuk ke kotak History hapus. Akan terhapus otomatis pada 7hari. 
+- Penambahan Fitur Scan pada Cek Pendaftran dan ulasan
+- Perbaikan Fitur Cek Pendaftaran Barcode. 
+- Menambahkan NIK pada Cek Pendaftaran agar memudahkan jemaah melihat status jika lupa No.Ref 
+- Pernyesuaain Halaman Login (Jika salah lebih dari 2kali akan terkena Penalty 2menit dan Jika diteruskan akun akan terhapus secara Otomatis) 
+- Memindahkan fitur ulasan untuk Jemaah didekat  Kata Jemaah Kami 
+- Perbaikan dan penambahan pada fitur tambah paket di halaman Kelola paket 
+  - Perbaikan
+  - Desain Tambah Paket 
+  - Penambahan 
+  - Rute Penerbangan 
+  - Tanggal & Waktu
+  - Status Jadwal
+
+22 Mei 2026
+---------------------
+- Perbaikan pada Sistem edit Landing Page (halaman depan)
+- perbaikan Bug
+- Perbaikan Pada perangkat Mobile
+https://www.mediafire.com/file/ob6zjcrjwoui5iv/PT.UMB.apk/file
+- Merubah Tulisan ( Visual Editor Menjadi --> pengaturan web) 
+- Merubah Desain ( Visual Editor )
+- Menghapus Filter Status Pada Arsip
