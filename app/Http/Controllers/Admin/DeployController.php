@@ -54,7 +54,9 @@ class DeployController extends Controller
                     'X-Deploy-Token' => $secretToken,
                     'Accept' => 'application/json'
                 ])
-                ->get($targetUrl);
+                ->get($targetUrl, [
+                    'token' => $secretToken
+                ]);
 
             if ($response->successful()) {
                 return response()->json([
