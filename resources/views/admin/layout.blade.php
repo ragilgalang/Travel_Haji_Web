@@ -11,6 +11,7 @@
     href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=DM+Sans:wght@300;400;500;600;700&display=swap"
     rel="stylesheet">
   <link rel="stylesheet" href="{{ asset('css/admin-tampilan.css') }}">
+  <link rel="stylesheet" href="{{ asset('css/admin-responsive-global.css') }}">
   <style>
     /* Animasi Global */
     @keyframes fadeInUp {
@@ -56,40 +57,9 @@
       padding-right: 4px !important;
     }
 
-    /* --- RESPONSIVE OPTIMIZATIONS --- */
-    @media (max-width: 991px) {
-      .sidebar {
-        transform: translateX(-100%);
-        position: fixed !important;
-        width: 280px !important;
-      }
-
-      .sidebar.active {
-        transform: translateX(0);
-        box-shadow: 20px 0 50px rgba(0, 0, 0, 0.3);
-      }
-
-      .main {
-        margin-left: 0 !important;
-        width: 100% !important;
-      }
-
-      .topbar {
-        padding: 0 15px !important;
-      }
-
-      .topbar-left h1 {
-        font-size: 1.1rem !important;
-      }
-
-      .topbar-date {
-        display: none !important;
-      }
-
-      .breadcrumb {
-        display: none !important;
-      }
-    }
+    /* --- RESPONSIVE OPTIMIZATIONS --- 
+       Handled by admin-responsive-global.css 
+    */
 
     .sidebar-overlay {
       position: fixed;
@@ -118,13 +88,7 @@
       color: #1e293b;
     }
 
-    @media (max-width: 991px) {
-      .mobile-toggle {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      }
-    }
+    /* Mobile toggle display handled in admin-responsive-global.css */
 
     /* Scrollbar for Sidebar */
     .nav-section::-webkit-scrollbar {
@@ -929,7 +893,7 @@
 
     // Auto close sidebar on resize if large screen
     window.addEventListener('resize', () => {
-      if (window.innerWidth > 991 && sidebar.classList.contains('active')) {
+      if (window.innerWidth > 1023 && sidebar.classList.contains('active')) {
         sidebar.classList.remove('active');
         overlay.classList.remove('active');
         document.body.style.overflow = '';

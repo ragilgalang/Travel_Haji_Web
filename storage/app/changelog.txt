@@ -1,6 +1,12 @@
-31 Mei 2026
---------------------
-- perbaikan bug pada bagian admin.
+3 Juni 2026
+--------------------------------------------------
+Pembaruan otomatis sistem (Auto-Deploy)
+
+File yang diperbarui:
+- M public/css/admin-responsive-global.css
+- M resources/views/admin/layout.blade.php
+- M storage/app/changelog.txt
+- ?? ERD.md
 
 31 Mei 2026
 --------------------

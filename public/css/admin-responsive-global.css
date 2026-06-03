@@ -1,194 +1,879 @@
-/* 
-   ADMIN RESPONSIVE GLOBAL
-   Penyempurnaan tampilan mobile untuk seluruh dashboard admin.
-*/
+/* =======================================================
+   ADMIN RESPONSIVE GLOBAL — Sistem Responsif Lengkap
+   Breakpoints:
+     ≥1280px  → Desktop/Laptop Besar   (default)
+     1024px   → Laptop Kecil
+     768px    → Tablet
+     480px    → HP Besar
+     360px    → HP Kecil
+   ======================================================= */
 
-@media (max-width: 768px) {
-/* ==========================================
-   [TANDA: RESET KONTAINER UTAMA DI MOBILE (DI BAWAH 768PX)]
-   Mengatur padding kontainer global & sidebar overlay agar responsif
-========================================== */
-    /* 1. Reset Global Container */
-    .container-fluid, .content-wrapper, .content {
-        padding: 15px !important;
-        width: 100% !important;
-    }
+/* ======================================================
+   [1] LAPTOP KECIL: max-width 1200px
+   Kurangi padding & sidebar lebih ringkas
+   ====================================================== */
+@media (max-width: 1200px) {
+  :root {
+    --sidebar-w: 220px;
+  }
 
-    /* sidebar mobile fix */
-    .sidebar {
-        position: fixed !important;
-        left: -280px !important;
-        top: 0;
-        bottom: 0;
-        width: 280px !important;
-        z-index: 10000 !important;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-        box-shadow: 20px 0 50px rgba(0,0,0,0.1) !important;
-    }
+  .content {
+    padding: 24px !important;
+  }
 
-    .sidebar.open {
-        left: 0 !important;
-    }
+  .topbar {
+    padding: 0 24px !important;
+  }
 
-    .main {
-        margin-left: 0 !important;
-        width: 100% !important;
-        min-height: 100vh;
-    }
+  /* Stats grid tetap 4 kolom tapi lebih rapat */
+  .stats-grid {
+    gap: 14px !important;
+  }
 
-    .sidebar-overlay {
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: rgba(15, 23, 42, 0.5);
-        backdrop-filter: blur(4px);
-        z-index: 9999;
-        display: none;
-        opacity: 0;
-        transition: opacity 0.3s ease;
-    }
+  .stat-card {
+    padding: 18px 18px !important;
+  }
 
-    .sidebar-overlay.active {
-        display: block;
-        opacity: 1;
-    }
+  .stat-number {
+    font-size: 36px !important;
+  }
 
-    .topbar {
-        left: 0 !important;
-        width: 100% !important;
-        padding: 0 15px !important;
-    }
+  /* Bottom grid */
+  .bottom-grid {
+    grid-template-columns: 1fr 300px !important;
+    gap: 16px !important;
+  }
 
-    .topbar-left h1 {
-        font-size: 1.1rem !important;
-    }
+  /* Welcome banner */
+  .welcome-banner {
+    padding: 26px 28px !important;
+  }
 
-    .breadcrumb {
-        display: none !important; /* Sembunyikan breadcrumb di mobile agar lega */
-    }
-
-    .topbar-right .topbar-date {
-        display: none !important;
-    }
-
-/* ==========================================
-   [TANDA: OPTIMASI TABEL RESPONSIF]
-   Memaksa scroll horizontal agar tabel lebar muat di layar HP tanpa rusak
-========================================== */
-    /* 2. Global Table Optimization */
-    .table-responsive, .table-wrapper {
-        overflow-x: auto !important;
-        -webkit-overflow-scrolling: touch;
-        margin: 0 -15px 1.5rem -15px !important;
-        padding: 0 15px !important;
-        width: calc(100% + 30px) !important;
-    }
-
-    table {
-        min-width: 850px !important; /* Memaksa scroll yang cukup luas agar nyaman */
-        border-spacing: 0;
-    }
-
-    table th, table td {
-        padding: 12px 10px !important; /* Padding lebih kecil di mobile */
-        font-size: 0.85rem !important;
-    }
-
-    /* 3. Header & Action Bars */
-    .card-header, .header-section {
-        flex-direction: column !important;
-        gap: 12px !important;
-        align-items: stretch !important;
-    }
-
-    .btn-add, .btn-primary, .btn-action, .btn-submit, .btn-search {
-        width: 100% !important;
-        justify-content: center !important;
-        display: flex !important;
-        margin-top: 5px;
-    }
-
-/* ==========================================
-   [TANDA: PENATAAN FILTER & BAR AKSI DI MOBILE]
-   Menjadikan tombol tambah data, input pencarian, & filter menjadi lebar penuh (100%)
-========================================== */
-    /* Search & Filter Boxes */
-    .search-box, .filter-group, .input-group, .form-control {
-        width: 100% !important;
-        max-width: none !important;
-    }
-
-    .search-filter-section, .filter-row, .action-bar {
-        flex-direction: column !important;
-        gap: 15px !important;
-    }
-
-    /* 4. Grid & Layouts */
-    .grid-2, .grid-3, .grid-4, .form-grid {
-        grid-template-columns: 1fr !important;
-        gap: 15px !important;
-    }
-
-    /* 5. Statistik Cards (Dashboard) */
-    .stats-grid {
-        grid-template-columns: 1fr !important;
-    }
-
-    /* 6. Sidebar Mobile Fix (Jika ada) */
-    .admin-sidebar {
-        z-index: 9999;
-    }
-
-    /* 7. Modal Full Width Mobile */
-    .modal-dialog {
-        margin: 10px !important;
-        max-width: none !important;
-    }
-
-    .modal-content {
-        border-radius: 15px !important;
-    }
-
-    /* 8. Pagination */
-    .pagination-wrapper {
-        flex-direction: column;
-        gap: 10px;
-        align-items: center;
-    }
-
-    .topbar-right .user-profile-wrapper {
-        padding: 4px 10px !important;
-        gap: 6px !important;
-    }
-
-    .topbar-right .user-profile-wrapper .text-right {
-        display: none !important; /* Sembunyikan nama teks, cukup avatar di mobile */
-    }
-
-    /* 9. Utility classes for hiding/showing */
-    .hide-mobile {
-        display: none !important;
-    }
-
-    /* Footer Mobile */
-    .admin-footer {
-        flex-direction: column !important;
-        gap: 10px !important;
-        text-align: center !important;
-        padding: 20px !important;
-    }
+  .welcome-text h2 {
+    font-size: 24px !important;
+  }
 }
 
-/* Extra small devices */
+/* ======================================================
+   [2] TABLET: max-width 1023px
+   Sidebar menjadi drawer, layout utama berubah
+   ====================================================== */
+@media (max-width: 1023px) {
+
+  /* --- Sidebar jadi Drawer (Slide-in) --- */
+  .sidebar {
+    position: fixed !important;
+    left: 0 !important;
+    top: 0 !important;
+    bottom: 0 !important;
+    width: 280px !important;
+    transform: translateX(-100%) !important;
+    z-index: 10001 !important;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    box-shadow: none !important;
+  }
+
+  .sidebar.active {
+    transform: translateX(0) !important;
+    box-shadow: 10px 0 40px rgba(0, 0, 0, 0.4) !important;
+  }
+
+  /* Main area penuhi layar */
+  .main {
+    margin-left: 0 !important;
+    width: 100% !important;
+    min-height: 100vh;
+  }
+
+  /* Tombol hamburger tampil */
+  .mobile-toggle {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+
+  /* Topbar */
+  .topbar {
+    padding: 0 20px !important;
+    left: 0 !important;
+    width: 100% !important;
+  }
+
+  .topbar-left h1 {
+    font-size: 1.15rem !important;
+  }
+
+  .breadcrumb {
+    display: none !important;
+  }
+
+  .topbar-date {
+    display: none !important;
+  }
+
+  /* Content padding */
+  .content {
+    padding: 20px !important;
+  }
+
+  /* ── Welcome Banner: Stack vertikal ── */
+  .welcome-banner {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    padding: 24px !important;
+    gap: 20px !important;
+  }
+
+  .welcome-text h2 {
+    font-size: 22px !important;
+  }
+
+  .welcome-text p {
+    font-size: 13px !important;
+    max-width: 100% !important;
+  }
+
+  .welcome-actions {
+    align-items: stretch !important;
+    width: 100% !important;
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 10px !important;
+  }
+
+  .welcome-actions .action-btn {
+    justify-content: center !important;
+    text-align: center !important;
+    width: 100% !important;
+    padding: 10px 16px !important;
+    font-size: 13px !important;
+  }
+
+  .welcome-actions form.d-block {
+    grid-column: 1 / -1 !important;
+    width: 100% !important;
+    margin-top: 0 !important;
+  }
+
+  /* ── Stats Grid: 2x2 di tablet ── */
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 14px !important;
+  }
+
+  .stat-card {
+    padding: 18px 20px !important;
+  }
+
+  .stat-number {
+    font-size: 34px !important;
+  }
+
+  /* ── Bottom Grid: 1 kolom di tablet ── */
+  .bottom-grid {
+    grid-template-columns: 1fr !important;
+    gap: 16px !important;
+  }
+
+  .dashboard-bottom-right {
+    gap: 16px !important;
+  }
+
+  /* ── Package row di tabel paket ── */
+  .pkg-row {
+    grid-template-columns: auto 1fr auto !important;
+    padding: 14px 18px !important;
+  }
+
+  /* Sembunyikan kolom harga di pkg-row (opsional, tapi lebih rapi) */
+  .pkg-price {
+    display: none !important;
+  }
+
+  /* ── Table horizontal scroll ── */
+  .table-responsive,
+  .table-wrapper {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* ── Info bar ── */
+  .info-bar {
+    flex-wrap: wrap !important;
+    gap: 10px !important;
+  }
+
+  /* ── Admin Footer ── */
+  .admin-footer {
+    flex-direction: column !important;
+    gap: 6px !important;
+    text-align: center !important;
+    padding: 16px !important;
+  }
+}
+
+/* ======================================================
+   [3] HP BESAR: max-width 767px
+   Layout 1 kolom penuh, font lebih kecil
+   ====================================================== */
+@media (max-width: 767px) {
+
+  /* Content */
+  .content {
+    padding: 14px !important;
+  }
+
+  /* Topbar */
+  .topbar {
+    padding: 0 14px !important;
+    height: 60px !important;
+  }
+
+  .topbar-left h1 {
+    font-size: 1rem !important;
+  }
+
+  /* Sembunyikan teks nama user di topbar, cukup avatar */
+  .topbar-right .text-right {
+    display: none !important;
+  }
+
+  /* Topbar action buttons (GitHub/Deploy) text hilang, cukup ikon */
+  .topbar-right a[onclick*="githubUploadModal"],
+  .topbar-right a[onclick*="deployModal"] {
+    display: none !important;
+  }
+
+  /* ── Welcome Banner ── */
+  .welcome-banner {
+    padding: 18px !important;
+    gap: 16px !important;
+    border-radius: 14px !important;
+    margin-bottom: 16px !important;
+  }
+
+  .welcome-text .greeting-tag {
+    font-size: 10px !important;
+    padding: 4px 10px !important;
+  }
+
+  .welcome-text h2 {
+    font-size: 20px !important;
+    margin-bottom: 8px !important;
+  }
+
+  .welcome-text p {
+    font-size: 12px !important;
+    line-height: 1.6 !important;
+  }
+
+  .welcome-actions {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 8px !important;
+  }
+
+  .welcome-actions .action-btn {
+    padding: 9px 12px !important;
+    font-size: 12px !important;
+    gap: 6px !important;
+  }
+
+  .welcome-actions .action-btn svg {
+    width: 14px !important;
+    height: 14px !important;
+  }
+
+  /* ── Stats Grid: 2x2 tetap, tapi lebih kecil ── */
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 10px !important;
+    margin-bottom: 16px !important;
+  }
+
+  .stat-card {
+    padding: 14px 14px !important;
+    border-radius: 14px !important;
+  }
+
+  .stat-card-top {
+    margin-bottom: 12px !important;
+  }
+
+  .stat-icon {
+    width: 38px !important;
+    height: 38px !important;
+    border-radius: 10px !important;
+  }
+
+  .stat-icon svg {
+    width: 20px !important;
+    height: 20px !important;
+  }
+
+  .stat-trend {
+    font-size: 10px !important;
+    padding: 3px 8px !important;
+  }
+
+  .stat-number {
+    font-size: 28px !important;
+    margin-bottom: 4px !important;
+    letter-spacing: -0.5px !important;
+  }
+
+  .stat-label {
+    font-size: 11.5px !important;
+  }
+
+  /* Sembunyikan sub-label & mini-bars di HP untuk hemat ruang */
+  .stat-sub {
+    display: none !important;
+  }
+
+  .mini-bars,
+  .mini-bar-red-wrapper {
+    display: none !important;
+  }
+
+  /* ── Bottom Grid: 1 kolom ── */
+  .bottom-grid {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+
+  .dashboard-bottom-right {
+    gap: 12px !important;
+  }
+
+  /* ── Cards ── */
+  .card {
+    border-radius: 14px !important;
+  }
+
+  .card-header {
+    padding: 14px 16px 12px !important;
+  }
+
+  .card-title {
+    font-size: 15px !important;
+  }
+
+  /* ── Pkg Row ── */
+  .pkg-row {
+    grid-template-columns: auto 1fr auto !important;
+    gap: 10px !important;
+    padding: 12px 16px !important;
+  }
+
+  .pkg-icon {
+    width: 34px !important;
+    height: 34px !important;
+    border-radius: 10px !important;
+  }
+
+  .pkg-info .pkg-name {
+    font-size: 13px !important;
+  }
+
+  .pkg-info .pkg-detail {
+    font-size: 11px !important;
+  }
+
+  .pkg-price {
+    display: none !important;
+  }
+
+  .pkg-status {
+    font-size: 10px !important;
+    padding: 3px 8px !important;
+  }
+
+  /* ── Visitor Row ── */
+  .visitor-row {
+    grid-template-columns: auto 1fr auto !important;
+    gap: 10px !important;
+    padding: 12px 14px !important;
+  }
+
+  .visitor-ip {
+    font-size: 12px !important;
+  }
+
+  .visitor-meta {
+    font-size: 10px !important;
+  }
+
+  .visitor-time {
+    font-size: 11px !important;
+    padding: 2px 6px !important;
+  }
+
+  /* ── Quick Actions ── */
+  .quick-actions {
+    padding: 14px 14px 8px !important;
+    gap: 8px !important;
+  }
+
+  .quick-btn {
+    padding: 12px 14px !important;
+    gap: 12px !important;
+    border-radius: 12px !important;
+  }
+
+  .quick-btn-icon {
+    width: 34px !important;
+    height: 34px !important;
+  }
+
+  .quick-btn-text .qb-title {
+    font-size: 13px !important;
+  }
+
+  .quick-btn-text .qb-sub {
+    font-size: 11px !important;
+  }
+
+  /* ── Info bar ── */
+  .info-bar {
+    padding: 12px 14px !important;
+    border-radius: 12px !important;
+    margin-top: 16px !important;
+  }
+
+  .info-bar p {
+    font-size: 12px !important;
+  }
+
+  /* ── Tables (halaman lain) ── */
+  .table-responsive,
+  .table-wrapper {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+    margin: 0 -14px 1.5rem -14px !important;
+    padding: 0 14px !important;
+    width: calc(100% + 28px) !important;
+  }
+
+  table th,
+  table td {
+    padding: 10px 12px !important;
+    font-size: 13px !important;
+  }
+
+  /* ── Card headers di halaman lain ── */
+  .card-header,
+  .header-section {
+    flex-direction: column !important;
+    gap: 10px !important;
+    align-items: stretch !important;
+  }
+
+  /* ── Form/Filter bars ── */
+  .search-filter-section,
+  .filter-row,
+  .action-bar {
+    flex-direction: column !important;
+    gap: 10px !important;
+  }
+
+  .search-box,
+  .filter-group,
+  .input-group,
+  .form-control {
+    width: 100% !important;
+    max-width: none !important;
+  }
+
+  .btn-add,
+  .btn-primary,
+  .btn-action,
+  .btn-submit {
+    width: 100% !important;
+    justify-content: center !important;
+  }
+
+  /* ── Grid layouts di halaman lain ── */
+  .grid-2,
+  .grid-3,
+  .grid-4,
+  .form-grid {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+
+  /* ── Alert ── */
+  .alert-success-modern,
+  .alert-danger-modern {
+    font-size: 13px !important;
+    padding: 10px 14px !important;
+  }
+
+  /* ── Admin Footer ── */
+  .admin-footer {
+    flex-direction: column !important;
+    gap: 6px !important;
+    text-align: center !important;
+    padding: 14px !important;
+    font-size: 11px !important;
+  }
+
+  /* ── Modal ── */
+  .modal-dialog {
+    margin: 10px !important;
+    max-width: none !important;
+  }
+
+  .modal-content {
+    border-radius: 16px !important;
+  }
+
+  /* ── Pagination ── */
+  .pagination-wrapper {
+    flex-direction: column;
+    gap: 10px;
+    align-items: center;
+  }
+
+  /* ── User profile wrapper ── */
+  .topbar-right .user-profile-wrapper {
+    padding: 4px 8px 4px 12px !important;
+    gap: 8px !important;
+  }
+
+  /* ── Utility ── */
+  .hide-mobile {
+    display: none !important;
+  }
+}
+
+/* ======================================================
+   [4] HP KECIL: max-width 480px
+   Optimasi ekstra untuk layar sangat kecil
+   ====================================================== */
 @media (max-width: 480px) {
-    .btn-text-hide-sm {
-        display: none;
-    }
-    
-    .table-responsive th, .table-responsive td {
-        padding: 8px 10px !important;
-        font-size: 0.8rem !important;
-    }
+
+  /* Content padding minimal */
+  .content {
+    padding: 10px !important;
+  }
+
+  /* Topbar */
+  .topbar {
+    padding: 0 10px !important;
+    height: 56px !important;
+  }
+
+  /* Welcome Banner lebih compact */
+  .welcome-banner {
+    padding: 14px !important;
+    gap: 14px !important;
+    border-radius: 12px !important;
+    margin-bottom: 12px !important;
+  }
+
+  .welcome-text .greeting-tag {
+    font-size: 9px !important;
+    letter-spacing: 0.8px !important;
+  }
+
+  .welcome-text h2 {
+    font-size: 18px !important;
+  }
+
+  .welcome-actions {
+    grid-template-columns: 1fr !important;
+    gap: 8px !important;
+  }
+
+  .welcome-actions .action-btn {
+    padding: 10px 14px !important;
+    font-size: 12px !important;
+  }
+
+  /* Stats: 2x2 tapi lebih compact */
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 8px !important;
+    margin-bottom: 12px !important;
+  }
+
+  .stat-card {
+    padding: 12px !important;
+    border-radius: 12px !important;
+  }
+
+  .stat-icon {
+    width: 32px !important;
+    height: 32px !important;
+    border-radius: 8px !important;
+  }
+
+  .stat-icon svg {
+    width: 16px !important;
+    height: 16px !important;
+  }
+
+  .stat-trend {
+    font-size: 9px !important;
+    padding: 2px 6px !important;
+    display: none !important;
+  }
+
+  .stat-number {
+    font-size: 24px !important;
+    letter-spacing: -0.3px !important;
+  }
+
+  .stat-label {
+    font-size: 10.5px !important;
+  }
+
+  /* Bottom Grid */
+  .bottom-grid {
+    gap: 10px !important;
+  }
+
+  .card-header {
+    padding: 12px 14px 10px !important;
+  }
+
+  .card-title {
+    font-size: 14px !important;
+  }
+
+  /* Package row */
+  .pkg-row {
+    grid-template-columns: auto 1fr auto !important;
+    gap: 8px !important;
+    padding: 10px 12px !important;
+  }
+
+  .pkg-icon {
+    width: 30px !important;
+    height: 30px !important;
+    border-radius: 8px !important;
+  }
+
+  .pkg-info .pkg-name {
+    font-size: 12px !important;
+  }
+
+  /* Visitor row */
+  .visitor-row {
+    padding: 10px 12px !important;
+    gap: 8px !important;
+  }
+
+  /* Quick actions */
+  .quick-btn {
+    padding: 10px 12px !important;
+    gap: 10px !important;
+    border-radius: 10px !important;
+  }
+
+  .quick-btn-icon {
+    width: 30px !important;
+    height: 30px !important;
+    border-radius: 8px !important;
+  }
+
+  .quick-btn-text .qb-title {
+    font-size: 12px !important;
+  }
+
+  .quick-btn-text .qb-sub {
+    font-size: 10px !important;
+  }
+
+  /* Tables */
+  table th,
+  table td {
+    padding: 8px 10px !important;
+    font-size: 12px !important;
+  }
+
+  /* Admin footer */
+  .admin-footer {
+    padding: 12px !important;
+    font-size: 10px !important;
+  }
+}
+
+/* ======================================================
+   [5] TOPBAR: Perbaikan tombol di semua ukuran mobile
+   Sembunyikan elemen non-esensial di topbar kecil
+   ====================================================== */
+@media (max-width: 1023px) {
+  /* Hanya tampilkan Update button, sembunyikan Deploy/GitHub */
+  .topbar-right > a[onclick*="githubUploadModal"],
+  .topbar-right > a[onclick*="deployModal"] {
+    display: none !important;
+  }
+}
+
+@media (max-width: 767px) {
+  /* Topbar: kurangi gap antar elemen */
+  .topbar-right {
+    gap: 6px !important;
+  }
+
+  /* Tombol notif lebih kecil */
+  .topbar-btn {
+    width: 34px !important;
+    height: 34px !important;
+  }
+
+  /* Changelog update button teks saja tanpa ikon kecuali punya space */
+  .topbar-right > a[onclick*="changelogModal"] {
+    padding: 5px 10px !important;
+    font-size: 11px !important;
+    gap: 4px !important;
+    border-radius: 7px !important;
+  }
+}
+
+/* ======================================================
+   [6] SIDEBAR OVERLAY & BODY LOCK
+   Overlay backdrop saat sidebar terbuka di mobile
+   ====================================================== */
+.sidebar-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+  z-index: 10000;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.sidebar-overlay.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* ======================================================
+   [7] HALAMAN PENDAFTARAN (registrations)
+   ====================================================== */
+@media (max-width: 767px) {
+  /* Filter bar pendaftaran */
+  .filter-bar,
+  .registrations-filter {
+    flex-direction: column !important;
+    gap: 10px !important;
+  }
+
+  /* Detail jemaah */
+  .reg-detail-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Status badge */
+  .status-badge {
+    font-size: 11px !important;
+    padding: 4px 8px !important;
+  }
+}
+
+/* ======================================================
+   [8] HALAMAN PAKET (packages)
+   ====================================================== */
+@media (max-width: 767px) {
+  .package-grid,
+  .packages-grid {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+
+  .package-card {
+    padding: 16px !important;
+  }
+}
+
+/* ======================================================
+   [9] HALAMAN PENGATURAN (settings)
+   ====================================================== */
+@media (max-width: 767px) {
+  .settings-grid,
+  .settings-layout {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+
+  .settings-sidebar {
+    position: static !important;
+  }
+}
+
+/* ======================================================
+   [10] HALAMAN KEUANGAN (finance)
+   ====================================================== */
+@media (max-width: 767px) {
+  .finance-stats {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 10px !important;
+  }
+
+  .finance-chart {
+    overflow-x: auto !important;
+  }
+}
+
+/* ======================================================
+   [11] HALAMAN AUDIT LOG
+   ====================================================== */
+@media (max-width: 767px) {
+  .audit-log-entry {
+    flex-direction: column !important;
+    gap: 8px !important;
+  }
+
+  .log-meta {
+    flex-wrap: wrap !important;
+  }
+}
+
+/* ======================================================
+   [12] MODAL FULL-SCREEN di HP
+   ====================================================== */
+@media (max-width: 767px) {
+  /* Modal dalam layout admin yang muncul di HP */
+  [id$="Modal"] > div:last-child {
+    width: calc(100vw - 20px) !important;
+    max-width: 100% !important;
+    border-radius: 16px !important;
+    max-height: 90vh !important;
+    overflow-y: auto !important;
+  }
+
+  /* Modal changelog */
+  #changelogModal > div {
+    width: calc(100vw - 24px) !important;
+    max-height: 85vh !important;
+    border-radius: 16px !important;
+  }
+}
+
+/* ======================================================
+   [13] UTILITY CLASSES
+   ====================================================== */
+.hide-mobile   { }  /* override di breakpoint masing-masing */
+.hide-tablet   { }
+.show-mobile   { display: none; }
+
+@media (max-width: 767px) {
+  .show-mobile   { display: block !important; }
+  .hide-mobile   { display: none !important; }
+}
+
+@media (max-width: 1023px) {
+  .hide-tablet { display: none !important; }
+}
+
+/* Prevent horizontal scroll pada body */
+@media (max-width: 767px) {
+  body.admin-body {
+    overflow-x: hidden;
+  }
 }
